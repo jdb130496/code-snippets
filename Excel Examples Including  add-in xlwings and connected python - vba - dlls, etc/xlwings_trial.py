@@ -31,7 +31,7 @@ ffi.cdef("""
 
 
 # Load the DLL
-C = ffi.dlopen('D:\\Onedrive Backup\\15_digits_rand_intel.dll')
+C = ffi.dlopen('D:\\OneDrive - 0yt2k\\Excel Examples Including  add-in xlwings and connected python - vba - dlls, etc\\15_digits_rand_intel.dll')
 
 @xw.func
 @xw.arg('Lst', ndim=2)
