@@ -1,0 +1,11 @@
+let
+    Source = Csv.Document(File.Contents("M:\03065 - Leason Pomeroy III Architecture, Inc\2022\audit_log.CSV"),[Delimiter=",", Columns=11, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+    #"Added Custom" = Table.AddColumn(#"Promoted Headers", "Tr_Type", each if ([Num]<>"" and [#"Entered/Last Modified"]="") then [Num] else null),
+    #"Reordered Columns" = Table.ReorderColumns(#"Added Custom",{"Num", "Tr_Type", "Entered/Last Modified", "Last modified by", "State", "Date", "Name", "Memo", "Account", "Split", "Debit", "Credit"}),
+    #"null replacement" = Table.TransformColumns(#"Reordered Columns",{{"Num", each if _="" then null else _},{"Entered/Last Modified", each if _="" then null else _},{"State", each if _="" then null else _},{"Date", each if _="" then null else _}}),
+    #"Filled Down" = Table.FillDown(#"null replacement",{"Num", "Tr_Type", "Entered/Last Modified", "State", "Date"}),
+    #"Changed Type" = Table.TransformColumnTypes(#"Filled Down",{{"Entered/Last Modified", type datetime}, {"Date", type date}, {"Debit", type number}, {"Credit", type number}}),
+    #"select non-zero amounts" = Table.SelectRows(#"Changed Type", each not (([Debit] is null or [Debit]=0) and ([Credit] is null or [Credit]=0)))
+in
+   #"select non-zero amounts"

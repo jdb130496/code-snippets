@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Find Duplicates in Excel</title>
+    <style>
+        #inputs {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        #inputs > * {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Find Duplicates in Excel</h1>
+    <div id="inputs">
+        <label for="fileInput">Select File:</label>
+        <input type="file" id="fileInput" accept=".xlsx" onchange="loadSheets()" />
+        <label for="sheetSelect">Sheet:</label>
+        <select id="sheetSelect"></select>
+    </div>
+    <button onclick="findDuplicates()">Find Duplicates</button>
+    <p id="output"></p>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script>
+        let workbook;
+        function loadSheets() {
+            let fileInput = document.getElementById('fileInput');
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let data = e.target.result;
+                workbook = XLSX.read(data, {type: 'binary'});
+                let sheetSelect = document.getElementById('sheetSelect');
+                sheetSelect.innerHTML = "";
+                for (let i = 0; i < workbook.SheetNames.length; i++) {
+                    let option = document.createElement("option");
+                    option.text = workbook.SheetNames[i];
+                    sheetSelect.add(option);
+                }
+            };
+            reader.readAsBinaryString(fileInput.files[0]);
+        }
+        function findDuplicates() {
+            let sheetSelect = document.getElementById('sheetSelect');
+            let sheetName = sheetSelect.options[sheetSelect.selectedIndex].text;
+            let worksheet = workbook.Sheets[sheetName];
+            let values = [];
+            for (let i = 7; i <= 9668; i++) {
+                let cellAddress = 'N' + i;
+                let cell = worksheet[cellAddress];
+                if (cell !== undefined) {
+                    if (cell.t === 'e') {
+                        values.push(cell.w);
+                    } else {
+                        values.push(cell.v);
+                    }
+                }
+            }
+            let duplicates = [];
+            let counts = {};
+            for (let i = 0; i < values.length; i++) {
+                if (counts[values[i]] === undefined) {
+                    counts[values[i]] = 1;
+                } else if (counts[values[i]] === 1) {
+                    duplicates.push(values[i]);
+                    counts[values[i]]++;
+                } else if (counts[values[i]] > 1) {
+                    counts[values[i]]++;
+                }
+            }
+            duplicates.sort(function(a, b){
+                if (isNaN(a) && isNaN(b)) {
+                    return a.localeCompare(b);
+                } else if (isNaN(a)) {
+                    return 1;
+                } else if (isNaN(b)) {
+                    return -1;
+                } else {
+                    return a-b;
+                }
+            });
+            document.getElementById("output").innerHTML += "Duplicate values: " + duplicates.join(", ") + "<br>Total count of duplicates: " + duplicates.length;
+        }
+    </script>
+</body>
+</html>
+

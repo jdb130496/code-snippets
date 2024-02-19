@@ -1,0 +1,84 @@
+#DecompressFiles
+
+(ZIPFile, Position, FileToExtract, DataSoFar) => 
+    let 
+    
+    MyBinaryFormat = try BinaryFormat.Record([DataToSkip=BinaryFormat.Binary(Position), 
+					  MiscHeader=BinaryFormat.Binary(18), 
+					  FileSize=BinaryFormat.ByteOrder(BinaryFormat.UnsignedInteger32, ByteOrder.LittleEndian),
+					  UnCompressedFileSize=BinaryFormat.Binary(4),
+					  FileNameLen=BinaryFormat.ByteOrder(BinaryFormat.UnsignedInteger16, ByteOrder.LittleEndian),
+					  ExtrasLen=BinaryFormat.ByteOrder(BinaryFormat.UnsignedInteger16, ByteOrder.LittleEndian),
+					  TheRest=BinaryFormat.Binary()]) otherwise null,
+
+    MyCompressedFileSize = try MyBinaryFormat(ZIPFile)[FileSize]+1 otherwise null,
+
+    MyFileNameLen = try MyBinaryFormat(ZIPFile)[FileNameLen] otherwise null,
+
+    MyExtrasLen = try MyBinaryFormat(ZIPFile)[ExtrasLen] otherwise null,
+
+    MyBinaryFormat2 = try BinaryFormat.Record([DataToSkip=BinaryFormat.Binary(Position), Header=BinaryFormat.Binary(30), Filename=BinaryFormat.Text(MyFileNameLen), Extras=BinaryFormat.Binary(MyExtrasLen), Data=BinaryFormat.Binary(MyCompressedFileSize), TheRest=BinaryFormat.Binary()]) otherwise null,
+
+    MyFileName = try MyBinaryFormat2(ZIPFile)[Filename] otherwise null,
+
+    GetDataToDecompress = try MyBinaryFormat2(ZIPFile)[Data] otherwise null,
+
+    DecompressData = try Binary.Decompress(GetDataToDecompress, Compression.Deflate) otherwise null,
+
+    NewPosition = try Position + 30 + MyFileNameLen + MyExtrasLen + MyCompressedFileSize - 1 otherwise null,
+
+    AsATable = Table.FromRecords({[Filename = MyFileName, Content=DecompressData]}),
+
+    #"Appended Query" = if DecompressData = null then DataSoFar else if (MyFileName = FileToExtract) then AsATable else
+			if (FileToExtract = "") and Position <> 0 then Table.Combine({DataSoFar, AsATable})
+			else AsATable    
+
+    in
+
+     if  (MyFileName = FileToExtract) or (#"Appended Query" = DataSoFar) then
+
+       #"Appended Query"
+
+     else 
+
+       @DecompressFiles(ZIPFile, NewPosition, FileToExtract, #"Appended Query")
+
+
+#XMLSource
+let
+    Source = File.Contents("M:\06830 - Content Dog LLC\2022\Stripe Statements\Content Dog - Stripe Itemized Balance Report - 01.01.22 to 12.31.22 - Thuy.xlsx"),
+    MyData = DecompressFiles(Source, 0, "", null),
+    #"Added Custom" = Table.AddColumn(MyData, "XmlContent", each Xml.Document([Content]))
+in
+    #"Added Custom"
+
+#SheetContent
+
+let
+    Source = XMLSource,
+    #"Filtered Rows1" = Table.SelectRows(Source, each Text.Contains([Filename], "sheet")),
+    #"Removed Other Columns" = Table.SelectColumns(#"Filtered Rows1",{"Filename", "XmlContent"}),
+    #"Expanded XmlContent" = Table.ExpandTableColumn(#"Removed Other Columns", "XmlContent", {"Attributes", "Name", "Namespace", "Value"}, {"Attributes", "Name", "Namespace", "Value"}),
+    #"Removed Other Columns1" = Table.SelectColumns(#"Expanded XmlContent",{"Filename", "Value"}),
+    #"Expanded Value" = Table.ExpandTableColumn(#"Removed Other Columns1", "Value", {"Attributes", "Name", "Namespace", "Value"}, {"Attributes", "Name", "Namespace", "Value.1"}),
+    #"Filtered Rows" = Table.SelectRows(#"Expanded Value", each ([Name] = "sheetData")),
+    #"Removed Other Columns2" = Table.SelectColumns(#"Filtered Rows",{"Filename", "Value.1"}),
+    #"Expanded Value.1" = Table.ExpandTableColumn(#"Removed Other Columns2", "Value.1", {"Attributes", "Name", "Namespace", "Value"}, {"Attributes", "Name", "Namespace", "Value"}),
+    #"Removed Other Columns3" = Table.SelectColumns(#"Expanded Value.1",{"Filename", "Value"}),
+    #"Expanded Value1" = Table.ExpandTableColumn(#"Removed Other Columns3", "Value", {"Attributes", "Name", "Namespace", "Value"}, {"Attributes", "Name", "Namespace", "Value.1"}),
+    #"Removed Other Columns4" = Table.SelectColumns(#"Expanded Value1",{"Filename", "Attributes"}),
+    #"Added Custom" = Table.AddColumn(#"Removed Other Columns4", "Custom", each Table.Pivot([Attributes],{"r","s"},"Name", "Value")),
+    #"Expanded Custom" = Table.ExpandTableColumn(#"Added Custom", "Custom", {"r", "s"}, {"r", "s"}),
+    #"Removed Other Columns5" = Table.SelectColumns(#"Expanded Custom",{"Filename", "r", "s"}),
+    #"Changed Type" = Table.TransformColumnTypes(#"Removed Other Columns5",{{"Filename", type text}, {"r", type text}, {"s", Int64.Type}}),
+    #"Merged Queries" = Table.NestedJoin(#"Changed Type",{"s"},cellXfs,{"Index"},"NewColumn",JoinKind.LeftOuter),
+    #"Expanded NewColumn" = Table.ExpandTableColumn(#"Merged Queries", "NewColumn", {"fillId"}, {"fillId"}),
+    #"Merged Queries1" = Table.NestedJoin(#"Expanded NewColumn",{"fillId"},fills,{"Index"},"NewColumn",JoinKind.LeftOuter),
+    #"Expanded NewColumn1" = Table.ExpandTableColumn(#"Merged Queries1", "NewColumn", {"Name", "Value"}, {"Name", "Value"}),
+    #"Merged Columns" = Table.CombineColumns(#"Expanded NewColumn1",{"Filename", "r"},Combiner.CombineTextByDelimiter(":", QuoteStyle.None),"SheetCellRef"),
+    #"Removed Columns" = Table.RemoveColumns(#"Merged Columns",{"s", "fillId"}),
+    #"Split Column by Delimiter" = Table.SplitColumn(#"Removed Columns","SheetCellRef",Splitter.SplitTextByDelimiter(":", QuoteStyle.Csv),{"SheetCellRef.1", "SheetCellRef.2"}),
+    #"Changed Type1" = Table.TransformColumnTypes(#"Split Column by Delimiter",{{"SheetCellRef.1", type text}, {"SheetCellRef.2", type text}}),
+    #"Filtered Rows2" = Table.SelectRows(#"Changed Type1", each ([Name] = "rgb"))
+in
+    #"Filtered Rows2"
