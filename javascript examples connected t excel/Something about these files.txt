@@ -1,0 +1,1 @@
+Javascript codes have been developed with assistance from co-pilot (Microsoft - formerly bingai chat). Objective here is to overcome limitations of excel like missing regular expressions (for example).
