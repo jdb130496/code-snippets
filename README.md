@@ -1,3 +1,5 @@
 Dhawal Bakshi - Code snippets - excel / power bi samples - use xlwings add-in with python / rust / gcc / clang generated dlls on windows without Visual Studio. DLL paths in python script files need to be checked and changed depending on drive and folder names. UDFs in python scripts linked to excel files may not work if that is not done. Simply cloning the repository may not suffice, if you are looking for solutions that work "Out Of The Box". Of course, this is true only for dll files linked via cffi library of Python. UDFs not involving such dlls will work without changing anything (simply cloning the repository).
+
 C / C++ sources have been compiled using mingw64 - gcc / g++ tool-chain in msys2 bash shell.
+
 Rust codes have been compiled using cargo builds (projects) as they involved new crates. Hence could not be compiled directly using rustc
