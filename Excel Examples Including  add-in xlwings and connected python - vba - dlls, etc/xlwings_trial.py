@@ -25,13 +25,12 @@ ffi.cdef("""
     int rdrand64_step(unsigned long long *rand);
     void generate_random_numbers(int num_threads, int num_numbers);
     unsigned long long* get_numbers();
-    void allocate_memory(int num_numbers);
-    void free_memory();
+    void free_numbers(unsigned long long *numbers);
 """)
 
 
 # Load the DLL
-C = ffi.dlopen('D:\\OneDrive - 0yt2k\\Excel Examples Including  add-in xlwings and connected python - vba - dlls, etc\\15_digits_rand_intel.dll')
+C = ffi.dlopen('D:\\OneDrive - 0yt2k\\Excel Examples Including  add-in xlwings and connected python - vba - dlls, etc\\rdrand_multithreaded_new.dll')
 
 @xw.func
 @xw.arg('Lst', ndim=2)
@@ -59,28 +58,30 @@ def aging_buckets(days_amounts):
     ]
     result = [[next((label for condition, label in aging_list if condition(day[0], day[1])), 'No Match')] for day in days_amounts if len(day) == 2]
     return result
+
 @xw.func
 @xw.arg('days_amounts', ndim=2)
 def aging_buckets_parallel(days_amounts):
-    client = Client(processes=False, threads_per_worker=4, n_workers=2)
-    days_amounts_array = np.array(days_amounts)
-    df = pd.DataFrame(days_amounts_array, columns=['days', 'amount'])
-    df['days_amounts'] = list(zip(df['days'], df['amount']))
+    client = Client(n_workers=6, threads_per_worker=4)
+    df = pd.DataFrame(days_amounts, columns=['days', 'amount'])
+    df['days'] = pd.to_numeric(df['days'], errors='coerce')
+    df['amount'] = pd.to_numeric(df['amount'], errors='coerce')
     ddf = dd.from_pandas(df, npartitions=4)
     aging_list = [
-        (lambda day, amount: amount < 0, "Advance"),
-        (lambda day, amount: 0 <= day < 31, "Not Due"),
-        (lambda day, amount: 31 <= day < 61, "31-60 Days"),
-        (lambda day, amount: 61 <= day < 91, "61-90 Days"),
-        (lambda day, amount: 91 <= day < 181, "91-180 Days"),
-        (lambda day, amount: 181 <= day < 366, "6 Months to 1 year"),
-        (lambda day, amount: 366 <= day, "More than 1 year")
-    ]
-    ddf['age_bucket'] = ddf['days_amounts'].map(lambda x: next((label for condition, label in aging_list if condition(*x)), None), meta=('days', 'object'))
+            (lambda day, amount: int(amount) < 0, "Advance"),
+            (lambda day, amount: 0 <= int(day) < 31, "Not Due"),
+            (lambda day, amount: 31 <= int(day) < 61, "31-60 Days"),
+            (lambda day, amount: 61 <= int(day) < 91, "61-90 Days"),
+            (lambda day, amount: 91 <= int(day) < 181, "91-180 Days"),
+            (lambda day, amount: 181 <= int(day) < 366, "6 Months to 1 year"),
+            (lambda day, amount: 366 <= int(day), "More than 1 year")
+            ]
+    ddf['age_bucket'] = ddf.map_partitions(lambda df: df.apply(lambda row: next((label for condition, label in aging_list if condition(row['days'], row['amount'])), None), axis=1), meta=('days', 'object'))
     result_df = ddf.compute()
     result = [[item] for item in result_df['age_bucket'].values]
     client.close()
     return result
+
 @xw.func
 @xw.arg('date_and_months', ndim=2)
 def EOMONTHM(date_and_months):
@@ -111,13 +112,12 @@ def EDATEM(date_and_months):
 def generate_and_get_data(NUM_THREADS, NUM_NUMBERS):
     NUM_THREADS = int(NUM_THREADS)
     NUM_NUMBERS = int(NUM_NUMBERS)
-    C.allocate_memory(NUM_NUMBERS)
     C.generate_random_numbers(NUM_THREADS, NUM_NUMBERS)
-#    time.sleep(10)
     numbers_ptr = C.get_numbers()
     numbers = [[int(numbers_ptr[i])] for i in range(NUM_NUMBERS)]
-    C.free_memory()
+    C.free_numbers(numbers_ptr)
     return numbers
+
 @xw.func
 @xw.arg('numbers', ndim=2)
 def check_duplicates(numbers):
