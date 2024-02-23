@@ -2,7 +2,7 @@ Dhawal Bakshi - Code snippets - excel / power bi samples - use xlwings add-in wi
 
 DLL paths in python script files need to be checked and changed depending on drive and folder names. UDFs in python scripts linked to excel files may not work if that is not done. Simply cloning the repository may not suffice. It will not work out of the box. Of course, this is true only for dll files linked via cffi library of Python. UDFs not involving such dlls will work without changing anything (simply cloning the repository).
 
-This repository is almost daily updated with new changes, samples, etc. barring factors beyind control.
+This repository is almost daily updated with new changes, samples, etc. barring factors beyond control.
 
 Excel 365 has been used – for all excel files – formulas, functions, etc. Some functions may not be backward compatible (with older excel versions).
 
