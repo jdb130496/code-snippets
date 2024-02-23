@@ -16,7 +16,10 @@ Rust codes have been compiled using cargo builds (projects) as they involved new
 
 For those not initiated with git procedures:
 I have used command prompt (powershell / windows cmd (default)) etc. for all git commands. There are few GUI based git management software are available - many are free - You can chek out google to find out more. 
+
 When using command prompt, following may be useful guide:
+
 •	first time pulling the repository from github URL: use: git clone (repository URL) from command prompt.
+
 •	From next time onwards – simply using:  git pull - will refresh / update repository folder on local drive with new changes.
 
