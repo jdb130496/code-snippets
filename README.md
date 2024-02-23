@@ -12,7 +12,7 @@ A Folder has been included exclusively for chat sessions with bing ai / perplexi
 
 C / C++ sources have been compiled using mingw64 - gcc / g++ tool-chain in msys2 bash shell.
 
-Rust codes have been compiled using cargo builds (projects) as they involved new crates. Hence could not be compiled directly using rustc.
+Rust codes have been compiled using cargo builds (projects) as they involved new crates. Hence could not be compiled directly using rustc. There may be a way to use rustc to compile codes using crates (Without necessarily using cargo project based compilation) which I have not tried due to my knowledge limitation of rust language.
 
 For those not initiated with git procedures:
 I have used command prompt (powershell / windows cmd (default)) etc. for all git commands. There are few GUI based git management software are available - many are free - You can chek out google to find out more. 
