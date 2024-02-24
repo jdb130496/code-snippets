@@ -30,7 +30,7 @@ ffi.cdef("""
 
 
 # Load the DLL
-C = ffi.dlopen('D:\\OneDrive - 0yt2k\\Excel Examples Including  add-in xlwings and connected python - vba - dlls, etc\\rdrand_multithreaded_new.dll')
+C = ffi.dlopen('D:\\OneDrive - 0yt2k\\Excel Examples Including  add-in xlwings and connected python - vba - dlls, etc\\rdrand_multithreaded_new_ucrt_gcc.dll')
 
 @xw.func
 @xw.arg('Lst', ndim=2)
