@@ -30,7 +30,15 @@ ffi.cdef("""
 
 
 # Load the DLL
-C = ffi.dlopen('D:\\OneDrive - 0yt2k\\Excel Examples Including  add-in xlwings and connected python - vba - dlls, etc\\rdrand_multithreaded_new_ucrt_gcc.dll')
+#C = ffi.dlopen('D:\\OneDrive - 0yt2k\\Compiled dlls & executables\\rdrand_multithreaded_new_ucrt_gcc.dll')
+C = ffi.dlopen('D:\\OneDrive - 0yt2k\\c - cpp source codes\\rdrand_multithreaded_new.dll')
+#ffi.cdef("""
+#    void generateRandomNumbersC(int numNumbers, int numWorkers, int numThreads);
+#    unsigned long long* getNumbersC();
+#    int getNumbersSizeC();
+#""")
+
+#dll = ffi.dlopen('D:\\OneDrive - 0yt2k\\Compiled dlls & executables\\boost_rdrand.dll')
 
 @xw.func
 @xw.arg('Lst', ndim=2)
@@ -169,3 +177,13 @@ def wa_return(x_values, z_values, target):
     y_solution = newton(func, y_initial_guess)
 
     return y_solution
+
+#@xw.func
+#def intel_rdrand_boost(NUM_NUMBERS, NUM_WORKERS, NUM_THREADS):
+#    NUM_NUMBERS = int(NUM_NUMBERS)
+#    NUM_WORKERS = int(NUM_WORKERS)
+#    NUM_THREADS = int(NUM_THREADS)
+#    numbers_ptr = dll.generateRandomNumbers(NUM_NUMBERS, NUM_WORKERS, NUM_THREADS)
+#    numbers = [[int(numbers_ptr[i])] for i in range(NUM_NUMBERS)]
+#    return numbers
+
