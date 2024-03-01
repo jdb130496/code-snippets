@@ -31,7 +31,7 @@ ffi.cdef("""
 
 # Load the DLL
 #C = ffi.dlopen('D:\\OneDrive - 0yt2k\\Compiled dlls & executables\\rdrand_multithreaded_new_ucrt_gcc.dll')
-C = ffi.dlopen('D:\\OneDrive - 0yt2k\\c - cpp source codes\\rdrand_multithreaded_new.dll')
+C = ffi.dlopen('D:\\OneDrive - 0yt2k\\Compiled dlls & executables\\rdrand_multithreaded_new.dll')
 #ffi.cdef("""
 #    void generateRandomNumbersC(int numNumbers, int numWorkers, int numThreads);
 #    unsigned long long* getNumbersC();
