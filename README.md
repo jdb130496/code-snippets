@@ -37,4 +37,4 @@ Prerequisites for using the functinalities in full:
 
 6. xlwings add-in which requires python. A very useful add-in which jail-breaks excel from power query. You can write sql scripts directly in excel (much simpler than power query). Also python UDF (user defined functions) can be executed directly from excel - much more powerful than archaic vba coding.
 
-7. Not strictly a prterequisite: Ability to drive AI chatbots in a logical manner to achieve code definitiona, testing, optimisations, etc.
+7. Not strictly a pre-requisite: Ability to drive AI chatbots in a logical manner to achieve code definitiona, testing, optimisations, etc.
