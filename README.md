@@ -23,3 +23,18 @@ When using command prompt, following may be useful guide:
 
 •	From next time onwards – simply using:  git pull - will refresh / update repository folder on local drive with new changes.
 
+Prerequisites for using the functinalities in full:
+
+1. Python installation on windows with necessary packages like pandas, numpy and others which have been mentioned on .py script files (See all import commands at the start of the .py scripts files). Packages are installed using package manager pip in python. Some packages come pre-built when you install python. Some packages like cffi allow C / C++ dll interface on Windows.   
+
+2. Msys2 (which emulates linux like cloning on windows, has bash shell with all main bash command line compatibilities like Linux for compilation using ./configure and has arch linux like package manager pacman to manage / update packages). Although some packages may not compile easily due to "dependency hell" as they say.
+
+3. Mingw64 tool-chains (gcc - clang - optionally, gcc / clang for ucrt) to be installed in msys2 using pacman -S command. This is mainly for compilation of sources (c / c++)
+
+4. Rust tool-chain for compiling rust / cargo projects 
+
+5. Excel 365 (to avoid errors due to absence of backward compatibility of some new excel functions / add-ins)
+
+6. xlwings add-in which requires python. A very useful add-in which jail-breaks excel from power query. You can write sql scripts directly in excel (much simpler than power query). Also python UDF (user defined functions) can be executed directly from excel - much more powerful than archaic vba coding.
+
+7. Not strictly a prterequisite: Ability to drive AI chatbots in a logical manner to achieve code definitiona, testing, optimisations, etc.
