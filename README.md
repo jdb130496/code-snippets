@@ -12,7 +12,7 @@ A Folder has been included exclusively for chat sessions with bing ai / perplexi
 
 C / C++ sources have been compiled using mingw64 - gcc / g++ tool-chain in msys2 bash shell.
 
-Rust codes have been compiled using cargo builds (projects) as they involved new crates. Hence could not be compiled directly using rustc. There may be a way to use rustc to compile codes using crates (Without necessarily using cargo project based compilation) which I have not tried due to my knowledge limitation of rust language.
+Rust codes have been compiled using cargo builds (projects) as they involved new crates. Hence could not be compiled directly using rustc. I have not explored workarounds which may make it possible to compile Rust source via rustc.
 
 For those not initiated with git procedures:
 I have used command prompt (powershell / windows cmd (default)) etc. for all git commands. There are few GUI based git management software are available - many are free - You can chek out google to find out more. 
@@ -29,9 +29,9 @@ Prerequisites for using the functinalities in full:
 
 2. Msys2 (which emulates linux like cloning on windows, has bash shell with all main bash command line compatibilities like Linux for compilation using ./configure and has arch linux like package manager pacman to manage / update packages). Although some packages may not compile easily due to "dependency hell" as they say.
 
-3. Mingw64 tool-chains (gcc - clang (LLVM) - optionally, gcc / clang (LLVM) for ucrt) to be installed in msys2 using pacman -S command. This is mainly for compilation of sources (c / c++). GCC or CLANG (LLVM) are optional standards for compilation of C / C++ codes and any one could be used. But some sources specify cmake which can be compiled only using clang tool-chain. More recent sources compilations also require packages like meson / ninja as prerequisites. Python (recent versions) is gradually shifting to meson / ninja style compilations.
+3. Mingw64 tool-chains (gcc - clang (LLVM) - optionally, gcc / clang (LLVM) for ucrt) to be installed in msys2 using pacman -S command. This is mainly for compilation of sources (c / c++). GCC or CLANG (LLVM) are optional standards for compilation of C / C++ codes and any one could be used. More recent sources compilations may require additional packages like cmake / meson / ninja as prerequisites. Python (recent versions) is gradually shifting to meson / ninja style compilations from the coventional make style. I have avoided using propreitary building environment like visual studio (which rquired admin rights oto install on windows) and instead relied on gcc / clang which apart from doing away with admin rights have advantage of cross compilation across OS like Windows / Linux.
 
-4. Rust tool-chain for compiling rust / cargo projects 
+4. Rust tool-chain for compiling rust / cargo projects. Rust allows cross compilation so the sources used on Windows can be used to compile on Linux and vice versa.
 
 5. Excel 365 (to avoid errors due to absence of backward compatibility of some new excel functions / add-ins)
 
