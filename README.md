@@ -14,8 +14,11 @@ C / C++ sources have been compiled using mingw64 - gcc / g++ tool-chain in msys2
 
 Rust codes have been compiled using cargo builds (projects) as they involved new crates. Hence could not be compiled directly using rustc. I have not explored workarounds which may make it possible to compile Rust source via rustc.
 
-For those not initiated with git procedures:
-I have used command prompt (powershell / windows cmd (default)) etc. for all git commands. There are few GUI based git management software are available - many are free - You can chek out google to find out more. 
+I have not focussed on code optimisations much (dll and exe file sizes may seem quite big compared to the sources), but rather on exploring how features can be used in a novel way with Excel.
+
+For those not initiated with git procedures that can be accomplished using git command - I recommend following git dcoumentation or ride on the back of any AI chatbot - I have learned that way (being myself from commerce domain). Some git commands:
+
+Before that, just a small note: I have used command prompt (powershell / windows cmd (default)) etc. for all git commands. There are a few GUI based git management software available - many are free - You can google to find out more. 
 
 When using command prompt, following may be useful guide:
 
