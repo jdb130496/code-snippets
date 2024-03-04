@@ -29,7 +29,7 @@ Prerequisites for using the functinalities in full:
 
 2. Msys2 (which emulates linux like cloning on windows, has bash shell with all main bash command line compatibilities like Linux for compilation using ./configure and has arch linux like package manager pacman to manage / update packages). Although some packages may not compile easily due to "dependency hell" as they say.
 
-3. Mingw64 tool-chains (gcc - clang - optionally, gcc / clang for ucrt) to be installed in msys2 using pacman -S command. This is mainly for compilation of sources (c / c++)
+3. Mingw64 tool-chains (gcc - clang (LLVM) - optionally, gcc / clang (LLVM) for ucrt) to be installed in msys2 using pacman -S command. This is mainly for compilation of sources (c / c++). GCC or CLANG (LLVM) are optional standards for compilation of C / C++ codes and any one could be used. But some sources specify cmake which can be compiled only using clang tool-chain. More recent sources compilations also require packages like meson / ninja as prerequisites. Python (recent versions) is gradually shifting to meson / ninja style compilations.
 
 4. Rust tool-chain for compiling rust / cargo projects 
 
