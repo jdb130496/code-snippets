@@ -7,6 +7,9 @@
 %---- Required Packages and Functions ----
 
 \documentclass[a4paper,11pt]{article}
+\pretolerance=1000 % Avoids hyphenation at the start of a line
+\tolerance=2000    % Controls overall hyphenation quality
+\hyphenpenalty=100 % Adjusts penalty for hyphenation
 \usepackage{latexsym}
 \usepackage{xcolor}
 \usepackage{tfrupee}
@@ -99,9 +102,13 @@
 \newcommand{\resumeSubheading}[4]{
 	\vspace{0.5mm}\item[]
 	\begin{tabular*}{0.98\textwidth}[t]{l@{\extracolsep{\fill}}r}
-		\begin{minipage}[t]{0.7\textwidth}
+		\begin{minipage}[t]{0.60\textwidth}
 			\textbf{#1}
-		\end{minipage} & \textbf{\footnotesize{#4}} \\
+		\end{minipage} & 
+		\begin{minipage}[t]{0.30\textwidth}
+			\textbf{#4}
+		\end{minipage}\\
+%		\textbf{\footnotesize{#4}} \\
 		\textit{\footnotesize{#3}} &  \footnotesize{#2}\\
 	\end{tabular*}
 	\vspace{-2.4mm}
@@ -187,7 +194,7 @@
 \section{\textbf{\Large{Work Experience}}}\vspace{2mm}
   \resumeSubHeadingListStart
     \resumeSubheading{\Large
-      {Independent Consultant, Vadodara}}{}{\large
+      {Independent Consultant, Vadodara}\vspace{1.25mm}}{}{\large
       {\textbf{Services: Bookkeeping, Accounting, Internal Audits, MIS}}}{\large{August 2023 - Current}}
       \resumeItemListStart
     \item {US / UK / Indian Accounting / Finance, Outsourced Bookkeeping / Finance / MIS Reporting}
@@ -201,7 +208,7 @@
     \vspace{-3.0mm}
     
 \resumeSubheading{\Large
-	{QX Global Group, Vadodara, Gujarat}}{}{\large
+	{QX Global Group, Vadodara, Gujarat}\vspace{1.25mm}}{}{\large
 	{\textbf{Accounting Team Lead - US Accounting}}}{\large{March 2022 – July 2023}}
     \resumeItemListStart
 	\item {Serviced US Clients’ \textbf{end to end bookkeeping and accounting}, compliances, \textbf{trend analysis.}}
@@ -219,7 +226,7 @@
     \vspace{-3.0mm}
 
 \resumeSubheading{\Large
-	{N C Vaishnav \& Company\\Chartered Accountants\\Vadodara, Gujarat}}{}{\large
+	{N C Vaishnav \& Company\\Chartered Accountants\\Vadodara, Gujarat}\vspace{1.25mm}}{}{\large
 	{\textbf{Senior Manager - Audit \& Other Services}}}{\large{October 2009 – March 2022}}
 	\resumeItemListStart
 		\item {independently conceptualized and handled \textbf{7 years} of yearly engagement in \textbf{IFRS convergence} from Indian GAAP for Indian Subsidiary of a \textbf{Turkish Company}.}
@@ -233,12 +240,29 @@
 		\item {Identified \textbf{dormant POs} and late supplies compared to ‘require by date’ mentioned on orders as a vendor behaviour control initiative.}
 		\item {Advised \textbf{vendors categorization} and \textbf{appraisals} based on well defined criteria}
 		\item {Identified \textbf{anomalies} in follow up process by \textbf{Marketing Team} on \textbf{inquiries} and leads during O2C Audit.}
-		\item {Walk-through, identification of variances and suggestions on improvements in Procure-To-Pay(P2P), Order-To-Cash (O2C) and Record-To-Report (R2R) processes in SAP based on structured \textbf{SOP designed} by a \textbf{BIG 4} firm.}
-		\item {Walk-through, identification of variances and suggestions on improvements in Procure-To-Pay(P2P), Order-To-Cash (O2C) and Record-To-Report (R2R) processes in SAP based on structured \textbf{SOP designed} by a \textbf{BIG 4} firm.}
+		\item {Walk-through, identification of variances and suggestions on improvements in Procure-To-Pay (P2P), Order-To-Cash (O2C) and Record-To-Report (R2R) processes in SAP based on structured \textbf{SOP designed} by a \textbf{BIG 4} firm.}
 		\item {Analysed \textbf{pricing and quotes trends} to reduce \textbf{churn of customers} and losing to competitors.}
+		\item {Suggested \textbf{processes improvements} to reduce common \textbf{customer complaints.}}
+		\item {Identified \textbf{legal compliance breaches}: \textbf{Indian Labour laws} like Factories Act, Contract Labour Regulation Act, Provident Fund Act, Fire safety regulations during Legal Compliance Audits}
+		\item {Assessed \textbf{insurance cover sufficiency} during \textbf{insurance audits} and recommended changes to reduce premium amount of insurance policies for organization.}
+		\item {Designed \textbf{reconciliation processes} aligned to \textbf{SAP} to track non-moving open transactions by scrutiny of \textbf{Clearing and Control Accounts}}
+		\item {\textbf{Statutory audits} of Indian Companies under \textbf{IND AS}. Recognition of \textbf{Deferred tax} assets and liabilities hidden in various transactions and accounting for them in conformity with \textbf{IND AS 12}.}
 \resumeItemListEnd
 \vspace{-3.0mm}
-    
+
+\resumeSubheading{\Large
+        {Noble Azania Auto Spares Limited.\\Tanzania}\vspace{1.25mm}}{}{\large
+        {\textbf{Manager - Accounts}}}{\fontsize{11.50}{10}\selectfont{November 2007 – September 2009}}
+        \resumeItemListStart
+        \item {\textbf{End to end accounting} in \textbf{Tally}, supervising work of juniors, Monthly \textbf{VAT Returns}.}
+        \item {\textbf{Finalization of accounts}, interactions with \textbf{statutory Auditors}}
+        \item {\textbf{Monthly MIS reporting} on financial results and level of \textbf{inventories}, Movements, Categorization as fast, slow, or non-moving, \textbf{ABC analysis}, Receivables Aging, \textbf{Credit Control}.}
+        \item {Annual \textbf{budgetary control} and analysis of \textbf{variances} in major overheads}
+        \item {Guidance on \textbf{funds management} – daily \textbf{cash flow planning} \& monitoring, etc.}
+        \item {Supervision of \textbf{internal audit} mainly focused on \textbf{inventory control} at 3 \textbf{remote locations} in Tanzania where pilferages were noticed.}
+\resumeItemListEnd
+\vspace{-3.0mm}
+
     \resumeSubheading
       {Palo Alto Cybersecurity Virtual Internship}{Online}
       {AICTE-Eduskills}{Dec 2022 - Feb 2023}

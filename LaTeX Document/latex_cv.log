@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2024.3.6)  6 MAR 2024 22:21
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2024.3.6)  7 MAR 2024 16:28
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -992,47 +992,47 @@ Library (tcolorbox): 'tcbposter.code.tex' version '6.0.3'
 )) (./latex_cv.aux)
 \openout1 = `latex_cv.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/lmm/m/it on input line 153.
+LaTeX Font Info:    Checking defaults for OML/lmm/m/it on input line 160.
 LaTeX Font Info:    Trying to load font information for OML+lmm on input line 1
-53.
+60.
  (/usr/share/texlive/texmf-dist/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    ... okay on input line 153.
-LaTeX Font Info:    Checking defaults for OMS/lmsy/m/n on input line 153.
+LaTeX Font Info:    ... okay on input line 160.
+LaTeX Font Info:    Checking defaults for OMS/lmsy/m/n on input line 160.
 LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 
-153.
+160.
 
 (/usr/share/texlive/texmf-dist/tex/latex/lm/omslmsy.fd
 File: omslmsy.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    ... okay on input line 153.
-LaTeX Font Info:    Checking defaults for OT1/lmr/m/n on input line 153.
+LaTeX Font Info:    ... okay on input line 160.
+LaTeX Font Info:    Checking defaults for OT1/lmr/m/n on input line 160.
 LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 1
-53.
+60.
 
 (/usr/share/texlive/texmf-dist/tex/latex/lm/ot1lmr.fd
 File: ot1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    ... okay on input line 153.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 153.
-LaTeX Font Info:    ... okay on input line 153.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 153.
-LaTeX Font Info:    ... okay on input line 153.
-LaTeX Font Info:    Checking defaults for OMX/lmex/m/n on input line 153.
+LaTeX Font Info:    ... okay on input line 160.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 160.
+LaTeX Font Info:    ... okay on input line 160.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 160.
+LaTeX Font Info:    ... okay on input line 160.
+LaTeX Font Info:    Checking defaults for OMX/lmex/m/n on input line 160.
 LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 
-153.
+160.
 
 (/usr/share/texlive/texmf-dist/tex/latex/lm/omxlmex.fd
 File: omxlmex.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    ... okay on input line 153.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 153.
-LaTeX Font Info:    ... okay on input line 153.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 153.
-LaTeX Font Info:    ... okay on input line 153.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 153.
-LaTeX Font Info:    ... okay on input line 153.
+LaTeX Font Info:    ... okay on input line 160.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 160.
+LaTeX Font Info:    ... okay on input line 160.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 160.
+LaTeX Font Info:    ... okay on input line 160.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 160.
+LaTeX Font Info:    ... okay on input line 160.
 
 (/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
@@ -1090,7 +1090,7 @@ e
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-Package hyperref Info: Link coloring OFF on input line 153.
+Package hyperref Info: Link coloring OFF on input line 160.
 (./latex_cv.out) (./latex_cv.out)
 \@outlinefile=\write4
 \openout4 = `latex_cv.out'.
@@ -1102,8 +1102,8 @@ Package: inputenc 2021/02/14 v1.3d Input encoding file
 \inpenc@prehook=\toks50
 \inpenc@posthook=\toks51
 )
-LaTeX Font Info:    Trying to load font information for T1+phv on input line 15
-4.
+LaTeX Font Info:    Trying to load font information for T1+phv on input line 16
+1.
 
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1phv.fd
 File: t1phv.fd 2020/03/25 scalable font definitions for T1/phv.
@@ -1113,21 +1113,21 @@ File: t1phv.fd 2020/03/25 scalable font definitions for T1/phv.
 (/usr/share/texlive/texmf-dist/tex/latex/fontawesome5/ufontawesomefree1.fd)
 (/usr/share/texlive/texmf-dist/tex/latex/fontawesome5/ufontawesomebrands0.fd)
 LaTeX Font Info:    Trying to load font information for TS1+phv on input line 1
-70.
+77.
 
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ts1phv.fd
 File: ts1phv.fd 2020/03/25 scalable font definitions for TS1/phv.
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 188.
+(Font)              <5> on input line 195.
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <10.95> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 191.
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 198.
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <9> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 191.
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 198.
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <12> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 191.
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 198.
 LaTeX Font Info:    Font shape `T1/phv/b/it' in size <12> not available
-(Font)              Font shape `T1/phv/b/sl' tried instead on input line 191.
+(Font)              Font shape `T1/phv/b/sl' tried instead on input line 198.
  [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texlive/texmf-di
@@ -1135,26 +1135,11 @@ st/fonts/enc/dvips/base/8r.enc}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/f
 ontawesome5/fa5free2.enc}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/fontawe
 some5/fa5free1.enc}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/fontawesome5/
 fa5brands0.enc}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/cfr-lm/t1-clm.enc
-}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/cfr-lm/dotdigits-clm.enc}]
-Overfull \hbox (7.79005pt too wide) in alignment at lines 223--223
-[] [] 
- []
-
-[2]
-Overfull \hbox (22.19994pt too wide) in paragraph at lines 236--237
-[]\T1/phv/m/n/12 Walk-through, iden-ti-fi-ca-tion of vari-ances and sug-ges-tio
-ns on im-prove-ments in Procure-To-Pay(P2P),
- []
-
-
-Overfull \hbox (22.19994pt too wide) in paragraph at lines 237--238
-[]\T1/phv/m/n/12 Walk-through, iden-ti-fi-ca-tion of vari-ances and sug-ges-tio
-ns on im-prove-ments in Procure-To-Pay(P2P),
- []
-
+}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/cfr-lm/dotdigits-clm.enc}] [2] 
+[3]
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <10> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 290.
-[3{/usr/share/texlive/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}]
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 314.
+ [4{/usr/share/texlive/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}]
 
 enddocument/afterlastpage: lastpage setting LastPage.
 (./latex_cv.aux)
@@ -1162,13 +1147,13 @@ Package rerunfilecheck Info: File `latex_cv.out' has not changed.
 (rerunfilecheck)             Checksum: CD88E5A7B167AD09AB5659479ECCF31B;741.
  ) 
 Here is how much of TeX's memory you used:
- 33324 strings out of 476041
- 671613 string characters out of 5793175
+ 33326 strings out of 476041
+ 671637 string characters out of 5793175
  1873388 words of memory out of 6000000
- 53158 multiletter control sequences out of 15000+600000
- 594926 words of font info for 94 fonts, out of 8000000 for 9000
+ 53159 multiletter control sequences out of 15000+600000
+ 598089 words of font info for 95 fonts, out of 8000000 for 9000
  1137 hyphenation exceptions out of 8191
- 93i,11n,99p,429b,823s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 93i,12n,99p,429b,823s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/fontawesome5/FontAwesome5Br
 ands-Regular.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/fontawesome5
 /FontAwesome5Free-Solid.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/l
@@ -1178,10 +1163,10 @@ share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/share/texliv
 e/texmf-dist/fonts/type1/urw/helvetic/uhvbo8a.pfb></usr/share/texlive/texmf-dis
 t/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texlive/texmf-dist/fonts/type
 1/urw/helvetic/uhvro8a.pfb>
-Output written on latex_cv.pdf (3 pages, 195468 bytes).
+Output written on latex_cv.pdf (4 pages, 197720 bytes).
 PDF statistics:
- 153 PDF objects out of 1000 (max. 8388607)
- 97 compressed objects within 1 object stream
- 9 named destinations out of 1000 (max. 500000)
+ 159 PDF objects out of 1000 (max. 8388607)
+ 101 compressed objects within 2 object streams
+ 10 named destinations out of 1000 (max. 500000)
  197 words of extra memory for PDF output out of 10000 (max. 10000000)
 
