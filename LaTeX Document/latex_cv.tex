@@ -7,6 +7,9 @@
 %---- Required Packages and Functions ----
 
 \documentclass[a4paper,11pt]{article}
+\usepackage{xcolor}
+\definecolor{myfootercolor}{RGB}{0,0,0} % Black color
+\usepackage{ragged2e}
 \pretolerance=1000 % Avoids hyphenation at the start of a line
 \tolerance=2000    % Controls overall hyphenation quality
 \hyphenpenalty=100 % Adjusts penalty for hyphenation
@@ -38,11 +41,10 @@
 \setlength{\multicolsep}{0pt} 
 \pagestyle{fancy}
 \fancyhf{} % clear all header and footer fields
-\fancyfoot{}
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand{\footrulewidth}{0pt}
 % Set the footer to show "Page X of Y"
-\fancyfoot[C]{Page \thepage\ of \pageref{LastPage}}
+\fancyfoot[C]{\makebox[\textwidth][c]{\fontfamily{phv}\selectfont\large\textbf{\color{myfootercolor} Page \thepage\ of \pageref{LastPage}}}}
 \geometry{left=1.4cm, top=0.8cm, right=1.2cm, bottom=2.25cm, footskip=0.70cm} 
 % Adjust margins
 %\addtolength{\oddsidemargin}{-0.5in}
@@ -105,8 +107,8 @@
 		\begin{minipage}[t]{0.60\textwidth}
 			\textbf{#1}
 		\end{minipage} & 
-		\begin{minipage}[t]{0.30\textwidth}
-			\textbf{#4}
+		\begin{minipage}[t]{0.24\textwidth}
+			\footnotesize{\textbf{#4}}
 		\end{minipage}\\
 %		\textbf{\footnotesize{#4}} \\
 		\textit{\footnotesize{#3}} &  \footnotesize{#2}\\
@@ -156,7 +158,7 @@
 \newcommand{\Qualification}{Chartered Accountant - 1988} % Your Qualification
 \newcommand{\phone}{94084 39126} % Your Phone Number
 \newcommand{\emaila}{dhawal.bakshi@gmail.com} %Email 1
-
+\hrule
 \begin{document}
 \fontfamily{phv}\selectfont
 %----------HEADING-----------------
@@ -171,8 +173,10 @@
   {\footnotesize \faGithub}\ {Github Profile}} \\
 \end{tabularx}
 }
+\vspace{1mm}
 
 %-----------PROFESSIONAL SUMMARY-----------------
+\hrule\vspace{-2mm}
 \section{\textbf{\Large{Professional Summary}}}
 \resumeItemListStart
 \item {Rich experience of 30+ years in US / UK / Indian Finance / Accounting / Audit / Automation / Trend Analysis / Pattern Identification \& Cost Optimization.}
@@ -189,13 +193,15 @@
 \item {Natural flair for quick adaptability to any new ERP / bookkeeping or any other software}
 \item {Ability to interact and drive modern generative AI chatbots (\textbf{LLMs}) like \textbf{chatGPT, Microsoft Co-pilot, Perplexity AI, Google Gemini}, etc. to achieve desired results.}
 \resumeItemListEnd
+\vspace{-3.0mm}
 
 %-----------EXPERIENCE-----------------
+\hrule\vspace{-2mm}
 \section{\textbf{\Large{Work Experience}}}\vspace{2mm}
   \resumeSubHeadingListStart
     \resumeSubheading{\Large
       {Independent Consultant, Vadodara}\vspace{1.25mm}}{}{\large
-      {\textbf{Services: Bookkeeping, Accounting, Internal Audits, MIS}}}{\large{August 2023 - Current}}
+      {\textbf{Services: Bookkeeping, Accounting, Internal Audits, MIS}}}{\large{Aug 2023 - Current}}
       \resumeItemListStart
     \item {US / UK / Indian Accounting / Finance, Outsourced Bookkeeping / Finance / MIS Reporting}
     \item {End to end accounting processes - P2P (Procure To Pay), O2C (Order To Cash), R2R (Record To Report) and Finalisation for US / UK Clients (QuickBooks)}
@@ -205,11 +211,11 @@
     \item {\textbf{Consulting Services} for \textbf{Expense Trends, Product Mix, Sales Patterns} and other analysis of information, data by riding on info-tech expertise.}
     \item {\textbf{Risk based Internal audits} - mainly focused on planning, analytics and overall guidance to the team for routine audit operations.}
     \resumeItemListEnd 
-    \vspace{-3.0mm}
-    
+    \vspace{-2mm}
+\hrule    
 \resumeSubheading{\Large
 	{QX Global Group, Vadodara, Gujarat}\vspace{1.25mm}}{}{\large
-	{\textbf{Accounting Team Lead - US Accounting}}}{\large{March 2022 – July 2023}}
+	{\textbf{Accounting Team Lead - US Accounting}}}{\large{Mar 2022 – July 2023}}
     \resumeItemListStart
 	\item {Serviced US Clients’ \textbf{end to end bookkeeping and accounting}, compliances, \textbf{trend analysis.}}
 	\item {Initiated \textbf{Bulk} handling of Bank, Credit Cards, Payment Services (\textbf{PayPal,Stripe}) \textbf{reconciliation} to \textbf{save time} and \textbf{cost} in \textbf{work-paper handling} in \textbf{CCH Binder} and \textbf{XCM} (Modern Software For Audit Work-paper Management).}
@@ -223,11 +229,11 @@
 	\item {Review of financials – \textbf{tracing exceptions} and anomalies. Identified major \textbf{error} of entire \textbf{credit card liability} during the year posted to travel expenses.}
 	\item {Assisted Managers by providing requisite \textbf{data and information} duly reviewed for filing \textbf{Forms} \textbf{1040} and \textbf{1099} forms of Federal Taxation.}
     \resumeItemListEnd
-    \vspace{-3.0mm}
-
+    \vspace{-2.0mm}
+\hrule\vspace{1mm}
 \resumeSubheading{\Large
 	{N C Vaishnav \& Company\\Chartered Accountants\\Vadodara, Gujarat}\vspace{1.25mm}}{}{\large
-	{\textbf{Senior Manager - Audit \& Other Services}}}{\large{October 2009 – March 2022}}
+	{\textbf{Senior Manager - Audit \& Other Services}}}{\large{Oct 2009 – Mar 2022}}
 	\resumeItemListStart
 		\item {independently conceptualized and handled \textbf{7 years} of yearly engagement in \textbf{IFRS convergence} from Indian GAAP for Indian Subsidiary of a \textbf{Turkish Company}.}
 		\item {Conducted \textbf{Risk Based Internal Audits} in \textbf{SAP(Hana)} environment of Public Limited Companies – \textbf{20 Microns Ltd.} with turnover of \textbf{\rupee 400 crores} during that period and \textbf{NESCO Limited} with turnover \textbf{\rupee 300 crores.}}
@@ -248,97 +254,105 @@
 		\item {Designed \textbf{reconciliation processes} aligned to \textbf{SAP} to track non-moving open transactions by scrutiny of \textbf{Clearing and Control Accounts}}
 		\item {\textbf{Statutory audits} of Indian Companies under \textbf{IND AS}. Recognition of \textbf{Deferred tax} assets and liabilities hidden in various transactions and accounting for them in conformity with \textbf{IND AS 12}.}
 \resumeItemListEnd
-\vspace{-3.0mm}
-
+\vspace{-2.0mm}
+\hrule\vspace{1.0mm}
 \resumeSubheading{\Large
-        {Noble Azania Auto Spares Limited.\\Tanzania}\vspace{1.25mm}}{}{\large
-        {\textbf{Manager - Accounts}}}{\fontsize{11.50}{10}\selectfont{November 2007 – September 2009}}
-        \resumeItemListStart
-        \item {\textbf{End to end accounting} in \textbf{Tally}, supervising work of juniors, Monthly \textbf{VAT Returns}.}
-        \item {\textbf{Finalization of accounts}, interactions with \textbf{statutory Auditors}}
-        \item {\textbf{Monthly MIS reporting} on financial results and level of \textbf{inventories}, Movements, Categorization as fast, slow, or non-moving, \textbf{ABC analysis}, Receivables Aging, \textbf{Credit Control}.}
-        \item {Annual \textbf{budgetary control} and analysis of \textbf{variances} in major overheads}
-        \item {Guidance on \textbf{funds management} – daily \textbf{cash flow planning} \& monitoring, etc.}
-        \item {Supervision of \textbf{internal audit} mainly focused on \textbf{inventory control} at 3 \textbf{remote locations} in Tanzania where pilferages were noticed.}
-\resumeItemListEnd
-\vspace{-3.0mm}
-
-    \resumeSubheading
-      {Palo Alto Cybersecurity Virtual Internship}{Online}
-      {AICTE-Eduskills}{Dec 2022 - Feb 2023}
-      \vspace{-2.0mm}
-      \resumeItemListStart
-    \item {Learned the fundamentals of Security Operations Center (SOC).}
-    \item {Learned basics of Network \& Cloud Security.}
-    \resumeItemListEnd
-    
-    \vspace{-3.0mm}
-      
-  \resumeSubHeadingListEnd
-\vspace{-5.5mm}
-
-%-----------EDUCATION-----------
-\section{\textbf{Education}}
-  \resumeSubHeadingListStart
-    \resumeSubheading
-      {Bachelor of Technology in Computer Science and Engineering(Cyber Security)}{CGPA: xx}
-      {Shri Ramdeobaba College of Engineering and Management, Nagpur}{2020-24}
-  \resumeSubHeadingListEnd
+        {Steelco Gujarat Limited\\Palej (Bharuch), Gujarat}\vspace{1.25mm}}{}{\large
+        {\textbf{Dy. Manager - Accounts}}}{\large{May 2006 – Nov 2007}}
+        	\resumeItemListStart
+        		\item {Financial Accounting, Monthly costing, analysis of variable and fixed costs, variance analysis – vertical and horizontal variances and planning for profitability increase by controlling fixed costs.}
+        		\item {\textbf{Monthly reconciliation} of a \textbf{large-volume-transactions} vendors such as \textbf{Essar Steel} and raising accounting \textbf{anomalies of payments} which were left out in vendor’s statement of account.}
+        		\item {Regular Interactions with statutory auditors for finalization of accounts and submissions of final accounts and audit reports}
+        		\item {\textbf{Surprise Plant Audit} Visits for verification of physical inventories and identifying differences / anomalies between physical and book inventories (as per inventory records).}
+        	\resumeItemListEnd
+\vspace{-2.0mm}
+\hrule\vspace{1.0mm}        
+\resumeSubheading{\Large
+			{Elecon Engineering Limited\\Vidyanagar (Anand), Gujarat}\vspace{1.25mm}}{}{\large
+			{\textbf{Manager - Accounts}}}{\large{Apr 2001 – May 2006}}
+				\resumeItemListStart
+					\item {End to End Financial accounting and review of financial statements.}
+					\item {\textbf{Noise Analysis} in expenses due to errors of omission or commission, overshoot expenses compared to budgets, etc.}
+					\item {Detailed \textbf{analysis of financial costs} to know composition such as LC / guarantee charges, DD charges, CMP. and advice to the management on cost cutting of financial costs.}
+					\item {\textbf{Inventory Control:} Inventory verifications in collaboration with statutory and internal auditors, valuation of inventories, real challenge being estimation of progress of work done in WIP inventories and accordingly apportioning and allocating fixed overheads up to stage of completion of manufacturing.}
+					\item {\textbf{Oracle ERP Implementation:} Associated with Core Team as user champion for implementing ERP. After successfully implementation, \textbf{training operation team}, \textbf{troubleshooting}, \textbf{month closing} activities.}
+					\item {\textbf{Post Implementation Activities:} Headed \textbf{Clearing \& Control Accounts} Reconciliation \textbf{Team}, guiding the team and stepping in for troubleshooting as required.}
+				\resumeItemListEnd
+\vspace{-2.0mm}
+\hrule\vspace{1mm}
+\resumeSubheading{\Large
+			{Saurashtra Paper \& Board Mills Ltd.\\Rajkot, Gujarat}\vspace{1.25mm}}{}{\large
+			{\textbf{Manager - Finance \& Accounts}}}{\large{Jan 1996 – Apr 2001}}
+				\resumeItemListStart
+					\item {\textbf{Plant wise} financial accounting, \textbf{Costing} and \textbf{Monthly MIS} Reporting  }
+					\item {Identifying \textbf{optimum product mix} based on Contribution and Fixed Overheads Allocation, \textbf{Reporting} to the management about \textbf{"loss leaders"} and to focus on \textbf{profitable product segments}}
+					\item {Quarterly review of \textbf{absorption of fixed overheads} based on normal production capacity and \textbf{variances} resulting from \textbf{abnormal} over or under \textbf{absorption} of fixed overheads}
+					\item {Supervision and guidance on technical aspects (Accounting Standards) to the Accounts Manager on day-to-day activities and troubleshooting of cryptic issues faced by him.}
+					\item {\textbf{Projected Financials - 3 statements} and interactions with financial institutions, other private parties and explaining them about new project - liaison. For this purpose, created \textbf{financial model in excel} from scratch.}
+					\item {\textbf{Credit control} through \textbf{Ageing} analysis of \textbf{receivables} on monthly basis and regular interactions / \textbf{follow ups} with \textbf{marketing} team for overdue.}
+					\item {Day to day \textbf{cash flow planning \& management}, setting up priorities for payment to overdue vendors, etc.}
+					\item {Setting up of \textbf{Budgetary control} and \textbf{variance analysis}.}
+				\resumeItemListEnd
+\vspace{-2.0mm}
+\hrule\vspace{1.0mm}			
+ \resumeSubheading{\Large
+ 	{Gujarat Ambuja Cements Limited\\Kodinar, Gujarat}\vspace{1.25mm}}{}{\large
+ 	{\textbf{Accounts Officer}}}{\large{Sep 1993 – Jan 1996}}
+ 	\resumeItemListStart
+ 		\item {\textbf{Verification and Validation} before payout to large civil, mechanical, and electrical contractors’ \textbf{progress bills}.}
+ 		\item {\textbf{Capitalization} - Project Accounting of new project, \textbf{Gajambuja} Cements of \textbf{\rupee 200 cr}.}
+ 	\resumeItemListEnd
+\resumeSubHeadingListEnd
 \vspace{-5.5mm}
 %
-%-----------Technical skills-----------------
-\section{\textbf{Technical Skills and Interests}}
- \begin{itemize}[leftmargin=0.05in, label={}]
-    \small{\item{
-     \textbf{Languages}{: C/C++, Python, Javascript, HTML+CSS } \\
-     \textbf{Libraries }{: C++ STL, Python Libraries, ReactJs }\\ 
-     \textbf{Web Dev Tools}{: Nodejs, VScode, Git, Github } \\ 
-     \textbf{Frameworks}{: ReactJs } \\
-     \textbf{Cloud/Databases}{:MongoDb, Firebase, Relational Database(mySql) } \\  
-     
-     \textbf{Relevent Coursework}{: Data Structures \& Algorithms, Operating Systems, Object Oriented Programming, Database Management System, Software Engineering. } \\ 
-     \textbf{Areas of Interest}{: Web Design and Development, Cloud Security.} \\
-     \textbf{Soft Skills}{: Problem Solving, Self-learning, Presentation, Adaptability} \\
-    }}
- \end{itemize}
- \vspace{-16pt}
+%-----------Education-----------------
+\hrule\vspace{-2.0mm}
+\section{\Large \textbf{Education}}
+	\resumeItemListStart
+		\item {\textbf{Chartered Accountant} (Indian Equivalent of CPA – USA) - [1983-1988]\\\textbf{Institute Of Chartered Accountants Of India}}
+		\item {\textbf{Bachelor of Commerce} - [1980-1985]\\\textbf{Mumbai University}}
+	\resumeItemListEnd
+\vspace{-3.0mm}
+%-----------Technical Skillsets----------
 
+\section{\Large\hrule\vspace{1mm}\textbf{Tech Stack}}
+\newcommand{\resumeItemListStartNew}{%
+	\begin{itemize}[leftmargin=*, rightmargin=2ex, labelsep=1.3mm, itemsep=0.25mm, label={\textbullet}]%
+		\vspace{2mm}%
+		\large%
+	}
+	\resumeItemListStartNew
+	\item {\textbf{Operating Systems:}\textendash~Windows / Linux (Fedora \& Archlinux \textendash Titling Window Managers used \textendash~~Sway \& i3wm)}
+	\item {\textbf{Office Software:}\textendash~MS Office 365~\textemdash~~Word, Excel (advanced functions), Power Query, Power Point, Access}
+	\item {\textbf{ERP:}\textendash~SAP / Oracle / MS Dynamics / Other Proprietary}
+	\item {\textbf{Accounting Software:}\textendash~QuickBooks, Xero, Tally, Other proprietary}	
+	\item {\textbf{Database Tools:}\textendash~SQL scripts (data extraction using SELECT)}
+	\item {\textbf{Programming (Primary):}\textendash~Python, VBA}
+	\item {\textbf{AI Interface:}\textendash~Microsoft Co-pilot, Google Gemini, Perplexity AI}
+	\item {\textbf{Others:}\textendash~LaTeX, XCM, CCH Binder, etc.}
+\newcommand{\resumeItemListEndNew}{%
+\end{itemize}%
+}
+\resumeItemListEndNew
+\vspace{-11.0mm}
 
+%-----------Certifications----------
+\section{\Large\hrule\vspace{1.0mm} \textbf{Other Certifications}}
+\newcommand{\resumeItemListStartNewNew}{%
+	\begin{itemize}[leftmargin=*, rightmargin=2ex, labelsep=1.3mm, itemsep=0.25mm, label={\textbullet}]%
+		\vspace{2mm}%
+		\large%
+	}
+	\resumeItemListStartNewNew
+	\item {\textbf{QuickBooks On-line}}
+	\item {\textbf{QuickBooks On-line Pro-Advisor (Advanced)}}
+	\item {\textbf{QuickBooks Desktop}}
+	\item {\textbf{QuickBooks Desktop Enterprise}}	
+	\item {\textbf{Xero (Advisor)}}
+	\newcommand{\resumeItemListEndNewNew}{%
+	\end{itemize}%
+}
+\resumeItemListEndNewNew
 
-%-----------Positions of Responsibility-----------------
-\section{\textbf{Positions of Responsibility}}
-\vspace{-0.4mm}
-\resumeSubHeadingListStart
-\resumePOR{On Desk Registrations Volunteer } % Position
-    {Aarhant Cyber Week Event - RCOEM, Nagpur} %Club,Event
-    {Oct - Dec 2022} %Tenure Period \\
-    \resumeItemListStart
-    \item {Helped to attract close to 300 attendees to the event.}
-    \item {Collected over Rs. 20,000 in entry fees for different activities.}
-    \resumeItemListEnd
-
-\resumeSubHeadingListEnd
-\vspace{-5mm}
-
-
-
-
-% %-----------Achievements-----------------
-% \section{\textbf{Achievements}}
-% \vspace{-0.4mm}
-% \resumeSubHeadingListStart
-% \resumePOR{Achievement } % Award
-%     {description} % Event
-%     {Event dates} %Event Year
-    
-% \resumePOR{Achievement } % Award
-%     {description} % Event
-%     {Event dates} %Event Year
-% \resumeSubHeadingListEnd
-% \vspace{-5mm}
-
-
-
-%-------------------------------------------
 \end{document}
 
