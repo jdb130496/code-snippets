@@ -5,6 +5,8 @@ import xlwings as xw
 
 @xw.func
 def get_url_data(country, symbol, from_date, to_date):
+    from_date = datetime.datetime.strptime(from_date, "%d/%m/%Y").strftime("%m/%d/%Y")
+    to_date = datetime.datetime.strptime(to_date, "%d/%m/%Y").strftime("%m/%d/%Y")
     url = f'http://api.scraperlink.com/investpy/?email=asharindani51@gmail.com&type=historical_data&product=stocks&country={country}&symbol={symbol}&from_date={from_date}&to_date={to_date}'
     response = requests.get(url)
     json_output = response.json()  # This is already a Python dictionary
@@ -18,6 +20,7 @@ def get_url_data(country, symbol, from_date, to_date):
             if item is not None:
                 data.append(list(item.values()))
     return data
+
 import datetime
 import xlwings as xw
 
