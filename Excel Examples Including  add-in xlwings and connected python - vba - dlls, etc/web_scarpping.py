@@ -50,3 +50,31 @@ def convert_timestamps(timestamps):
     # Return the list of lists with the converted dates
     return converted_dates
 
+import pandas as pd
+import xlwings as xw
+import yfinance as yf
+import datetime
+
+@xw.func
+def get_stock_data_yf(symbol, start_date, end_date):
+    # Convert the date format from "dd/mm/yyyy" to "yyyy-mm-dd"
+    start_date = datetime.datetime.strptime(start_date, "%d/%m/%Y").strftime("%Y-%m-%d")
+    end_date = datetime.datetime.strptime(end_date, "%d/%m/%Y").strftime("%Y-%m-%d")
+
+    # Download historical market data
+    hist = yf.Ticker(symbol).history(start=start_date, end=end_date)
+
+    # Fill missing values with a default value (like 'N/A' or 0)
+    hist.fillna('N/A', inplace=True)
+
+    # Reset the index to include it in the output
+    hist.reset_index(inplace=True)
+
+    # Convert the DataFrame to a list of lists
+    data = hist.values.tolist()
+
+    # Add the column names as the first list in the output
+    data.insert(0, hist.columns.tolist())
+
+    return data
+
