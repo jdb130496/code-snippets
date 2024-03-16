@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2024.3.6)  8 MAR 2024 23:08
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2024.3.6)  16 MAR 2024 13:02
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -23,6 +23,29 @@ File: size11.clo 2023/05/17 v1.4n Standard LaTeX file (size option)
 \belowcaptionskip=\skip49
 \bibindent=\dimen140
 )
+(d:/Programs/texlive/texmf-dist/tex/latex/base/inputenc.sty
+Package: inputenc 2021/02/14 v1.3d Input encoding file
+\inpenc@prehook=\toks17
+\inpenc@posthook=\toks18
+)
+(d:/Programs/texlive/texmf-dist/tex/latex/lipsum/lipsum.sty
+(d:/Programs/texlive/texmf-dist/tex/latex/l3packages/l3keys2e/l3keys2e.sty
+(d:/Programs/texlive/texmf-dist/tex/latex/l3kernel/expl3.sty
+Package: expl3 2024-02-20 L3 programming layer (loader) 
+
+(d:/Programs/texlive/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
+File: l3backend-pdftex.def 2024-02-20 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count196
+\l__pdf_internal_box=\box51
+))
+Package: l3keys2e 2024-02-18 LaTeX2e option processing using LaTeX3 keys
+)
+Package: lipsum 2021-09-20 v2.7 150 paragraphs of Lorem Ipsum dummy text
+\g__lipsum_par_int=\count197
+\l__lipsum_a_int=\count198
+\l__lipsum_b_int=\count199
+
+(d:/Programs/texlive/texmf-dist/tex/latex/lipsum/lipsum.ltd.tex))
 (d:/Programs/texlive/texmf-dist/tex/latex/xcolor/xcolor.sty
 Package: xcolor 2023/11/15 v3.01 LaTeX color extensions (UK)
 
@@ -75,11 +98,11 @@ Fat (http://techfat.blogspot.com/2010/07/new-open-source-india-rupee-font.html)
 )
 (d:/Programs/texlive/texmf-dist/tex/latex/float/float.sty
 Package: float 2001/11/08 v1.3d Float enhancements (AL)
-\c@float@type=\count196
-\float@exts=\toks17
-\float@box=\box51
-\@float@everytoks=\toks18
-\@floatcapt=\box52
+\c@float@type=\count266
+\float@exts=\toks19
+\float@box=\box52
+\@float@everytoks=\toks20
+\@floatcapt=\box53
 )
 (d:/Programs/texlive/texmf-dist/tex/latex/preprint/fullpage.sty
 Package: fullpage 1999/02/23 1.1 (PWD)
@@ -88,29 +111,11 @@ Package: fullpage 1999/02/23 1.1 (PWD)
 (d:/Programs/texlive/texmf-dist/tex/latex/wrapfig/wrapfig.sty
 \wrapoverhang=\dimen141
 \WF@size=\dimen142
-\c@WF@wrappedlines=\count197
-\WF@box=\box53
-\WF@everypar=\toks19
+\c@WF@wrappedlines=\count267
+\WF@box=\box54
+\WF@everypar=\toks21
 Package: wrapfig 2003/01/31  v 3.6
 )
-(d:/Programs/texlive/texmf-dist/tex/latex/lipsum/lipsum.sty
-(d:/Programs/texlive/texmf-dist/tex/latex/l3packages/l3keys2e/l3keys2e.sty
-(d:/Programs/texlive/texmf-dist/tex/latex/l3kernel/expl3.sty
-Package: expl3 2024-02-20 L3 programming layer (loader) 
-
-(d:/Programs/texlive/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
-File: l3backend-pdftex.def 2024-02-20 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count198
-\l__pdf_internal_box=\box54
-))
-Package: l3keys2e 2024-02-18 LaTeX2e option processing using LaTeX3 keys
-)
-Package: lipsum 2021-09-20 v2.7 150 paragraphs of Lorem Ipsum dummy text
-\g__lipsum_par_int=\count199
-\l__lipsum_a_int=\count266
-\l__lipsum_b_int=\count267
-
-(d:/Programs/texlive/texmf-dist/tex/latex/lipsum/lipsum.ltd.tex))
 (d:/Programs/texlive/texmf-dist/tex/latex/tools/tabularx.sty
 Package: tabularx 2023/07/08 v2.11c `tabularx' package (DPC)
 
@@ -119,7 +124,7 @@ Package: array 2023/10/16 v2.5g Tabular extension package (FMi)
 \col@sep=\dimen143
 \ar@mcellbox=\box55
 \extrarowheight=\dimen144
-\NC@list=\toks20
+\NC@list=\toks22
 \extratabsurround=\skip65
 \backup@length=\skip66
 \ar@cellbox=\box56
@@ -130,7 +135,7 @@ Package: array 2023/10/16 v2.5g Tabular extension package (FMi)
 \TX@target=\dimen148
 \TX@delta=\dimen149
 \TX@cols=\count268
-\TX@ftn=\toks21
+\TX@ftn=\toks23
 )
 (d:/Programs/texlive/texmf-dist/tex/latex/titlesec/titlesec.sty
 Package: titlesec 2023/10/27 v2.16 Sectioning titles
@@ -139,7 +144,7 @@ Package: titlesec 2023/10/27 v2.16 Sectioning titles
 \aftertitleunit=\skip68
 \ttl@plus=\dimen150
 \ttl@minus=\dimen151
-\ttl@toksa=\toks22
+\ttl@toksa=\toks24
 \titlewidth=\dimen152
 \titlewidthlast=\dimen153
 \titlewidthfirst=\dimen154
@@ -149,7 +154,7 @@ Package: geometry 2020/01/02 v5.9 Page Geometry
 
 (d:/Programs/texlive/texmf-dist/tex/latex/graphics/keyval.sty
 Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
-\KV@toks@=\toks23
+\KV@toks@=\toks25
 )
 (d:/Programs/texlive/texmf-dist/tex/generic/iftex/ifvtex.sty
 Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
@@ -168,22 +173,22 @@ Package: iftex 2022/02/03 v1.0f TeX engine tests
 \Gm@layoutheight=\dimen160
 \Gm@layouthoffset=\dimen161
 \Gm@layoutvoffset=\dimen162
-\Gm@dimlist=\toks24
+\Gm@dimlist=\toks26
 )
 (d:/Programs/texlive/texmf-dist/tex/latex/marvosym/marvosym.sty
 Package: marvosym 2011/07/20 v2.2 Martin Vogel's Symbols font definitions
 )
 (d:/Programs/texlive/texmf-dist/tex/latex/tools/verbatim.sty
 Package: verbatim 2023-11-06 v1.5v LaTeX2e package for verbatim enhancements
-\every@verbatim=\toks25
-\verbatim@line=\toks26
+\every@verbatim=\toks27
+\verbatim@line=\toks28
 \verbatim@in@stream=\read2
 )
 (d:/Programs/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty
 Package: enumitem 2019/06/20 v3.9 Customized lists
 \labelindent=\skip69
 \enit@outerparindent=\dimen163
-\enit@toks=\toks27
+\enit@toks=\toks29
 \enit@inbox=\box58
 \enit@count@id=\count272
 \enitdp@description=\count273
@@ -454,8 +459,8 @@ Package: xkeyval 2022/06/16 v2.9 package option processing (HA)
 
 (d:/Programs/texlive/texmf-dist/tex/generic/xkeyval/xkeyval.tex
 (d:/Programs/texlive/texmf-dist/tex/generic/xkeyval/xkvutils.tex
-\XKV@toks=\toks28
-\XKV@tempa@toks=\toks29
+\XKV@toks=\toks30
+\XKV@tempa@toks=\toks31
 )
 \XKV@depth=\count297
 File: xkeyval.tex 2014/12/03 v2.7a key=value parser (HA)
@@ -532,7 +537,7 @@ Package: tcolorbox 2024/01/10 version 6.2.0 text color boxes
 (d:/Programs/texlive/texmf-dist/tex/latex/pgf/basiclayer/pgf.sty
 (d:/Programs/texlive/texmf-dist/tex/latex/pgf/utilities/pgfrcs.sty
 (d:/Programs/texlive/texmf-dist/tex/generic/pgf/utilities/pgfutil-common.tex
-\pgfutil@everybye=\toks30
+\pgfutil@everybye=\toks32
 \pgfutil@tempdima=\dimen179
 \pgfutil@tempdimb=\dimen180
 )
@@ -551,12 +556,12 @@ Package: pgf 2023-01-15 v3.1.10 (3.1.10)
 Package: pgfsys 2023-01-15 v3.1.10 (3.1.10)
 
 (d:/Programs/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex
-\pgfkeys@pathtoks=\toks31
-\pgfkeys@temptoks=\toks32
+\pgfkeys@pathtoks=\toks33
+\pgfkeys@temptoks=\toks34
 
 (d:/Programs/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeyslibraryfiltere
 d.code.tex
-\pgfkeys@tmptoks=\toks33
+\pgfkeys@tmptoks=\toks35
 ))
 \pgf@x=\dimen181
 \pgf@y=\dimen182
@@ -574,9 +579,9 @@ d.code.tex
 \c@pgf@countb=\count300
 \c@pgf@countc=\count301
 \c@pgf@countd=\count302
-\t@pgf@toka=\toks34
-\t@pgf@tokb=\toks35
-\t@pgf@tokc=\toks36
+\t@pgf@toka=\toks36
+\t@pgf@tokb=\toks37
+\t@pgf@tokc=\toks38
 \pgf@sys@id@count=\count303
 
 (d:/Programs/texlive/texmf-dist/tex/generic/pgf/systemlayer/pgf.cfg
@@ -610,9 +615,9 @@ Package: pgfcore 2023-01-15 v3.1.10 (3.1.10)
 \pgfmath@dimen=\dimen191
 \pgfmath@count=\count306
 \pgfmath@box=\box106
-\pgfmath@toks=\toks37
-\pgfmath@stack@operand=\toks38
-\pgfmath@stack@operation=\toks39
+\pgfmath@toks=\toks39
+\pgfmath@stack@operand=\toks40
+\pgfmath@stack@operation=\toks41
 )
 (d:/Programs/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.code.tex)
 
@@ -758,7 +763,7 @@ Package: environ 2014/05/04 v0.3 A new way to define environments
 (d:/Programs/texlive/texmf-dist/tex/latex/trimspaces/trimspaces.sty
 Package: trimspaces 2009/09/17 v1.1 Trim spaces around a token list
 )
-\@envbody=\toks40
+\@envbody=\toks42
 )
 \tcb@titlebox=\box112
 \tcb@upperbox=\box113
@@ -792,8 +797,8 @@ Library (tcolorbox): 'tcbskins.code.tex' version '6.2.0'
 Package: pgffor 2023-01-15 v3.1.10 (3.1.10)
 \pgffor@iter=\dimen275
 \pgffor@skip=\dimen276
-\pgffor@stack=\toks41
-\pgffor@toks=\toks42
+\pgffor@stack=\toks43
+\pgffor@toks=\toks44
 ))
 (d:/Programs/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.te
 x
@@ -872,7 +877,7 @@ Package: amstext 2021/08/26 v2.01 AMS text
 
 (d:/Programs/texlive/texmf-dist/tex/latex/amsmath/amsgen.sty
 File: amsgen.sty 1999/11/30 v2.0 generic functions
-\@emptytoks=\toks43
+\@emptytoks=\toks45
 \ex@=\dimen286
 ))
 (d:/Programs/texlive/texmf-dist/tex/latex/amsmath/amsbsy.sty
@@ -912,21 +917,21 @@ LaTeX Info: Redefining \Relbar on input line 971.
 \dotsspace@=\muskip17
 \c@parentequation=\count334
 \dspbrk@lvl=\count335
-\tag@help=\toks44
+\tag@help=\toks46
 \row@=\count336
 \column@=\count337
 \maxfields@=\count338
-\andhelp@=\toks45
+\andhelp@=\toks47
 \eqnshift@=\dimen289
 \alignsep@=\dimen290
 \tagshift@=\dimen291
 \tagwidth@=\dimen292
 \totwidth@=\dimen293
 \lineht@=\dimen294
-\@envbody=\toks46
+\@envbody=\toks48
 \multlinegap=\skip83
 \multlinetaggap=\skip84
-\mathdisplay@stack=\toks47
+\mathdisplay@stack=\toks49
 LaTeX Info: Redefining \[ on input line 2953.
 LaTeX Info: Redefining \] on input line 2954.
 ))
@@ -943,7 +948,7 @@ Library (tcolorbox): 'tcblistings.code.tex' version '6.2.0'
 (d:/Programs/texlive/texmf-dist/tex/latex/listings/listings.sty
 \lst@mode=\count340
 \lst@gtempboxa=\box131
-\lst@token=\toks48
+\lst@token=\toks50
 \lst@length=\count341
 \lst@currlwidth=\dimen298
 \lst@column=\count342
@@ -1000,47 +1005,47 @@ Library (tcolorbox): 'tcbposter.code.tex' version '6.2.0'
 )) (./latex_cv.aux)
 \openout1 = `latex_cv.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/lmm/m/it on input line 162.
+LaTeX Font Info:    Checking defaults for OML/lmm/m/it on input line 165.
 LaTeX Font Info:    Trying to load font information for OML+lmm on input line 1
-62.
+65.
  (d:/Programs/texlive/texmf-dist/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    ... okay on input line 162.
-LaTeX Font Info:    Checking defaults for OMS/lmsy/m/n on input line 162.
+LaTeX Font Info:    ... okay on input line 165.
+LaTeX Font Info:    Checking defaults for OMS/lmsy/m/n on input line 165.
 LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 
-162.
+165.
 
 (d:/Programs/texlive/texmf-dist/tex/latex/lm/omslmsy.fd
 File: omslmsy.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    ... okay on input line 162.
-LaTeX Font Info:    Checking defaults for OT1/lmr/m/n on input line 162.
+LaTeX Font Info:    ... okay on input line 165.
+LaTeX Font Info:    Checking defaults for OT1/lmr/m/n on input line 165.
 LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 1
-62.
+65.
 
 (d:/Programs/texlive/texmf-dist/tex/latex/lm/ot1lmr.fd
 File: ot1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    ... okay on input line 162.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 162.
-LaTeX Font Info:    ... okay on input line 162.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 162.
-LaTeX Font Info:    ... okay on input line 162.
-LaTeX Font Info:    Checking defaults for OMX/lmex/m/n on input line 162.
+LaTeX Font Info:    ... okay on input line 165.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 165.
+LaTeX Font Info:    ... okay on input line 165.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 165.
+LaTeX Font Info:    ... okay on input line 165.
+LaTeX Font Info:    Checking defaults for OMX/lmex/m/n on input line 165.
 LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 
-162.
+165.
 
 (d:/Programs/texlive/texmf-dist/tex/latex/lm/omxlmex.fd
 File: omxlmex.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    ... okay on input line 162.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 162.
-LaTeX Font Info:    ... okay on input line 162.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 162.
-LaTeX Font Info:    ... okay on input line 162.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 162.
-LaTeX Font Info:    ... okay on input line 162.
+LaTeX Font Info:    ... okay on input line 165.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 165.
+LaTeX Font Info:    ... okay on input line 165.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 165.
+LaTeX Font Info:    ... okay on input line 165.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 165.
+LaTeX Font Info:    ... okay on input line 165.
 
 (d:/Programs/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
@@ -1049,12 +1054,12 @@ LaTeX Font Info:    ... okay on input line 162.
 \scratchbox=\box133
 \nofMPsegments=\count350
 \nofMParguments=\count351
-\everyMPshowfont=\toks49
+\everyMPshowfont=\toks51
 \MPscratchCnt=\count352
 \MPscratchDim=\dimen303
 \MPnumerator=\count353
 \makeMPintoPDFobject=\count354
-\everyMPtoPDFconversion=\toks50
+\everyMPtoPDFconversion=\toks52
 ) (d:/Programs/texlive/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
@@ -1098,20 +1103,14 @@ e
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-Package hyperref Info: Link coloring OFF on input line 162.
+Package hyperref Info: Link coloring OFF on input line 165.
 (./latex_cv.out) (./latex_cv.out)
 \@outlinefile=\write4
 \openout4 = `latex_cv.out'.
 
 \c@lstlisting=\count355
-
-(d:/Programs/texlive/texmf-dist/tex/latex/base/inputenc.sty
-Package: inputenc 2021/02/14 v1.3d Input encoding file
-\inpenc@prehook=\toks51
-\inpenc@posthook=\toks52
-)
 LaTeX Font Info:    Trying to load font information for T1+phv on input line 16
-3.
+6.
 
 (d:/Programs/texlive/texmf-dist/tex/latex/psnfss/t1phv.fd
 File: t1phv.fd 2020/03/25 scalable font definitions for T1/phv.
@@ -1121,21 +1120,21 @@ File: t1phv.fd 2020/03/25 scalable font definitions for T1/phv.
 (d:/Programs/texlive/texmf-dist/tex/latex/fontawesome5/ufontawesomefree1.fd)
 (d:/Programs/texlive/texmf-dist/tex/latex/fontawesome5/ufontawesomebrands0.fd)
 LaTeX Font Info:    Trying to load font information for TS1+phv on input line 1
-81.
+89.
 
 (d:/Programs/texlive/texmf-dist/tex/latex/psnfss/ts1phv.fd
 File: ts1phv.fd 2020/03/25 scalable font definitions for TS1/phv.
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 201.
+(Font)              <5> on input line 209.
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <10.95> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 204.
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 212.
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <9> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 204.
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 212.
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <12> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 204.
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 212.
 LaTeX Font Info:    Font shape `T1/phv/b/it' in size <12> not available
-(Font)              Font shape `T1/phv/b/sl' tried instead on input line 204.
+(Font)              Font shape `T1/phv/b/sl' tried instead on input line 212.
 
 Overfull \hbox (105.2773pt too wide) has occurred while \output is active
  [][]| 
@@ -1178,20 +1177,20 @@ Package rerunfilecheck Info: File `latex_cv.out' has not changed.
 (rerunfilecheck)             Checksum: 2FA0AE097C513A869ACB162D97C435FB;597.
  ) 
 Here is how much of TeX's memory you used:
- 33149 strings out of 474115
- 665270 string characters out of 5745684
+ 33154 strings out of 474115
+ 665355 string characters out of 5745684
  1949190 words of memory out of 5000000
- 54912 multiletter control sequences out of 15000+600000
- 632974 words of font info for 87 fonts, out of 8000000 for 9000
+ 54916 multiletter control sequences out of 15000+600000
+ 635704 words of font info for 89 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 93i,12n,99p,429b,773s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 93i,12n,99p,442b,773s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <d:/Programs/texlive/texmf-dist/fonts/type1/public/fontawesome5/FontAwesome5B
 rands-Regular.pfb><d:/Programs/texlive/texmf-dist/fonts/type1/public/fontawesom
 e5/FontAwesome5Free-Solid.pfb><d:/Programs/texlive/texmf-dist/fonts/type1/publi
 c/tfrupee/tfrupee.pfb><d:/Programs/texlive/texmf-dist/fonts/type1/urw/helvetic/
 uhvb8a.pfb><d:/Programs/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvbo8a.pfb
 ><d:/Programs/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb>
-Output written on latex_cv.pdf (5 pages, 164763 bytes).
+Output written on latex_cv.pdf (5 pages, 164785 bytes).
 PDF statistics:
  142 PDF objects out of 1000 (max. 8388607)
  91 compressed objects within 1 object stream

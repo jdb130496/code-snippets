@@ -7,6 +7,8 @@
 %---- Required Packages and Functions ----
 
 \documentclass[a4paper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{lipsum}
 \usepackage{xcolor}
 \definecolor{myfootercolor}{RGB}{0,0,0} % Black color
 \usepackage{ragged2e}
@@ -45,12 +47,12 @@
 \renewcommand{\footrulewidth}{0pt}
 % Set the footer to show "Page X of Y"
 \fancyfoot[C]{\makebox[\textwidth][c]{\fontfamily{phv}\selectfont\large\textbf{\color{myfootercolor} Page \thepage\ of \pageref{LastPage}}}}
-\geometry{left=1.4cm, top=0.8cm, right=1.2cm, bottom=2.25cm, footskip=0.70cm} 
-% Adjust margins
+\geometry{left=1.4cm, top=0.8cm, right=1.2cm, bottom=2.25cm, footskip=0.70cm}
 %\addtolength{\oddsidemargin}{-0.5in}
 %\addtolength{\evensidemargin}{-0.5in}
 %\addtolength{\textwidth}{1in}
 \usepackage[most]{tcolorbox}
+\usepackage{fancyhdr}
 \tcbset{
 	frame code={}
 	center title,
@@ -149,6 +151,8 @@
 \newcolumntype{L}{>{\raggedright\arraybackslash}X}%
 \newcolumntype{R}{>{\raggedleft\arraybackslash}X}%
 \newcolumntype{C}{>{\centering\arraybackslash}X}%
+% LaTeX document content 
+% Adjust margins
 %---- End of Packages and Functions ------
 
 %-------------------------------------------
@@ -158,12 +162,16 @@
 \newcommand{\Qualification}{Chartered Accountant - 1988} % Your Qualification
 \newcommand{\phone}{94084 39126} % Your Phone Number
 \newcommand{\emaila}{dhawal.bakshi@gmail.com} %Email 1
-\hrule
 \begin{document}
 \fontfamily{phv}\selectfont
 %----------HEADING-----------------
 
 {
+\begin{center}
+\textbf{\Huge RESUME}
+\end{center}
+\vspace{2mm}
+\hrule\vspace{-2mm}
 \begin{tabularx}{\linewidth}{L r} \\
   \textbf{\Large \name} & {\raisebox{0.0\height}{\footnotesize \faPhone}\ +91-\phone}\\
   \textbf{\Large \Qualification} & \href{mailto:\emaila}{\raisebox{0.0\height}{\footnotesize \faEnvelope}\ {\emaila}} \\ 
