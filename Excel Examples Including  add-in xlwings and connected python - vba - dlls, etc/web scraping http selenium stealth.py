@@ -91,7 +91,7 @@ def get_historical_data_gold(script_name, end_date, start_date):
         fix_hairline=True,
         )
     driver.get(url)
-    time.sleep(2)
+    time.sleep(12)
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     div = soup.find('div', {'class': 'common-table-scroller js-table-scroller'})
     table = div.find('table', {'class': 'common-table medium js-table'})
