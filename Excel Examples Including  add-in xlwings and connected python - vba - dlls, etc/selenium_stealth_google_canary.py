@@ -7,12 +7,16 @@ from datetime import datetime as dt
 import re
 import xlwings as xw
 import re  # Regular expression library
+import pickle
 
 @xw.func
 def get_historical_data(script_name, end_date, start_date):
     end_date_timestamp = int(dt.strptime(end_date, "%d/%m/%Y").timestamp())
     start_date_timestamp = int(dt.strptime(start_date, "%d/%m/%Y").timestamp())
     options = webdriver.ChromeOptions()
+#    options.add_argument("--remote-debugging-port=9292")
+#    options.add_argument("user-data-dir=D:\\User Data")  # replace with the path to your User Data director
+#    options.add_argument("profile-directory=Default")  # replace with your profile directory
     options.add_extension(r'D:\dev\AdBlock-—-best-ad-blocker.crx') 
     options.add_argument("start-maximized")
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
@@ -20,6 +24,14 @@ def get_historical_data(script_name, end_date, start_date):
     options.binary_location = r"C:\Users\baksh\AppData\Local\Google\Chrome SxS\Application\chrome.exe"
     driver = webdriver.Chrome(service=Service(r"D:\chromedriver.exe"), options=options)
     url = f"https://in.investing.com/equities/{script_name}-historical-data?end_date={end_date_timestamp}&st_date={start_date_timestamp}"
+    driver.get(url)
+#    try:
+#        cookies = pickle.load(open("cookies.pkl", "rb"))
+#        for cookie in cookies:
+#            driver.add_cookie(cookie)
+#        driver.refresh()
+#    except (FileNotFoundError, EOFError):
+#        pass
     stealth(driver,
         languages=["en-US", "en"],
         vendor="Google Inc.",
@@ -28,7 +40,6 @@ def get_historical_data(script_name, end_date, start_date):
         renderer="Intel Iris OpenGL Engine",
         fix_hairline=True,
         )
-    driver.get(url)
     time.sleep(2)
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     div = soup.find('div', {'class': 'common-table-scroller js-table-scroller'})
