@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium_stealth import stealth
+from selenium.webdriver.chrome.service import Service
 from bs4 import BeautifulSoup
 import time
 from datetime import datetime as dt
@@ -15,7 +16,10 @@ def get_historical_data(script_name, end_date, start_date):
     options.add_argument("start-maximized")
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option('useAutomationExtension', False)
-    driver = webdriver.Chrome(options=options)
+    options.binary_location = r"C:\Users\baksh\AppData\Local\Google\Chrome SxS\Application\chrome.exe"
+    service = Service(r"D:\chromedriver.exe")  # replace with the path to your ChromeDriver
+    options.add_extension(r'D:\AdBlock-—-best-ad-blocker.crx')
+    driver = webdriver.Chrome(service=service, options=options)
     url = f"https://in.investing.com/equities/{script_name}-historical-data?end_date={end_date_timestamp}&st_date={start_date_timestamp}"
     stealth(driver,
         languages=["en-US", "en"],
@@ -80,7 +84,11 @@ def get_historical_data_gold(script_name, end_date, start_date):
     options.add_argument("start-maximized")
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option('useAutomationExtension', False)
-    driver = webdriver.Chrome(options=options)
+    options.binary_location = r"C:\Users\baksh\AppData\Local\Google\Chrome SxS\Application\chrome.exe"
+    service = Service(r"D:\chromedriver.exe")  # replace with the path to your ChromeDriver
+    options.add_extension(r'D:\AdBlock-—-best-ad-blocker.crx')
+    driver = webdriver.Chrome(service=service, options=options)
+    options.add_extension(r'D:\AdBlock-—-best-ad-blocker.crx')
     url = f"https://in.investing.com/commodities/{script_name}-historical-data?cid=49776&end_date={end_date_timestamp}&st_date={start_date_timestamp}&interval_sec=daily"
     stealth(driver,
         languages=["en-US", "en"],
