@@ -1,0 +1,20 @@
+let
+cum=(tbl as table) as table =>
+    let
+        #"Sorted"=Table.Sort(tbl,{{"Year",Order.Ascending},{"Transaction type",Order.Ascending}}),
+        #"indexed"=Table.AddIndexColumn(#"Sorted","idx",1),
+        #"cumulative"= Table.AddColumn(#"indexed","Running Total",each List.Accumulate(List.Range(#"indexed"[tr_count],0,[idx]),0,(state, current)=>state + current))
+    in
+        #"cumulative",
+    Source = Csv.Document(File.Contents("M:\06830 - Content Dog LLC\Transaction List By Date 03_17_2023T02_40_54.csv"),[Delimiter=",", Columns=10, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+    #"cleaning up of amount" = Table.TransformColumns(Table.TransformColumns(#"Promoted Headers",{"Amount",each if _="--" then "0" else _}),{"Amount",each Text.Replace(_,"$","")}),
+    #"Changed Type" = Table.TransformColumnTypes(#"cleaning up of amount",{{"Transaction date", type date}, {"Amount", type number}}),
+    #"Added Custom" = Table.AddColumn(#"Changed Type", "Year", each Date.Year([Transaction date])),
+    #"Grouped Rows" = Table.Group(#"Added Custom", {"Year", "Transaction type"}, {{"tr_count", each Table.RowCount(_), Int64.Type}}),
+    #"Grouped Rows1" = Table.Group(#"Grouped Rows", {"Year"}, {{"all rows", each _, type table [Year=number, Transaction type=nullable text, tr_count=number]}}),
+    #"invoke cum" =Table.TransformColumns(#"Grouped Rows1",{"all rows",each cum(_)}),
+    #"Expanded all rows" = Table.ExpandTableColumn(#"invoke cum", "all rows", {"Transaction type", "tr_count", "Running Total"}, {"Transaction type", "tr_count", "Running Total"})
+    
+in
+    #"Expanded all rows"

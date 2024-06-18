@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hex to Decimal Conversion</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+</head>
+<body>
+    <h1>Hex to Decimal Conversion</h1>
+    <label for="fileInput">Select Excel file:</label>
+    <input type="file" id="fileInput" accept=".xls,.xlsx" onchange="loadSheetNames()">
+    <br>
+    <label for="sheetSelect">Select sheet:</label>
+    <select id="sheetSelect"></select>
+    <br>
+    <button onclick="convertHexToDecimal()">Convert</button>
+    <p>Result:</p>
+    <ul id="result"></ul>
+
+    <script>
+        let workbook;
+
+        function loadSheetNames() {
+            let fileInput = document.getElementById("fileInput");
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let data = e.target.result;
+                workbook = XLSX.read(data, {type: "binary"});
+                let sheetSelect = document.getElementById("sheetSelect");
+                sheetSelect.innerHTML = "";
+                for (let sheetName of workbook.SheetNames) {
+                    let option = document.createElement("option");
+                    option.value = sheetName;
+                    option.textContent = sheetName;
+                    sheetSelect.appendChild(option);
+                }
+            };
+            reader.readAsBinaryString(fileInput.files[0]);
+        }
+
+        function convertHexToDecimal() {
+            let sheetName = document.getElementById("sheetSelect").value;
+            let worksheet = workbook.Sheets[sheetName];
+            let hexString = worksheet["C2"].v;
+            let binaryString = "";
+            for (let i = 0; i < hexString.length; i++) {
+                let decimalValue = parseInt(hexString[i], 16);
+                let binaryValue = decimalValue.toString(2).padStart(4, "0");
+                binaryString += binaryValue;
+            }
+            let result = [];
+            for (let i = 0; i < binaryString.length; i += 16) {
+                let binaryByte = binaryString.slice(i, i + 16);
+                if (binaryByte.length === 16) {
+                    let sign = binaryByte[0] === "0" ? -1 : 1;
+                    let decimalValue = sign * parseInt(binaryByte.slice(1, 16), 2);
+                    result.push(decimalValue);
+                }
+            }
+            let resultElement = document.getElementById("result");
+            resultElement.innerHTML = "";
+            for (let decimalValue of result) {
+                let li = document.createElement("li");
+                li.textContent = decimalValue;
+                resultElement.appendChild(li);
+            }
+        }
+    </script>
+</body>
+</html>
+

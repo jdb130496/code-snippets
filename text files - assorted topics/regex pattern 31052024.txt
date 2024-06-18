@@ -1,0 +1,4 @@
+(?i)(^((?=.*direct)|(?=.*growth)|(?=.*gold)|(?=.*silver)))(^((?!(equity|hybrid|Solution Oriented|FOF|elss|regular|idcw|dividend|div|hybrid|balanced advantage|index|nifty)).)*$)
+
+gcc regex_lib.c `pkg-config --cflags --libs glib-2.0` -shared -o regex_lib.dll
+

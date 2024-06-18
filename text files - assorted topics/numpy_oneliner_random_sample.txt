@@ -1,0 +1,1 @@
+import numpy as np, random;np.savetxt("sample.txt",np.reshape(np.sort(np.array(random.sample(random.sample(range(1000001,5000000),1000000),100000),dtype="int64")),(-1,1)),fmt="%d")

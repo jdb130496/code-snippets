@@ -1,0 +1,1 @@
+pacman -Sl | grep -P '(?i)(?=.*gcc)(?=.*ucrt)^(((?!.*arm)(?!.*avr)(?!.*risc)).)*$' | sed 's/^ucrt64 //' |sed 's/ .*//' | pacman -S -
