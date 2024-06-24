@@ -1,6 +1,6 @@
 import xlwings as xw
 import rdrand
-from randomgen import RDRAND
+#from randomgen import RDRAND
 import sys
 import numpy as np
 import dask.dataframe as dd
@@ -126,18 +126,19 @@ def check_duplicates(numbers):
         return "No duplicates found."
     else:
         return "Duplicates found."
-@xw.func
-def generate_random_numbers(n):
+#@xw.func
+#def generate_random_numbers(n):
     # Convert n to an integer
-    n = int(n)
+#    n = int(n)
     # Create a new RDRAND generator
-    rg = RDRAND()
+#    rg = RDRAND()
     # Generate n random numbers, each composed of three 5-digit numbers
-    numbers = [int((rg.random_raw() % 90000 + 10000) * 1e10 + (rg.random_raw() % 90000 + 10000) * 1e5 + (rg.random_raw() % 90000 + 10000)) for _ in range(n)]
+#    numbers = [int((rg.random_raw() % 90000 + 10000) * 1e10 + (rg.random_raw() % 90000 + 10000) * 1e5 + (rg.random_raw() % 90000 + 10000)) for _ in range(n)]
     # Convert the list to a list of lists for xlwings
-    numbers_list = [[number] for number in numbers]
+#    numbers_list = [[number] for number in numbers]
     # Return the list of lists
-    return numbers_list
+#    return numbers_list
+import rdrand
 rng = rdrand.RdRandom()
 @xw.func
 def generate_random_numbers_rdrand(num):
