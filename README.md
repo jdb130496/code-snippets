@@ -1,1 +1,1 @@
-Dhawal Bakshi - Code Snippets - Updated 13-07-2024 - Includes excel 365 new functions examples and excel-python interface examples
+Dhawal Bakshi - Code Snippets - Updated 13-07-2024 - Includes examples of excel 365 new functions / excel-python interface (xlwings python package and corresponding addin with the same name in excel).
