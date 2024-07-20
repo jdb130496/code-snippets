@@ -7,7 +7,8 @@ ffi.cdef("""
     void free_matches(char **matches, int match_count);
 """)
 # Load the DLL
-dll = ffi.dlopen("D:\\Programs\\Msys2\\home\\dhawal123\\Downloads\\regex-C-xlwings-2.dll")
+#dll = ffi.dlopen("D:\\Programs\\Msys2\\home\\dhawal123\\Downloads\\regex-C-xlwings-2.dll")
+dll = ffi.dlopen("D:\\Programs\\Msys2\\home\\dhawal123\\Downloads\\regex-C-10072024.dll")
 @xw.func
 def match_pattern_new(input_list, pattern):
     # Replace None values with empty strings and encode all non-empty strings
@@ -63,3 +64,66 @@ def match_pattern_metaai(input_list, pattern):
     # Free the output array allocated by the DLL
     dll.free_matches(output_array_c[0], match_count)
     return output_list
+
+import re
+import xlwings as xw
+@xw.func
+@xw.arg('excel_range', ndim=2)
+@xw.arg('patterns', ndim=1)
+def REGEXFINDGROUP(excel_range, patterns):
+    result = []
+    for row in excel_range:
+        row_result = []
+        for cell in row:
+            cell_str = str(cell)  # Convert cell to string
+            cell_result = []
+            for pattern in patterns:
+                match = re.search(pattern, cell_str)
+                if match:
+                    cell_result.append(match.group(1))  # Extract the captured group
+            if len(cell_result) == len(patterns):
+                row_result.append(" ".join(cell_result))
+            else:
+                row_result.append("")
+        result.append(row_result)
+    return result
+import re
+import xlwings as xw
+@xw.func
+@xw.arg('excel_range', ndim=2)
+@xw.arg('patterns', ndim=1)
+def REGEXFINDM2(excel_range, patterns):
+    result = []
+    for row in excel_range:
+        row_result = []
+        for cell in row:
+            cell_str = str(cell)  # Convert cell to string
+            cell_result = []
+            for pattern in patterns:
+                match = re.search(pattern, cell_str, flags=re.UNICODE)
+                if match:
+                    cell_result.append(cell_str)  # Return the entire string
+            if len(cell_result) == len(patterns) and not cell_str.isprintable():
+                row_result.append(" ".join(cell_result))
+            else:
+                row_result.append("")
+        result.append(row_result)
+    return result
+import re
+import xlwings as xw
+@xw.func
+@xw.arg('excel_range', ndim=2)
+@xw.arg('patterns', ndim=1)
+#@xw.arg('replacement', ndim=0)
+def REGEXREPLM(excel_range, patterns, replacement):
+    result = []
+    for row in excel_range:
+        row_result = []
+        for cell in row:
+            cell_str = str(cell)  # Convert cell to string
+            for pattern in patterns:
+                cell_str = re.sub(pattern, replacement, cell_str)  # Replace matched string with the specified replacement
+            row_result.append(cell_str.strip())  # Remove leading/trailing spaces
+        result.append(row_result)
+    return result
+

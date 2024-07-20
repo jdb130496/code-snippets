@@ -186,7 +186,7 @@ def date_buckets(dates):
     return result
 import requests
 import json
-import datetime
+from datetime import datetime
 from bs4 import BeautifulSoup
 import time
 @xw.func
@@ -202,7 +202,7 @@ def convert_timestamps(timestamps):
                 # Convert the timestamp to an integer
                 timestamp = int(timestamp)
                 # Convert the Unix timestamp to a datetime object
-                dt_object = datetime.datetime.fromtimestamp(timestamp)
+                dt_object = datetime.fromtimestamp(timestamp)
                 # Format the datetime object as a string in the format 'dd/mm/yyyy'
                 date_string = dt_object.strftime('%d/%m/%Y')
                 # Add the converted date to the converted_dates list as a single-item list
@@ -211,7 +211,7 @@ def convert_timestamps(timestamps):
         # If timestamps is a list of floats, convert each timestamp
         for timestamp in timestamps:
             timestamp = int(timestamp)
-            dt_object = datetime.datetime.fromtimestamp(timestamp)
+            dt_object = datetime.fromtimestamp(timestamp)
             date_string = dt_object.strftime('%d/%m/%Y')
             # Add the converted date to the converted_dates list as a single-item list
             converted_dates.append([date_string])
@@ -405,7 +405,7 @@ def REGEXFINDM(excel_range, patterns):
             cell_str = str(cell)  # Convert cell to string
             cell_result = []
             for pattern in patterns:
-                match = re.search(pattern, cell_str)
+                match = re.search(pattern, cell_str,flags=re.UNICODE)
                 if match:
                     cell_result.append(cell_str)  # Return the entire string
             if len(cell_result) == len(patterns):
@@ -608,3 +608,19 @@ def intel_ctypes_dll(NUM_NUMBERS, NUM_THREAD_GROUPS, NUM_THREADS_PER_GROUP):
     # Get the numbers
     numbers = [[numbers_ptr[i]] for i in range(numbers_size)]
     return numbers
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+from io import StringIO
+import xlwings as xw
+url='https://chartered.tax/fmv-of-equity-share-as-on-31st-january-2018/'
+@xw.func
+def get_shares_prices():
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    table = soup.find('table', {'id': 'tablepress-4'})
+    table_io = StringIO(str(table))
+    df = pd.read_html(table_io)[0]
+    return df.values.tolist()
+
+
