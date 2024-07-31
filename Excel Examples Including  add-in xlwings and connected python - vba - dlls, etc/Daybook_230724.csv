@@ -1,0 +1,1807 @@
+VOUCHER|BASICBANKERSDATE|DATE|GUID|NARRATION|VOUCHERTYPENAME|VOUCHERNUMBER|PARTYLEDGERNAME|CSTFORMISSUETYPE|CSTFORMRECVTYPE|FBTPAYMENTTYPE|VCHGSTCLASS|DIFFACTUALQTY|AUDITED|FORJOBCOSTING|ISOPTIONAL|EFFECTIVEDATE|USEFORINTEREST|USEFORGAINLOSS|USEFORGODOWNTRANSFER|USEFORCOMPOUND|ALTERID|EXCISEOPENING|USEFORFINALPRODUCTION|ISCANCELLED|HASCASHFLOW|ISPOSTDATED|USETRACKINGNUMBER|ISINVOICE|MFGJOURNAL|HASDISCOUNTS|ASPAYSLIP|ISCOSTCENTRE|ISDELETED|ASORIGINAL|ALLLEDGERENTRIES.LIST|LEDGERNAME|GSTCLASS|ISDEEMEDPOSITIVE|LEDGERFROMITEM|REMOVEZEROENTRIES|ISPARTYLEDGER|AMOUNT|BASICBANKERSDATE.LIST|CATEGORYALLOCATIONS.LIST|CATEGORY|COSTCENTREALLOCATIONS.LIST|NAME
+"
+      "|20130629|20130629|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000008|Quaterly interest income on FD with Axis Bank for June 13 quater.|Receipt|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20130629|No|No|No|No| 280|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-2250.00|"
+       "||||
+"
+      "|20130629|20130629|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000008|Quaterly interest income on FD with Axis Bank for June 13 quater.|Receipt|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20130629|No|No|No|No| 280|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|2250.00|"
+       "||||
+"
+      "|20130715|20130715|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000001|Ch. No. :withdraw made through bina bakshi|Contra|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20130401|No|No|No|No| 281|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||Yes|No|No|Yes|-6250.00|"
+       "||||
+"
+      "|20130715|20130715|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000001|Ch. No. :withdraw made through bina bakshi|Contra|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20130401|No|No|No|No| 281|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|6250.00|"
+       "||||
+"
+      "||20130917|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000003|Being utensils donated to sathodara dharmshala as per Bill no.25 of Anuvrat vasan bhandar.|Cash Payment|1|Cash|||Default||No|No|No|No|20130401|No|No|No|No| 3|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|-1051.00||"
+        "|Primary Cost Category|"
+         "|Sathodara Dharmshala
+"
+      "||20130917|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000003|Being utensils donated to sathodara dharmshala as per Bill no.25 of Anuvrat vasan bhandar.|Cash Payment|1|Cash|||Default||No|No|No|No|20130401|No|No|No|No| 3|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|1051.00||"
+        "|Primary Cost Category|"
+         "|Sathodara Dharmshala
+"
+      "||20130928|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000002|Being wheat donated  175 Kg. as per bill No.635 Arasuri Ambaji Mata Devasthan (including carriage expenses)|Cash Payment|2|Cash|||Default||No|No|No|No|20130401|No|No|No|No| 2|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|-4377.00||"
+        "|Primary Cost Category|"
+         "|Ambaji
+"
+      "||20130928|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000002|Being wheat donated  175 Kg. as per bill No.635 Arasuri Ambaji Mata Devasthan (including carriage expenses)|Cash Payment|2|Cash|||Default||No|No|No|No|20130401|No|No|No|No| 2|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|4377.00||"
+        "|Primary Cost Category|"
+         "|Ambaji
+"
+      "||20130928|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000004|Being taxes paid to Charity commissioner Jamnagar as per bill no. 5 for 2012-13|Cash Payment|3|Cash|||Default||No|No|No|No|20130928|No|No|No|No| 5|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|-81.00||"
+        "|Primary Cost Category|"
+         "|Charity Commissioner
+"
+      "||20130928|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000004|Being taxes paid to Charity commissioner Jamnagar as per bill no. 5 for 2012-13|Cash Payment|3|Cash|||Default||No|No|No|No|20130928|No|No|No|No| 5|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|81.00||"
+        "|Primary Cost Category|"
+         "|Charity Commissioner
+"
+      "||20130928|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000006|Being medical aid given to Alpaben Dave Sathodara dharmashala Ambaji|Cash Payment|4|Cash|||Default||No|No|No|No|20130928|No|No|No|No| 7|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|-1100.00||"
+        "|Primary Cost Category|"
+         "|Sathodara Dharmshala
+"
+      "||20130928|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000006|Being medical aid given to Alpaben Dave Sathodara dharmashala Ambaji|Cash Payment|4|Cash|||Default||No|No|No|No|20130928|No|No|No|No| 7|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|1100.00||"
+        "|Primary Cost Category|"
+         "|Sathodara Dharmshala
+"
+      "|20130930|20130930|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000009|Quaterly interest income on FD with Axis Bank for September 2013 quarter.|Receipt|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20130930|No|No|No|No| 282|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-2250.00|"
+       "||||
+"
+      "|20130930|20130930|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000009|Quaterly interest income on FD with Axis Bank for September 2013 quarter.|Receipt|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20130930|No|No|No|No| 282|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|2250.00|"
+       "||||
+"
+      "|20131231|20131231|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000000a|Quaterly interest income on FD with Axis Bank for December 2013 quarter.|Receipt|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20131231|No|No|No|No| 283|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-2250.00|"
+       "||||
+"
+      "|20131231|20131231|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000000a|Quaterly interest income on FD with Axis Bank for December 2013 quarter.|Receipt|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20131231|No|No|No|No| 283|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|2250.00|"
+       "||||
+"
+      "|20140106|20140106|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000005|Ch. No. :withdrawal made through Bina Bakshi for expenses.|Contra|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20140106|No|No|No|No| 284|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||Yes|No|No|Yes|-4500.00|"
+       "||||
+"
+      "|20140106|20140106|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000005|Ch. No. :withdrawal made through Bina Bakshi for expenses.|Contra|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20140106|No|No|No|No| 284|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|4500.00|"
+       "||||
+"
+      "|20140331|20140331|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000000b|Quaterly interest income on FD with Axis Bank for March 2014 quarter.|Receipt|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20140331|No|No|No|No| 285|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-2250.00|"
+       "||||
+"
+      "|20140331|20140331|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000000b|Quaterly interest income on FD with Axis Bank for March 2014 quarter.|Receipt|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20140331|No|No|No|No| 285|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|2250.00|"
+       "||||
+"
+      "|20140630|20140630|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000000c|June 2015 quarter FD interest|Receipt|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20140630|No|No|No|No| 286|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-2250.00|"
+       "||||
+"
+      "|20140630|20140630|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000000c|June 2015 quarter FD interest|Receipt|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20140630|No|No|No|No| 286|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|2250.00|"
+       "||||
+"
+      "|20140930|20140930|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000000d|Sep 2014 quarterly FD interest|Receipt|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20140930|No|No|No|No| 287|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-2250.00|"
+       "||||
+"
+      "|20140930|20140930|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000000d|Sep 2014 quarterly FD interest|Receipt|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20140930|No|No|No|No| 287|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|2250.00|"
+       "||||
+"
+      "|20141231|20141231|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000000e|Dec 2014 quarterly FD interest.|Receipt|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20141231|No|No|No|No| 288|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-2250.00|"
+       "||||
+"
+      "|20141231|20141231|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000000e|Dec 2014 quarterly FD interest.|Receipt|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20141231|No|No|No|No| 288|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|2250.00|"
+       "||||
+"
+      "|20150331|20150331|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000000f|March 2015 quarterly interest|Receipt|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20150331|No|No|No|No| 289|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-2250.00|"
+       "||||
+"
+      "|20150331|20150331|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000000f|March 2015 quarterly interest|Receipt|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20150331|No|No|No|No| 289|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|2250.00|"
+       "||||
+"
+      "|20150413|20150413|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000010|Ch. No. : 001178 Cash withdrawn.|Contra|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20150413|No|No|No|No| 290|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||Yes|No|No|Yes|-11000.00|"
+       "||||
+"
+      "|20150413|20150413|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000010|Ch. No. : 001178 Cash withdrawn.|Contra|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20150413|No|No|No|No| 290|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|11000.00|"
+       "||||
+"
+      "|20150630|20150630|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000012|Interest income Q1 - Jun 2015|Receipt|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20150630|No|No|No|No| 291|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-2250.00|"
+       "||||
+"
+      "|20150630|20150630|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000012|Interest income Q1 - Jun 2015|Receipt|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20150630|No|No|No|No| 291|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|2250.00|"
+       "||||
+"
+      "||20150701|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000016|Junagadh Panjrapole Gaushala - Rct No 5002 - Animal feeder stock.|Payment|1|Cash|||Default||No|No|No|No|20150701|No|No|No|No| 25|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-300.00|||||
+"
+      "||20150701|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000016|Junagadh Panjrapole Gaushala - Rct No 5002 - Animal feeder stock.|Payment|1|Cash|||Default||No|No|No|No|20150701|No|No|No|No| 25|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|300.00|||||
+"
+      "||20150818|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000017|Junagadh Panjrapole Gaushala - Rct No 4369 - Animal feed stock.|Payment|2|Cash|||Default||No|No|No|No|20150818|No|No|No|No| 26|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-300.00|||||
+"
+      "||20150818|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000017|Junagadh Panjrapole Gaushala - Rct No 4369 - Animal feed stock.|Payment|2|Cash|||Default||No|No|No|No|20150818|No|No|No|No| 26|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|300.00|||||
+"
+      "||20150926|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000018|Gujarat Kirana Stores Bill No 2253 - Wheat, Rice, etc. grains and other cereals, pulses, oil, sugar purchased and distributed to poor.|Payment|3|Cash|||Default||No|No|No|No|20150926|No|No|No|No| 27|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-6170.00|||||
+"
+      "||20150926|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000018|Gujarat Kirana Stores Bill No 2253 - Wheat, Rice, etc. grains and other cereals, pulses, oil, sugar purchased and distributed to poor.|Payment|3|Cash|||Default||No|No|No|No|20150926|No|No|No|No| 27|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|6170.00|||||
+"
+      "|20150930|20150930|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000013|Interest income Q2 - Sep 2015|Receipt|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20150930|No|No|No|No| 292|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-2250.00|"
+       "||||
+"
+      "|20150930|20150930|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000013|Interest income Q2 - Sep 2015|Receipt|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20150930|No|No|No|No| 292|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|2250.00|"
+       "||||
+"
+      "||20151001|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000019|Junagadh Panjarapole Gaushala Rct No 4969 - monthly donation for animal feeding stocks.|Payment|4|Cash|||Default||No|No|No|No|20151001|No|No|No|No| 28|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-300.00|||||
+"
+      "||20151001|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000019|Junagadh Panjarapole Gaushala Rct No 4969 - monthly donation for animal feeding stocks.|Payment|4|Cash|||Default||No|No|No|No|20151001|No|No|No|No| 28|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|300.00|||||
+"
+      "||20151001|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000022|Received from Asha Ramesh Rindani for to be spent towards distribution of grains, clothes for poor people.|Receipt|3|Cash|||Default||No|No|No|No|20151001|No|No|No|No| 40|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation Receipt (Other Than For Corpus)||No|No|No|No|10000.00|||||
+"
+      "||20151001|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000022|Received from Asha Ramesh Rindani for to be spent towards distribution of grains, clothes for poor people.|Receipt|3|Cash|||Default||No|No|No|No|20151001|No|No|No|No| 40|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||Yes|No|No|Yes|-10000.00|||||
+"
+      "||20151001|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000001a|Grains purchased for distribution to poor people.|Payment|5|Cash|||Default||No|No|No|No|20151001|No|No|No|No| 29|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-6250.00|||||
+"
+      "||20151001|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000001a|Grains purchased for distribution to poor people.|Payment|5|Cash|||Default||No|No|No|No|20151001|No|No|No|No| 29|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|6250.00|||||
+"
+      "||20151101|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000001b|Monthly donation to Junagadh Panjarapole Gaushala - Rct No 5067 - animal feed stock.|Payment|6|Cash|||Default||No|No|No|No|20151101|No|No|No|No| 30|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-300.00|||||
+"
+      "||20151101|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000001b|Monthly donation to Junagadh Panjarapole Gaushala - Rct No 5067 - animal feed stock.|Payment|6|Cash|||Default||No|No|No|No|20151101|No|No|No|No| 30|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|300.00|||||
+"
+      "||20151101|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000001c|Junagadh Panjarapole Gaushala - Animal Feed Stock - Rct No 7834|Payment|7|Cash|||Default||No|No|No|No|20151101|No|No|No|No| 31|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-2400.00|||||
+"
+      "||20151101|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000001c|Junagadh Panjarapole Gaushala - Animal Feed Stock - Rct No 7834|Payment|7|Cash|||Default||No|No|No|No|20151101|No|No|No|No| 31|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|2400.00|||||
+"
+      "||20151207|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000001d|CM No 1404 of Gandhi Chandulal Mohanlal & Co - Sugar, pulses, etc. purchased and distributed to poor people.|Payment|8|Cash|||Default||No|No|No|No|20151207|No|No|No|No| 32|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-1040.00|||||
+"
+      "||20151207|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000001d|CM No 1404 of Gandhi Chandulal Mohanlal & Co - Sugar, pulses, etc. purchased and distributed to poor people.|Payment|8|Cash|||Default||No|No|No|No|20151207|No|No|No|No| 32|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|1040.00|||||
+"
+      "||20151207|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000001e|Amarnath Trading Co. CM 29925 - Oil purchased - for cooking food distributed to poor people.|Payment|9|Cash|||Default||No|No|No|No|20151207|No|No|No|No| 33|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-1065.00|||||
+"
+      "||20151207|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000001e|Amarnath Trading Co. CM 29925 - Oil purchased - for cooking food distributed to poor people.|Payment|9|Cash|||Default||No|No|No|No|20151207|No|No|No|No| 33|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|1065.00|||||
+"
+      "||20151207|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000001f|Premkunj Exclusive CM 86 - cloths purchased and distributed to poor.|Payment|10|Cash|||Default||No|No|No|No|20151207|No|No|No|No| 34|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-311.00|||||
+"
+      "||20151207|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000001f|Premkunj Exclusive CM 86 - cloths purchased and distributed to poor.|Payment|10|Cash|||Default||No|No|No|No|20151207|No|No|No|No| 34|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|311.00|||||
+"
+      "||20151207|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000020|Premkunj Exclusive CM 6808 - cloths purchased and distributed to poor.|Payment|11|Cash|||Default||No|No|No|No|20151207|No|No|No|No| 35|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-575.00|||||
+"
+      "||20151207|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000020|Premkunj Exclusive CM 6808 - cloths purchased and distributed to poor.|Payment|11|Cash|||Default||No|No|No|No|20151207|No|No|No|No| 35|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|575.00|||||
+"
+      "|20151231|20151231|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000014|Interest income Q3 - Dec 2015|Receipt|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20151231|No|No|No|No| 293|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-2250.00|"
+       "||||
+"
+      "|20151231|20151231|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000014|Interest income Q3 - Dec 2015|Receipt|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20151231|No|No|No|No| 293|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|2250.00|"
+       "||||
+"
+      "||20160102|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000021|Gujarat Kirana Stores - CM 2794 - Grains, pulses purchased and distributed to poor.|Payment|12|Cash|||Default||No|No|No|No|20160102|No|No|No|No| 36|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-3735.00|||||
+"
+      "||20160102|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000021|Gujarat Kirana Stores - CM 2794 - Grains, pulses purchased and distributed to poor.|Payment|12|Cash|||Default||No|No|No|No|20160102|No|No|No|No| 36|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|3735.00|||||
+"
+      "|20160105|20160105|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000011|Ch. No. : 001181 Cash Withdrawn.|Contra|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20160105|No|No|No|No| 294|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||Yes|No|No|Yes|-7000.00|"
+       "||||
+"
+      "|20160105|20160105|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000011|Ch. No. : 001181 Cash Withdrawn.|Contra|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20160105|No|No|No|No| 294|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|7000.00|"
+       "||||
+"
+      "|20160331|20160331|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000015|Interest income Q4 - Mar 2016|Receipt|5|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20160331|No|No|No|No| 295|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-2250.00|"
+       "||||
+"
+      "|20160331|20160331|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000015|Interest income Q4 - Mar 2016|Receipt|5|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20160331|No|No|No|No| 295|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|2250.00|"
+       "||||
+"
+      "|20160630|20160630|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000030|Quarterly Interest Credited By Bank On FD|Receipt|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20160630|No|No|No|No| 296|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-2250.00|"
+       "||||
+"
+      "|20160630|20160630|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000030|Quarterly Interest Credited By Bank On FD|Receipt|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20160630|No|No|No|No| 296|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|2250.00|"
+       "||||
+"
+      "||20160801|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000002d|Received from Mrs. A R Rindani .|Receipt|2|Cash|||Default||No|No|No|No|20160801|No|No|No|No| 52|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation Receipt (Other Than For Corpus)||No|No|No|No|15000.00|||||
+"
+      "||20160801|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000002d|Received from Mrs. A R Rindani .|Receipt|2|Cash|||Default||No|No|No|No|20160801|No|No|No|No| 52|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||Yes|No|No|Yes|-15000.00|||||
+"
+      "||20160803|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000023|Shri Junagadh Panjarapol Gaushala Rct No 16326 dated 3/8/16|Payment|1|Cash|||Default||No|No|No|No|20160803|No|No|No|No| 41|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-1500.00|||||
+"
+      "||20160803|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000023|Shri Junagadh Panjarapol Gaushala Rct No 16326 dated 3/8/16|Payment|1|Cash|||Default||No|No|No|No|20160803|No|No|No|No| 41|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|1500.00|||||
+"
+      "||20160831|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000024|Shri Ambaji Mata Devsthan Trust Rct No 924 Dated 31/08/2016 -Sugar, gram dal, Ghee, Wheat, Rice, etc. distributed to poor people.|Payment|2|Cash|||Default||No|No|No|No|20160831|No|No|No|No| 42|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-10310.00|||||
+"
+      "||20160831|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000024|Shri Ambaji Mata Devsthan Trust Rct No 924 Dated 31/08/2016 -Sugar, gram dal, Ghee, Wheat, Rice, etc. distributed to poor people.|Payment|2|Cash|||Default||No|No|No|No|20160831|No|No|No|No| 42|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|10310.00|||||
+"
+      "||20160906|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000025|Food items distributed to poor. C L Shah Charitable Trust Receipt No 2393 dated 06.09.2016|Payment|3|Cash|||Default||No|No|No|No|20160906|No|No|No|No| 43|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-2000.00|||||
+"
+      "||20160906|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000025|Food items distributed to poor. C L Shah Charitable Trust Receipt No 2393 dated 06.09.2016|Payment|3|Cash|||Default||No|No|No|No|20160906|No|No|No|No| 43|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|2000.00|||||
+"
+      "|20160930|20160930|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000031|Quarterly Interest Credited By Bank On FD - Sep 16|Receipt|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20160930|No|No|No|No| 297|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-2250.00|"
+       "||||
+"
+      "|20160930|20160930|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000031|Quarterly Interest Credited By Bank On FD - Sep 16|Receipt|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20160930|No|No|No|No| 297|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|2250.00|"
+       "||||
+"
+      "||20161006|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000002e|Received from Mrs. A R Rindani  for spending towards charity for poor.|Receipt|4|Cash|||Default||No|No|No|No|20161006|No|No|No|No| 58|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation Receipt (Other Than For Corpus)||No|No|No|No|5000.00|||||
+"
+      "||20161006|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000002e|Received from Mrs. A R Rindani  for spending towards charity for poor.|Receipt|4|Cash|||Default||No|No|No|No|20161006|No|No|No|No| 58|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||Yes|No|No|Yes|-5000.00|||||
+"
+      "||20161027|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000026|Grains -Rice, Oil, Gram Dal, etc. distributed to poor, Jalaram CharitableTrust Receipt No 1249 dated 27/10/2016|Payment|4|Cash|||Default||No|No|No|No|20161027|No|No|No|No| 44|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-3475.00|||||
+"
+      "||20161027|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000026|Grains -Rice, Oil, Gram Dal, etc. distributed to poor, Jalaram CharitableTrust Receipt No 1249 dated 27/10/2016|Payment|4|Cash|||Default||No|No|No|No|20161027|No|No|No|No| 44|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|3475.00|||||
+"
+      "||20161111|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000027|Praneta Parivar Trust Receipt No 3052 dated 11.11.2016 - Annakshetra Donation.|Payment|5|Cash|||Default||No|No|No|No|20161111|No|No|No|No| 45|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-500.00|||||
+"
+      "||20161111|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000027|Praneta Parivar Trust Receipt No 3052 dated 11.11.2016 - Annakshetra Donation.|Payment|5|Cash|||Default||No|No|No|No|20161111|No|No|No|No| 45|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|500.00|||||
+"
+      "||20161208|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000002f|Received from Mrs. A R Rindani  for spending towards charity for poor.|Receipt|5|Cash|||Default||No|No|No|No|20161208|No|No|No|No| 57|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation Receipt (Other Than For Corpus)||No|No|No|No|5000.00|||||
+"
+      "||20161208|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000002f|Received from Mrs. A R Rindani  for spending towards charity for poor.|Receipt|5|Cash|||Default||No|No|No|No|20161208|No|No|No|No| 57|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||Yes|No|No|Yes|-5000.00|||||
+"
+      "||20161220|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000028|Amarnath Trading Co. CM 5135 dated 20/12/2016 - Rice, Sugar, Mung Dal, Udad dal, etc. distributed to poor.|Payment|6|Cash|||Default||No|No|No|No|20161220|No|No|No|No| 46|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-2690.00|||||
+"
+      "||20161220|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000028|Amarnath Trading Co. CM 5135 dated 20/12/2016 - Rice, Sugar, Mung Dal, Udad dal, etc. distributed to poor.|Payment|6|Cash|||Default||No|No|No|No|20161220|No|No|No|No| 46|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|2690.00|||||
+"
+      "||20161220|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000029|Amarnath Trading Co. CM 31984 dated 20/12/2016 - Sugar and other food items distributed to poor.|Payment|7|Cash|||Default||No|No|No|No|20161220|No|No|No|No| 47|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-2715.00|||||
+"
+      "||20161220|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000029|Amarnath Trading Co. CM 31984 dated 20/12/2016 - Sugar and other food items distributed to poor.|Payment|7|Cash|||Default||No|No|No|No|20161220|No|No|No|No| 47|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|2715.00|||||
+"
+      "||20161220|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000002a|Amarnath Trading Co. CM 31983 dated 20/12/2016 - Sugar and other food items distributed to poor.|Payment|8|Cash|||Default||No|No|No|No|20161220|No|No|No|No| 48|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-2520.00|||||
+"
+      "||20161220|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000002a|Amarnath Trading Co. CM 31983 dated 20/12/2016 - Sugar and other food items distributed to poor.|Payment|8|Cash|||Default||No|No|No|No|20161220|No|No|No|No| 48|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|2520.00|||||
+"
+      "||20161220|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000002b|Cloth purchased and distributed to poor - Mafatlal Family Shop - CM 196 Dated 28.12.2016|Payment|9|Cash|||Default||No|No|No|No|20161220|No|No|No|No| 50|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-550.00|||||
+"
+      "||20161220|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000002b|Cloth purchased and distributed to poor - Mafatlal Family Shop - CM 196 Dated 28.12.2016|Payment|9|Cash|||Default||No|No|No|No|20161220|No|No|No|No| 50|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|550.00|||||
+"
+      "|20161231|20161231|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000032|Quarterly Interest Credited By Bank On FD - Dec 16|Receipt|6|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20161231|No|No|No|No| 298|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-2250.00|"
+       "||||
+"
+      "|20161231|20161231|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000032|Quarterly Interest Credited By Bank On FD - Dec 16|Receipt|6|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20161231|No|No|No|No| 298|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|2250.00|"
+       "||||
+"
+      "||20170105|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000002c|C L Shah Charitable Trust - CM 2745 dated 05.01.2017 - Food items distributed to poor.|Payment|10|Cash|||Default||No|No|No|No|20170105|No|No|No|No| 51|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-1500.00|||||
+"
+      "||20170105|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000002c|C L Shah Charitable Trust - CM 2745 dated 05.01.2017 - Food items distributed to poor.|Payment|10|Cash|||Default||No|No|No|No|20170105|No|No|No|No| 51|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|1500.00|||||
+"
+      "|20170331|20170331|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000034|Quarterly Interest Credited By Bank On FD - Mar 17|Receipt|7|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20170331|No|No|No|No| 299|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-2250.00|"
+       "||||
+"
+      "|20170331|20170331|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000034|Quarterly Interest Credited By Bank On FD - Mar 17|Receipt|7|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20170331|No|No|No|No| 299|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|2250.00|"
+       "||||
+"
+      "|20170415|20170415|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000035|Debited by Axis bank|Bank Payment|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20170415|No|No|No|No| 300|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|57.50|"
+       "||||
+"
+      "|20170415|20170415|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000035|Debited by Axis bank|Bank Payment|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20170415|No|No|No|No| 300|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-50.00|"
+       "||||
+"
+      "|20170415|20170415|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000035|Debited by Axis bank|Bank Payment|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20170415|No|No|No|No| 300|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Service Tax on Charges||Yes|No|No|No|-7.50|"
+       "||||
+"
+      "|20170520|20170520|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000036|Debited by Axis bank|Bank Payment|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20170520|No|No|No|No| 301|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|57.50|"
+       "||||
+"
+      "|20170520|20170520|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000036|Debited by Axis bank|Bank Payment|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20170520|No|No|No|No| 301|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-50.00|"
+       "||||
+"
+      "|20170520|20170520|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000036|Debited by Axis bank|Bank Payment|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20170520|No|No|No|No| 301|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Service Tax on Charges||Yes|No|No|No|-7.50|"
+       "||||
+"
+      "||20170524|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000042|Ghee used in sweets made and distributed to poor people. CM dated 24.05.17 of Dmart attached.|Cash Payment|1|Cash|||Default||No|No|No|No|20170524|No|No|No|No| 80|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-1711.00|||||
+"
+      "||20170524|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000042|Ghee used in sweets made and distributed to poor people. CM dated 24.05.17 of Dmart attached.|Cash Payment|1|Cash|||Default||No|No|No|No|20170524|No|No|No|No| 80|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|1711.00|||||
+"
+      "|20170526|20170526|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000033|Ch. No. :  001179 - 25/5/2017 - cash withdrawn.|Contra|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20170526|No|No|No|No| 302|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||Yes|No|No|Yes|-10000.00|"
+       "||||
+"
+      "|20170526|20170526|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000033|Ch. No. :  001179 - 25/5/2017 - cash withdrawn.|Contra|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20170526|No|No|No|No| 302|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|10000.00|"
+       "||||
+"
+      "|20170617|20170617|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000037|Debited by Axis bank|Bank Payment|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20170617|No|No|No|No| 303|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|57.50|"
+       "||||
+"
+      "|20170617|20170617|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000037|Debited by Axis bank|Bank Payment|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20170617|No|No|No|No| 303|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-50.00|"
+       "||||
+"
+      "|20170617|20170617|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000037|Debited by Axis bank|Bank Payment|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20170617|No|No|No|No| 303|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Service Tax on Charges||Yes|No|No|No|-7.50|"
+       "||||
+"
+      "||20170621|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000043|Wheet and other grains, oil, etc. distributed to poor people CM 6853 of Amarnath Trading Co. attached.|Cash Payment|2|Cash|||Default||No|No|No|No|20170621|No|No|No|No| 81|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-5765.00|||||
+"
+      "||20170621|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000043|Wheet and other grains, oil, etc. distributed to poor people CM 6853 of Amarnath Trading Co. attached.|Cash Payment|2|Cash|||Default||No|No|No|No|20170621|No|No|No|No| 81|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|5765.00|||||
+"
+      "|20170630|20170630|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000038|Quarterly Interest On Fixed Deposit|Receipt|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20170630|No|No|No|No| 304|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-2250.00|"
+       "||||
+"
+      "|20170630|20170630|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000038|Quarterly Interest On Fixed Deposit|Receipt|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20170630|No|No|No|No| 304|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|2250.00|"
+       "||||
+"
+      "||20170704|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000044|Donation towards Animal Feed stock to Junagadh Panjrapol Reciept No 9464 dated 4.7.2017|Cash Payment|3|Cash|||Default||No|No|No|No|20170704|No|No|No|No| 82|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-1000.00|||||
+"
+      "||20170704|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000044|Donation towards Animal Feed stock to Junagadh Panjrapol Reciept No 9464 dated 4.7.2017|Cash Payment|3|Cash|||Default||No|No|No|No|20170704|No|No|No|No| 82|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|1000.00|||||
+"
+      "|20170722|20170722|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000039|Monthly bank charges debited by Axis Bank|Bank Payment|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20170722|No|No|No|No| 305|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|59.00|"
+       "||||
+"
+      "|20170722|20170722|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000039|Monthly bank charges debited by Axis Bank|Bank Payment|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20170722|No|No|No|No| 305|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-50.00|"
+       "||||
+"
+      "|20170722|20170722|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000039|Monthly bank charges debited by Axis Bank|Bank Payment|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20170722|No|No|No|No| 305|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|GST On Charges||Yes|No|No|No|-9.00|"
+       "||||
+"
+      "|20170819|20170819|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000003a|Monthly bank charges debited by Axis Bank|Bank Payment|5|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20170819|No|No|No|No| 306|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|59.00|"
+       "||||
+"
+      "|20170819|20170819|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000003a|Monthly bank charges debited by Axis Bank|Bank Payment|5|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20170819|No|No|No|No| 306|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-50.00|"
+       "||||
+"
+      "|20170819|20170819|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000003a|Monthly bank charges debited by Axis Bank|Bank Payment|5|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20170819|No|No|No|No| 306|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|GST On Charges||Yes|No|No|No|-9.00|"
+       "||||
+"
+      "||20170825|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000004b|Donation from Mrs. A R Rindani Trustee - towards future donations to poor people.|Receipt|2|Cash|||Default||No|No|No|No|20170825|No|No|No|No| 89|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation Receipt (Other Than For Corpus)||No|No|No|No|25000.00|||||
+"
+      "||20170825|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000004b|Donation from Mrs. A R Rindani Trustee - towards future donations to poor people.|Receipt|2|Cash|||Default||No|No|No|No|20170825|No|No|No|No| 89|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||Yes|No|No|Yes|-25000.00|||||
+"
+      "||20170902|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000045|Donation of Wheet, Rice and pulses - CM 1372 of Pritam Traders.|Cash Payment|4|Cash|||Default||No|No|No|No|20170902|No|No|No|No| 83|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-6200.00|||||
+"
+      "||20170902|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000045|Donation of Wheet, Rice and pulses - CM 1372 of Pritam Traders.|Cash Payment|4|Cash|||Default||No|No|No|No|20170902|No|No|No|No| 83|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|6200.00|||||
+"
+      "||20170902|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000046|Donation of pulses - CM 1371 of Pritam Traders.|Cash Payment|5|Cash|||Default||No|No|No|No|20170902|No|No|No|No| 84|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-3700.00|||||
+"
+      "||20170902|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000046|Donation of pulses - CM 1371 of Pritam Traders.|Cash Payment|5|Cash|||Default||No|No|No|No|20170902|No|No|No|No| 84|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|3700.00|||||
+"
+      "||20170905|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000047|Donation of Wheet, Pulses & Sugar CM attached.|Cash Payment|6|Cash|||Default||No|No|No|No|20170905|No|No|No|No| 85|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-9950.00|||||
+"
+      "||20170905|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000047|Donation of Wheet, Pulses & Sugar CM attached.|Cash Payment|6|Cash|||Default||No|No|No|No|20170905|No|No|No|No| 85|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|9950.00|||||
+"
+      "|20170916|20170916|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000003b|Quarterly Interest On Fixed Deposit|Receipt|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20170916|No|No|No|No| 307|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-1887.00|"
+       "||||
+"
+      "|20170916|20170916|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000003b|Quarterly Interest On Fixed Deposit|Receipt|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20170916|No|No|No|No| 307|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|1887.00|"
+       "||||
+"
+      "|20170916|20170916|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000003c|Monthly bank charges debited by Axis Bank|Bank Payment|6|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20170916|No|No|No|No| 308|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|59.00|"
+       "||||
+"
+      "|20170916|20170916|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000003c|Monthly bank charges debited by Axis Bank|Bank Payment|6|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20170916|No|No|No|No| 308|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-50.00|"
+       "||||
+"
+      "|20170916|20170916|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000003c|Monthly bank charges debited by Axis Bank|Bank Payment|6|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20170916|No|No|No|No| 308|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|GST On Charges||Yes|No|No|No|-9.00|"
+       "||||
+"
+      "|20170929|20170929|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000003d|Quarterly Interest On Fixed Deposit|Receipt|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20170929|No|No|No|No| 309|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-243.00|"
+       "||||
+"
+      "|20170929|20170929|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000003d|Quarterly Interest On Fixed Deposit|Receipt|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20170929|No|No|No|No| 309|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|243.00|"
+       "||||
+"
+      "|20171014|20171014|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000003e|Monthly bank charges debited by Axis Bank|Bank Payment|7|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20171014|No|No|No|No| 310|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|59.00|"
+       "||||
+"
+      "|20171014|20171014|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000003e|Monthly bank charges debited by Axis Bank|Bank Payment|7|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20171014|No|No|No|No| 310|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-50.00|"
+       "||||
+"
+      "|20171014|20171014|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000003e|Monthly bank charges debited by Axis Bank|Bank Payment|7|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20171014|No|No|No|No| 310|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|GST On Charges||Yes|No|No|No|-9.00|"
+       "||||
+"
+      "|20171111|20171111|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000003f|Monthly bank charges debited by Axis Bank|Bank Payment|8|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20171111|No|No|No|No| 311|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|59.00|"
+       "||||
+"
+      "|20171111|20171111|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000003f|Monthly bank charges debited by Axis Bank|Bank Payment|8|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20171111|No|No|No|No| 311|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-50.00|"
+       "||||
+"
+      "|20171111|20171111|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000003f|Monthly bank charges debited by Axis Bank|Bank Payment|8|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20171111|No|No|No|No| 311|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|GST On Charges||Yes|No|No|No|-9.00|"
+       "||||
+"
+      "||20171211|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000048|CM 16257 of Amarnath Trading Co. - Pulses distributed to poor people.|Cash Payment|7|Cash|||Default||No|No|No|No|20171211|No|No|No|No| 86|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-2340.00|||||
+"
+      "||20171211|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000048|CM 16257 of Amarnath Trading Co. - Pulses distributed to poor people.|Cash Payment|7|Cash|||Default||No|No|No|No|20171211|No|No|No|No| 86|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|2340.00|||||
+"
+      "||20171211|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000049|CM 16256 of Amarnath Trading Co. - Cooking Oil - 4 tins of 15 Kgs each distributed to poor people.|Cash Payment|8|Cash|||Default||No|No|No|No|20171211|No|No|No|No| 87|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-5400.00|||||
+"
+      "||20171211|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000049|CM 16256 of Amarnath Trading Co. - Cooking Oil - 4 tins of 15 Kgs each distributed to poor people.|Cash Payment|8|Cash|||Default||No|No|No|No|20171211|No|No|No|No| 87|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|5400.00|||||
+"
+      "|20171230|20171230|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000040|Quarterly Interest On Fixed Deposit|Receipt|5|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20171230|No|No|No|No| 312|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-1563.00|"
+       "||||
+"
+      "|20171230|20171230|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000040|Quarterly Interest On Fixed Deposit|Receipt|5|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20171230|No|No|No|No| 312|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|1563.00|"
+       "||||
+"
+      "||20180115|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000004a|Donation - Rice, cooking oil to poor people on Uttarayan Festival|Cash Payment|9|Cash|||Default||No|No|No|No|20180115|No|No|No|No| 88|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-3250.00|||||
+"
+      "||20180115|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000004a|Donation - Rice, cooking oil to poor people on Uttarayan Festival|Cash Payment|9|Cash|||Default||No|No|No|No|20180115|No|No|No|No| 88|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|3250.00|||||
+"
+      "||20180215|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000004c|Donation from Mrs. A R Rindani Trustee - towards future donations to poor people.|Receipt|6|Cash|||Default||No|No|No|No|20180215|No|No|No|No| 92|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation Receipt (Other Than For Corpus)||No|No|No|No|8000.00|||||
+"
+      "||20180215|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000004c|Donation from Mrs. A R Rindani Trustee - towards future donations to poor people.|Receipt|6|Cash|||Default||No|No|No|No|20180215|No|No|No|No| 92|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||Yes|No|No|Yes|-8000.00|||||
+"
+      "|20180331|20180331|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000041|Quarterly Interest On Fixed Deposit|Receipt|7|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20180331|No|No|No|No| 313|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-1563.00|"
+       "||||
+"
+      "|20180331|20180331|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000041|Quarterly Interest On Fixed Deposit|Receipt|7|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20180331|No|No|No|No| 313|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|1563.00|"
+       "||||
+"
+      "||20180415|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000060|To Saptatirth Vatpuri Trust Receipt No 23853 - For Gauseva|Cash Payment|1|Cash|||Default||No|No|No|No|20180415|No|No|No|No| 115|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-100.00|||||
+"
+      "||20180415|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000060|To Saptatirth Vatpuri Trust Receipt No 23853 - For Gauseva|Cash Payment|1|Cash|||Default||No|No|No|No|20180415|No|No|No|No| 115|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|100.00|||||
+"
+      "||20180531|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000061|To Shree Avdhoot Niwas Trust, Nareshwar  - Receipt No 11534|Cash Payment|2|Cash|||Default||No|No|No|No|20180531|No|No|No|No| 116|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-101.00|||||
+"
+      "||20180531|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000061|To Shree Avdhoot Niwas Trust, Nareshwar  - Receipt No 11534|Cash Payment|2|Cash|||Default||No|No|No|No|20180531|No|No|No|No| 116|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|101.00|||||
+"
+      "|20180630|20180630|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000053|Quarterly FD Interest - June 2018|Receipt|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20180630|No|No|No|No| 314|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-1563.00|"
+       "||||
+"
+      "|20180630|20180630|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000053|Quarterly FD Interest - June 2018|Receipt|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20180630|No|No|No|No| 314|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|1563.00|"
+       "||||
+"
+      "||20180727|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000004d|Trust deed and other documents photocopies for submission towards PAN reprinting through NSDL website application - physical application submission.|Cash Payment|3|Cash|||Default||No|No|No|No|20180727|No|No|No|No| 93|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Printing & Stationery||Yes|No|No|No|-50.00|||||
+"
+      "||20180727|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000004d|Trust deed and other documents photocopies for submission towards PAN reprinting through NSDL website application - physical application submission.|Cash Payment|3|Cash|||Default||No|No|No|No|20180727|No|No|No|No| 93|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|50.00|||||
+"
+      "||20180727|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000004f|On line Duplicate PAN application fees.|Cash Payment|4|Cash|||Default||No|No|No|No|20180727|No|No|No|No| 99|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Misc. Expenses||Yes|No|No|No|-107.00|||||
+"
+      "||20180727|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000004f|On line Duplicate PAN application fees.|Cash Payment|4|Cash|||Default||No|No|No|No|20180727|No|No|No|No| 99|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|107.00|||||
+"
+      "||20180728|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000004e|Rubber stamps made for trust from Gitanjali Rubber Stamp Inv No 50131 attached.|Cash Payment|5|Cash|||Default||No|No|No|No|20180728|No|No|No|No| 94|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Printing & Stationery||Yes|No|No|No|-220.00|||||
+"
+      "||20180728|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000004e|Rubber stamps made for trust from Gitanjali Rubber Stamp Inv No 50131 attached.|Cash Payment|5|Cash|||Default||No|No|No|No|20180728|No|No|No|No| 94|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|220.00|||||
+"
+      "||20180802|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000050|Annual accounts, minutes, etc. documents sent to Jamnagar - cash memo of Maruti Courier Services attached.|Cash Payment|6|Cash|||Default||No|No|No|No|20180802|No|No|No|No| 96|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Courier Charges||Yes|No|No|No|-60.00|||||
+"
+      "||20180802|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000050|Annual accounts, minutes, etc. documents sent to Jamnagar - cash memo of Maruti Courier Services attached.|Cash Payment|6|Cash|||Default||No|No|No|No|20180802|No|No|No|No| 96|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|60.00|||||
+"
+      "|20180806|20180806|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000054|Cash withdrawn for expenditure / donations.|Contra|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20180806|No|No|No|No| 315|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||Yes|No|No|Yes|-10000.00|"
+       "||||
+"
+      "|20180806|20180806|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000054|Cash withdrawn for expenditure / donations.|Contra|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20180806|No|No|No|No| 315|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|10000.00|"
+       "||||
+"
+      "||20180809|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000052|As per demand notice - Receipt attached.|Cash Payment|7|Cash|||Default||No|No|No|No|20180809|No|No|No|No| 98|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Public Administration Fund Contribution||Yes|No|No|No|-1350.00|||||
+"
+      "||20180809|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000052|As per demand notice - Receipt attached.|Cash Payment|7|Cash|||Default||No|No|No|No|20180809|No|No|No|No| 98|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|1350.00|||||
+"
+      "||20180810|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000062|To Junagadh Panjrapol Gaushala - Receipt No 1306|Cash Payment|8|Cash|||Default||No|No|No|No|20180810|No|No|No|No| 117|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-2000.00|||||
+"
+      "||20180810|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000062|To Junagadh Panjrapol Gaushala - Receipt No 1306|Cash Payment|8|Cash|||Default||No|No|No|No|20180810|No|No|No|No| 117|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|2000.00|||||
+"
+      "||20180811|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000051|Printing of minutes for submission to Axis Bank, photocopies of Axis Bank Forms of KYC, name addition, etc.|Cash Payment|9|Cash|||Default||No|No|No|No|20180811|No|No|No|No| 97|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Printing & Stationery||Yes|No|No|No|-52.00|||||
+"
+      "||20180811|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000051|Printing of minutes for submission to Axis Bank, photocopies of Axis Bank Forms of KYC, name addition, etc.|Cash Payment|9|Cash|||Default||No|No|No|No|20180811|No|No|No|No| 97|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|52.00|||||
+"
+      "|20180811|20180811|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000055|Monthly consolidated charges - Aug 2018|Bank Payment|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20180811|No|No|No|No| 316|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|531.00|"
+       "||||
+"
+      "|20180811|20180811|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000055|Monthly consolidated charges - Aug 2018|Bank Payment|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20180811|No|No|No|No| 316|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-531.00|"
+       "||||
+"
+      "||20180909|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000063|Ghee and other food articles purchased from Dmart for making sweets to be distributed to poor people.|Cash Payment|10|Cash|||Default||No|No|No|No|20180909|No|No|No|No| 118|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation From Corpus||Yes|No|No|No|-1343.00|||||
+"
+      "||20180909|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000063|Ghee and other food articles purchased from Dmart for making sweets to be distributed to poor people.|Cash Payment|10|Cash|||Default||No|No|No|No|20180909|No|No|No|No| 118|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|1343.00|||||
+"
+      "|20180915|20180915|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000056|Monthly consolidated charges - Sep 2018|Bank Payment|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20180915|No|No|No|No| 317|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|59.00|"
+       "||||
+"
+      "|20180915|20180915|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000056|Monthly consolidated charges - Sep 2018|Bank Payment|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20180915|No|No|No|No| 317|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-59.00|"
+       "||||
+"
+      "||20180924|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000064|To Arasuri Ambaji Mata Devsthan Trust - Receipt No 42024 - For distributing food to poor people.|Cash Payment|11|Cash|||Default||No|No|No|No|20180924|No|No|No|No| 119|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-3000.00|||||
+"
+      "||20180924|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000064|To Arasuri Ambaji Mata Devsthan Trust - Receipt No 42024 - For distributing food to poor people.|Cash Payment|11|Cash|||Default||No|No|No|No|20180924|No|No|No|No| 119|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|3000.00|||||
+"
+      "||20180924|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000065|Paid to Shivam Charitable Trust (Apnaghar) - Receipt No 1868 - for charitable services to poor and needy people.|Cash Payment|12|Cash|||Default||No|No|No|No|20180924|No|No|No|No| 120|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-1000.00|||||
+"
+      "||20180924|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000065|Paid to Shivam Charitable Trust (Apnaghar) - Receipt No 1868 - for charitable services to poor and needy people.|Cash Payment|12|Cash|||Default||No|No|No|No|20180924|No|No|No|No| 120|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|1000.00|||||
+"
+      "|20180929|20180929|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000057|Quarterly FD interest - Sep 2018|Receipt|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20180929|No|No|No|No| 318|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-1563.00|"
+       "||||
+"
+      "|20180929|20180929|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000057|Quarterly FD interest - Sep 2018|Receipt|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20180929|No|No|No|No| 318|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|1563.00|"
+       "||||
+"
+      "||20181005|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000006e|Received from A R Rindani.|Receipt|3|Cash|||Default||No|No|No|No|20181005|No|No|No|No| 130|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation Receipt (Other Than For Corpus)||No|No|No|No|15000.00|||||
+"
+      "||20181005|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000006e|Received from A R Rindani.|Receipt|3|Cash|||Default||No|No|No|No|20181005|No|No|No|No| 130|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||Yes|No|No|Yes|-15000.00|||||
+"
+      "||20181010|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000066|For distribution of food to poor people Voucher of Deva Uma|Cash Payment|13|Cash|||Default||No|No|No|No|20181010|No|No|No|No| 121|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-4400.00|||||
+"
+      "||20181010|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000066|For distribution of food to poor people Voucher of Deva Uma|Cash Payment|13|Cash|||Default||No|No|No|No|20181010|No|No|No|No| 121|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|4400.00|||||
+"
+      "||20181010|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000067|For distribution of food to poor people Voucher of Sarman Bhoja|Cash Payment|14|Cash|||Default||No|No|No|No|20181010|No|No|No|No| 122|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|4840.00|||||
+"
+      "||20181010|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000067|For distribution of food to poor people Voucher of Sarman Bhoja|Cash Payment|14|Cash|||Default||No|No|No|No|20181010|No|No|No|No| 122|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-4840.00|||||
+"
+      "||20181010|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000068|Grains /pulses / spices distributed to poor -  invoice of Girdharlal Karsanji|Cash Payment|15|Cash|||Default||No|No|No|No|20181010|No|No|No|No| 123|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-10283.00|||||
+"
+      "||20181010|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000068|Grains /pulses / spices distributed to poor -  invoice of Girdharlal Karsanji|Cash Payment|15|Cash|||Default||No|No|No|No|20181010|No|No|No|No| 123|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|10283.00|||||
+"
+      "|20181013|20181013|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000058|Monthly consolidated charges - Oct 2018|Bank Payment|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20181013|No|No|No|No| 319|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|1239.00|"
+       "||||
+"
+      "|20181013|20181013|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000058|Monthly consolidated charges - Oct 2018|Bank Payment|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20181013|No|No|No|No| 319|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-1239.00|"
+       "||||
+"
+      "||20181103|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000006f|Donation from A R Rindani|Receipt|4|Cash|||Default||No|No|No|No|20181103|No|No|No|No| 131|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation Receipt (Other Than For Corpus)||No|No|No|No|18000.00|||||
+"
+      "||20181103|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000006f|Donation from A R Rindani|Receipt|4|Cash|||Default||No|No|No|No|20181103|No|No|No|No| 131|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||Yes|No|No|Yes|-18000.00|||||
+"
+      "||20181107|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000069|Distribution of sugar and other articles to poor - Jalaram Mandir Trust|Cash Payment|16|Cash|||Default||No|No|No|No|20181107|No|No|No|No| 124|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-1675.00|||||
+"
+      "||20181107|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000069|Distribution of sugar and other articles to poor - Jalaram Mandir Trust|Cash Payment|16|Cash|||Default||No|No|No|No|20181107|No|No|No|No| 124|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|1675.00|||||
+"
+      "||20181107|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000006a|Articles purchased for making sweets to be distributed to poor people.|Cash Payment|17|Cash|||Default||No|No|No|No|20181107|No|No|No|No| 125|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-487.00|||||
+"
+      "||20181107|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000006a|Articles purchased for making sweets to be distributed to poor people.|Cash Payment|17|Cash|||Default||No|No|No|No|20181107|No|No|No|No| 125|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|487.00|||||
+"
+      "|20181117|20181117|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000059|Monthly consolidated charges - Nov 2018|Bank Payment|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20181117|No|No|No|No| 320|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|59.00|"
+       "||||
+"
+      "|20181117|20181117|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000059|Monthly consolidated charges - Nov 2018|Bank Payment|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20181117|No|No|No|No| 320|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-59.00|"
+       "||||
+"
+      "||20181211|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000006b|Bill of Amarnath Trading Company - No 4339, 29502 & 29503 - Grains, pulses and sugar purchased for making food receipes to be distributed to poor blind people.|Cash Payment|18|Cash|||Default||No|No|No|No|20181211|No|No|No|No| 127|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-7240.00|||||
+"
+      "||20181211|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000006b|Bill of Amarnath Trading Company - No 4339, 29502 & 29503 - Grains, pulses and sugar purchased for making food receipes to be distributed to poor blind people.|Cash Payment|18|Cash|||Default||No|No|No|No|20181211|No|No|No|No| 127|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|7240.00|||||
+"
+      "|20181215|20181215|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000005a|Monthly consoliated charges - Dec 2018|Bank Payment|5|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20181215|No|No|No|No| 321|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|1239.00|"
+       "||||
+"
+      "|20181215|20181215|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000005a|Monthly consoliated charges - Dec 2018|Bank Payment|5|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20181215|No|No|No|No| 321|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-1239.00|"
+       "||||
+"
+      "|20181231|20181231|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000005b|Interest on FD - Quarterly - Dec 2018|Receipt|5|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20181231|No|No|No|No| 322|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-1563.00|"
+       "||||
+"
+      "|20181231|20181231|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000005b|Interest on FD - Quarterly - Dec 2018|Receipt|5|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20181231|No|No|No|No| 322|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|1563.00|"
+       "||||
+"
+      "|20190112|20190112|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000005c|Consolidated bank charges - Monthly - Jan 2019|Bank Payment|6|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20190112|No|No|No|No| 323|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|1239.00|"
+       "||||
+"
+      "|20190112|20190112|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000005c|Consolidated bank charges - Monthly - Jan 2019|Bank Payment|6|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20190112|No|No|No|No| 323|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-1239.00|"
+       "||||
+"
+      "|20190216|20190216|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000005d|Consolidated bank charges - Monthly - Feb 2019|Bank Payment|7|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20190216|No|No|No|No| 324|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|1239.00|"
+       "||||
+"
+      "|20190216|20190216|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000005d|Consolidated bank charges - Monthly - Feb 2019|Bank Payment|7|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20190216|No|No|No|No| 324|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-1239.00|"
+       "||||
+"
+      "|20190316|20190316|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000005e|Consolidated bank charges - Monthly - March 2019|Bank Payment|8|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20190316|No|No|No|No| 325|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|1239.00|"
+       "||||
+"
+      "|20190316|20190316|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000005e|Consolidated bank charges - Monthly - March 2019|Bank Payment|8|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20190316|No|No|No|No| 325|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-1239.00|"
+       "||||
+"
+      "|20190331|20190331|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000005f|Quarterly interest on FD - March 2019|Receipt|6|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20190331|No|No|No|No| 326|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-1563.00|"
+       "||||
+"
+      "|20190331|20190331|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000005f|Quarterly interest on FD - March 2019|Receipt|6|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20190331|No|No|No|No| 326|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|1563.00|"
+       "||||
+"
+      "|20190413|20190413|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000070|Non maintenance of minimumbalance charges and GST @ 18% on that.|Payment|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20190413|No|No|No|No| 327|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|1239.00|"
+       "||||
+"
+      "|20190413|20190413|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000070|Non maintenance of minimumbalance charges and GST @ 18% on that.|Payment|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20190413|No|No|No|No| 327|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-1050.00|"
+       "||||
+"
+      "|20190413|20190413|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000070|Non maintenance of minimumbalance charges and GST @ 18% on that.|Payment|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20190413|No|No|No|No| 327|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-189.00|"
+       "||||
+"
+      "|20190415|20190415|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000071|Deposited By Asha Rindani For Maintenance Of Minimum Balance|Receipt|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20190415|No|No|No|No| 328|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-20000.00|"
+       "||||
+"
+      "|20190415|20190415|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000071|Deposited By Asha Rindani For Maintenance Of Minimum Balance|Receipt|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20190415|No|No|No|No| 328|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Corpus||No|No|No|No|20000.00|"
+       "||||
+"
+      "||20190415|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000085|Received from Asha Rindani towards donations to be made from Trust during the financial year 2019-20|Receipt|2|Cash|||Default||No|No|No|No|20190415|No|No|No|No| 172|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation Receipt (Other Than For Corpus)||No|No|No|No|15000.00|||||
+"
+      "||20190415|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000085|Received from Asha Rindani towards donations to be made from Trust during the financial year 2019-20|Receipt|2|Cash|||Default||No|No|No|No|20190415|No|No|No|No| 172|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||Yes|No|No|Yes|-15000.00|||||
+"
+      "|20190511|20190511|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000072|Bank charges and GST on that (Monthly recurring charges)|Payment|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20190511|No|No|No|No| 329|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|59.00|"
+       "||||
+"
+      "|20190511|20190511|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000072|Bank charges and GST on that (Monthly recurring charges)|Payment|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20190511|No|No|No|No| 329|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-50.00|"
+       "||||
+"
+      "|20190511|20190511|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000072|Bank charges and GST on that (Monthly recurring charges)|Payment|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20190511|No|No|No|No| 329|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-9.00|"
+       "||||
+"
+      "|20190615|20190615|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000073|Bank charges and GST on that (Monthly recurring charges)|Payment|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20190615|No|No|No|No| 330|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|59.00|"
+       "||||
+"
+      "|20190615|20190615|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000073|Bank charges and GST on that (Monthly recurring charges)|Payment|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20190615|No|No|No|No| 330|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-50.00|"
+       "||||
+"
+      "|20190615|20190615|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000073|Bank charges and GST on that (Monthly recurring charges)|Payment|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20190615|No|No|No|No| 330|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-9.00|"
+       "||||
+"
+      "|20190629|20190629|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000074|Quarterly interest on bank FD Jun 2019|Receipt|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20190629|No|No|No|No| 331|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-1563.00|"
+       "||||
+"
+      "|20190629|20190629|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000074|Quarterly interest on bank FD Jun 2019|Receipt|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20190629|No|No|No|No| 331|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|1563.00|"
+       "||||
+"
+      "||20190709|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000084|Junagadh Panjarapol Gaushala - For cow fodder - CM 8488|Payment|4|Cash|||Default||No|No|No|No|20190709|No|No|No|No| 160|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-1500.00|||||
+"
+      "||20190709|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000084|Junagadh Panjarapol Gaushala - For cow fodder - CM 8488|Payment|4|Cash|||Default||No|No|No|No|20190709|No|No|No|No| 160|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|1500.00|||||
+"
+      "||20190718|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000083|Shree Vagheshwari Mataji Trust Junagadh CM 807|Payment|5|Cash|||Default||No|No|No|No|20190718|No|No|No|No| 161|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-500.00|||||
+"
+      "||20190718|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000083|Shree Vagheshwari Mataji Trust Junagadh CM 807|Payment|5|Cash|||Default||No|No|No|No|20190718|No|No|No|No| 161|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|500.00|||||
+"
+      "||20190805|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000082|Apanaghar run by Shivam Charitable Trust, Junagadh CM 2227|Payment|6|Cash|||Default||No|No|No|No|20190805|No|No|No|No| 162|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-1500.00|||||
+"
+      "||20190805|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000082|Apanaghar run by Shivam Charitable Trust, Junagadh CM 2227|Payment|6|Cash|||Default||No|No|No|No|20190805|No|No|No|No| 162|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|1500.00|||||
+"
+      "||20190920|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000081|Aarasuri Ambaji Devsthan Trust, Ambaji - CM 42823 For Food in Sarvajanik Bhojanalay|Payment|7|Cash|||Default||No|No|No|No|20190920|No|No|No|No| 163|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-3000.00|||||
+"
+      "||20190920|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000081|Aarasuri Ambaji Devsthan Trust, Ambaji - CM 42823 For Food in Sarvajanik Bhojanalay|Payment|7|Cash|||Default||No|No|No|No|20190920|No|No|No|No| 163|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|3000.00|||||
+"
+      "||20191024|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000007f|Shree Vageshwari Mataji Trust, Junagadh  - Food distributed to poor people at Trust.|Payment|8|Cash|||Default||No|No|No|No|20191024|No|No|No|No| 164|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-6338.00|||||
+"
+      "||20191024|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000007f|Shree Vageshwari Mataji Trust, Junagadh  - Food distributed to poor people at Trust.|Payment|8|Cash|||Default||No|No|No|No|20191024|No|No|No|No| 164|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|6338.00|||||
+"
+      "||20191024|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000080|Jalaram Charitable Trust, Vadodara - For Food distribution to poor people.|Payment|9|Cash|||Default||No|No|No|No|20191024|No|No|No|No| 165|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-3000.00|||||
+"
+      "||20191024|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000080|Jalaram Charitable Trust, Vadodara - For Food distribution to poor people.|Payment|9|Cash|||Default||No|No|No|No|20191024|No|No|No|No| 165|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|3000.00|||||
+"
+      "||20191024|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000086|Jalaram Charitable Trust Food distributed to poor people on Shrad Poonam|Payment|10|Cash|||Default||No|No|No|No|20191024|No|No|No|No| 174|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-493.00|||||
+"
+      "||20191024|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000086|Jalaram Charitable Trust Food distributed to poor people on Shrad Poonam|Payment|10|Cash|||Default||No|No|No|No|20191024|No|No|No|No| 174|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|493.00|||||
+"
+      "||20191027|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000007e|Shree Vageshwari Mataji Trust, Junagadh  Receipt No 1809|Payment|11|Cash|||Default||No|No|No|No|20191027|No|No|No|No| 166|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-1000.00|||||
+"
+      "||20191027|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000007e|Shree Vageshwari Mataji Trust, Junagadh  Receipt No 1809|Payment|11|Cash|||Default||No|No|No|No|20191027|No|No|No|No| 166|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|1000.00|||||
+"
+      "|20191122|20191122|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000075|Quarterly interest on bank FD Sep 2019|Receipt|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20191122|No|No|No|No| 332|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-1563.00|"
+       "||||
+"
+      "|20191122|20191122|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000075|Quarterly interest on bank FD Sep 2019|Receipt|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20191122|No|No|No|No| 332|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|1563.00|"
+       "||||
+"
+      "||20191123|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000007d|Avanue Supermarket - Vasna Vadodara - Ghee and other material purchased in relation to sweets making and dsitributing to poor.|Payment|12|Cash|||Default||No|No|No|No|20191123|No|No|No|No| 169|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-2004.00|||||
+"
+      "||20191123|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000007d|Avanue Supermarket - Vasna Vadodara - Ghee and other material purchased in relation to sweets making and dsitributing to poor.|Payment|12|Cash|||Default||No|No|No|No|20191123|No|No|No|No| 169|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|2004.00|||||
+"
+      "||20191212|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000007c|Amarnath Trading Co, Vadodara CM 28279 Grains purchased and distributed to Poor People|Payment|13|Cash|||Default||No|No|No|No|20191212|No|No|No|No| 170|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-1690.00|||||
+"
+      "||20191212|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000007c|Amarnath Trading Co, Vadodara CM 28279 Grains purchased and distributed to Poor People|Payment|13|Cash|||Default||No|No|No|No|20191212|No|No|No|No| 170|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|1690.00|||||
+"
+      "|20191214|20191214|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000076|Bank charges and GST @ 9% for 8 months|Payment|14|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20191214|No|No|No|No| 333|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|472.00|"
+       "||||
+"
+      "|20191214|20191214|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000076|Bank charges and GST @ 9% for 8 months|Payment|14|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20191214|No|No|No|No| 333|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-400.00|"
+       "||||
+"
+      "|20191214|20191214|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000076|Bank charges and GST @ 9% for 8 months|Payment|14|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20191214|No|No|No|No| 333|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-72.00|"
+       "||||
+"
+      "|20191231|20191231|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000077|Interest on Bank FD - Quarterly - Dec 2019|Receipt|5|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20191231|No|No|No|No| 334|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-1563.00|"
+       "||||
+"
+      "|20191231|20191231|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000077|Interest on Bank FD - Quarterly - Dec 2019|Receipt|5|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20191231|No|No|No|No| 334|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|1563.00|"
+       "||||
+"
+      "|20200118|20200118|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000078|Bank charges Jan 20 + GST @ 18%|Payment|15|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20200118|No|No|No|No| 335|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|59.00|"
+       "||||
+"
+      "|20200118|20200118|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000078|Bank charges Jan 20 + GST @ 18%|Payment|15|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20200118|No|No|No|No| 335|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-50.00|"
+       "||||
+"
+      "|20200118|20200118|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000078|Bank charges Jan 20 + GST @ 18%|Payment|15|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20200118|No|No|No|No| 335|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-9.00|"
+       "||||
+"
+      "|20200215|20200215|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000079|Bank charges Jan 20 + GST @ 18%|Payment|16|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20200215|No|No|No|No| 336|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|59.00|"
+       "||||
+"
+      "|20200215|20200215|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000079|Bank charges Jan 20 + GST @ 18%|Payment|16|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20200215|No|No|No|No| 336|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-50.00|"
+       "||||
+"
+      "|20200215|20200215|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000079|Bank charges Jan 20 + GST @ 18%|Payment|16|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20200215|No|No|No|No| 336|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-9.00|"
+       "||||
+"
+      "||20200308|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000007b|Apnaghar - Shivam Charitable Trust, Vadodara|Payment|17|Cash|||Default||No|No|No|No|20200308|No|No|No|No| 171|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-1100.00|||||
+"
+      "||20200308|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000007b|Apnaghar - Shivam Charitable Trust, Vadodara|Payment|17|Cash|||Default||No|No|No|No|20200308|No|No|No|No| 171|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|1100.00|||||
+"
+      "|20200331|20200331|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000007a|Quarterly interest on FD With Bank - Mar 2020|Receipt|6|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20200331|No|No|No|No| 337|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-1563.00|"
+       "||||
+"
+      "|20200331|20200331|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000007a|Quarterly interest on FD With Bank - Mar 2020|Receipt|6|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20200331|No|No|No|No| 337|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|1563.00|"
+       "||||
+"
+      "|20200411|20200411|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000008d|Bank charges monthly Apr 20 & GST 18%|Payment|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20200411|No|No|No|No| 338|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20200411|20200411|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000008d|Bank charges monthly Apr 20 & GST 18%|Payment|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20200411|No|No|No|No| 338|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-100.00|"
+       "||||
+"
+      "|20200411|20200411|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000008d|Bank charges monthly Apr 20 & GST 18%|Payment|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20200411|No|No|No|No| 338|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-18.00|"
+       "||||
+"
+      "||20200415|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000008c|Received from Asha Rindani for donations during financial year 2021-22|Receipt|1|Cash|||Default||No|No|No|No|20200415|No|No|No|No| 181|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation Receipt (Other Than For Corpus)||No|No|No|No|15000.00|||||
+"
+      "||20200415|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000008c|Received from Asha Rindani for donations during financial year 2021-22|Receipt|1|Cash|||Default||No|No|No|No|20200415|No|No|No|No| 181|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||Yes|No|No|Yes|-15000.00|||||
+"
+      "|20200516|20200516|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000008e|Bank charges May 20|Payment|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20200516|No|No|No|No| 339|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|59.00|"
+       "||||
+"
+      "|20200516|20200516|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000008e|Bank charges May 20|Payment|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20200516|No|No|No|No| 339|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-50.00|"
+       "||||
+"
+      "|20200516|20200516|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000008e|Bank charges May 20|Payment|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20200516|No|No|No|No| 339|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-9.00|"
+       "||||
+"
+      "|20200613|20200613|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000008f|Bank charges June 20|Payment|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20200613|No|No|No|No| 340|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|59.00|"
+       "||||
+"
+      "|20200613|20200613|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000008f|Bank charges June 20|Payment|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20200613|No|No|No|No| 340|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-50.00|"
+       "||||
+"
+      "|20200613|20200613|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000008f|Bank charges June 20|Payment|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20200613|No|No|No|No| 340|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-9.00|"
+       "||||
+"
+      "|20200630|20200630|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000090|FD Interest Jun 20|Receipt|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20200630|No|No|No|No| 341|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-1563.00|"
+       "||||
+"
+      "|20200630|20200630|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000090|FD Interest Jun 20|Receipt|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20200630|No|No|No|No| 341|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|1563.00|"
+       "||||
+"
+      "|20200711|20200711|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000091|Bank charges July 20|Payment|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20200711|No|No|No|No| 342|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20200711|20200711|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000091|Bank charges July 20|Payment|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20200711|No|No|No|No| 342|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-100.00|"
+       "||||
+"
+      "|20200711|20200711|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000091|Bank charges July 20|Payment|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20200711|No|No|No|No| 342|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-18.00|"
+       "||||
+"
+      "|20200822|20200822|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000092|Bank charges Aug 20|Payment|5|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20200822|No|No|No|No| 343|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20200822|20200822|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000092|Bank charges Aug 20|Payment|5|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20200822|No|No|No|No| 343|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-100.00|"
+       "||||
+"
+      "|20200822|20200822|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000092|Bank charges Aug 20|Payment|5|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20200822|No|No|No|No| 343|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-18.00|"
+       "||||
+"
+      "|20200912|20200912|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000093|Bank charges Sep 20|Payment|6|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20200912|No|No|No|No| 344|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20200912|20200912|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000093|Bank charges Sep 20|Payment|6|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20200912|No|No|No|No| 344|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-100.00|"
+       "||||
+"
+      "|20200912|20200912|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000093|Bank charges Sep 20|Payment|6|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20200912|No|No|No|No| 344|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-18.00|"
+       "||||
+"
+      "|20200930|20200930|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000094|FD Interest Sep 20|Receipt|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20200930|No|No|No|No| 345|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-1563.00|"
+       "||||
+"
+      "|20200930|20200930|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000094|FD Interest Sep 20|Receipt|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20200930|No|No|No|No| 345|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|1563.00|"
+       "||||
+"
+      "|20201017|20201017|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000095|Bank charges Oct 20|Payment|7|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20201017|No|No|No|No| 346|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20201017|20201017|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000095|Bank charges Oct 20|Payment|7|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20201017|No|No|No|No| 346|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-100.00|"
+       "||||
+"
+      "|20201017|20201017|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000095|Bank charges Oct 20|Payment|7|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20201017|No|No|No|No| 346|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-18.00|"
+       "||||
+"
+      "||20201106|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000008a|Jalaram Charitable Trust, Vadodara CM 322|Payment|8|Cash|||Default||No|No|No|No|20201106|No|No|No|No| 179|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-251.00|||||
+"
+      "||20201106|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000008a|Jalaram Charitable Trust, Vadodara CM 322|Payment|8|Cash|||Default||No|No|No|No|20201106|No|No|No|No| 179|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|251.00|||||
+"
+      "|20201114|20201114|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000096|Bank charges Nov 20|Payment|9|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20201114|No|No|No|No| 347|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|236.00|"
+       "||||
+"
+      "|20201114|20201114|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000096|Bank charges Nov 20|Payment|9|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20201114|No|No|No|No| 347|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-200.00|"
+       "||||
+"
+      "|20201114|20201114|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000096|Bank charges Nov 20|Payment|9|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20201114|No|No|No|No| 347|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-36.00|"
+       "||||
+"
+      "||20201211|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000089|Junagadh Panjrapol, CM 743|Payment|10|Cash|||Default||No|No|No|No|20201211|No|No|No|No| 178|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-1000.00|||||
+"
+      "||20201211|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000089|Junagadh Panjrapol, CM 743|Payment|10|Cash|||Default||No|No|No|No|20201211|No|No|No|No| 178|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|1000.00|||||
+"
+      "||20201211|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000008b|Adarsh Masala Ghar - Refined Wheat Flour, Sugar, Besan purchased for making sweets for poor people - CM 731|Payment|11|Cash|||Default||No|No|No|No|20201211|No|No|No|No| 180|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-6160.00|||||
+"
+      "||20201211|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000008b|Adarsh Masala Ghar - Refined Wheat Flour, Sugar, Besan purchased for making sweets for poor people - CM 731|Payment|11|Cash|||Default||No|No|No|No|20201211|No|No|No|No| 180|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|6160.00|||||
+"
+      "|20201212|20201212|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000097|Bank charges Dec 20|Payment|12|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20201212|No|No|No|No| 348|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20201212|20201212|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000097|Bank charges Dec 20|Payment|12|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20201212|No|No|No|No| 348|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-100.00|"
+       "||||
+"
+      "|20201212|20201212|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000097|Bank charges Dec 20|Payment|12|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20201212|No|No|No|No| 348|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-18.00|"
+       "||||
+"
+      "||20201215|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000088|Amarnath Trading Co CM 30404 Grains purchased and distributed to Poor people|Payment|13|Cash|||Default||No|No|No|No|20201215|No|No|No|No| 177|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-2200.00|||||
+"
+      "||20201215|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000088|Amarnath Trading Co CM 30404 Grains purchased and distributed to Poor people|Payment|13|Cash|||Default||No|No|No|No|20201215|No|No|No|No| 177|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|2200.00|||||
+"
+      "|20201231|20201231|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000098|FD Interest Dec 20|Receipt|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20201231|No|No|No|No| 349|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-1563.00|"
+       "||||
+"
+      "|20201231|20201231|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000098|FD Interest Dec 20|Receipt|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20201231|No|No|No|No| 349|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|1563.00|"
+       "||||
+"
+      "||20210104|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000087|Apnaghar managed by Shivam Charitable Trust CM 2311|Payment|14|Cash|||Default||No|No|No|No|20210104|No|No|No|No| 176|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-1000.00|||||
+"
+      "||20210104|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000087|Apnaghar managed by Shivam Charitable Trust CM 2311|Payment|14|Cash|||Default||No|No|No|No|20210104|No|No|No|No| 176|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|1000.00|||||
+"
+      "|20210116|20210116|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000099|Bank charges Jan 2021|Payment|15|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210116|No|No|No|No| 350|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20210116|20210116|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000099|Bank charges Jan 2021|Payment|15|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210116|No|No|No|No| 350|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-100.00|"
+       "||||
+"
+      "|20210116|20210116|9ab1e601-ac56-4624-a846-d3ea0a525bd5-00000099|Bank charges Jan 2021|Payment|15|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210116|No|No|No|No| 350|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-18.00|"
+       "||||
+"
+      "|20210213|20210213|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000009a|Bank charges Feb 2021|Payment|16|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210213|No|No|No|No| 351|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20210213|20210213|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000009a|Bank charges Feb 2021|Payment|16|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210213|No|No|No|No| 351|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-100.00|"
+       "||||
+"
+      "|20210213|20210213|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000009a|Bank charges Feb 2021|Payment|16|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210213|No|No|No|No| 351|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-18.00|"
+       "||||
+"
+      "|20210313|20210313|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000009b|Bank charges Mar 2021|Payment|17|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210313|No|No|No|No| 352|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20210313|20210313|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000009b|Bank charges Mar 2021|Payment|17|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210313|No|No|No|No| 352|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-100.00|"
+       "||||
+"
+      "|20210313|20210313|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000009b|Bank charges Mar 2021|Payment|17|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210313|No|No|No|No| 352|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-18.00|"
+       "||||
+"
+      "|20210331|20210331|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000009c|FD Interest Mar 2021|Receipt|5|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210331|No|No|No|No| 353|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-1563.00|"
+       "||||
+"
+      "|20210331|20210331|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000009c|FD Interest Mar 2021|Receipt|5|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210331|No|No|No|No| 353|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|1563.00|"
+       "||||
+"
+      "|20210417|20210417|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000009d|bank charges and GST for Apr 2021|Payment|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210417|No|No|No|No| 354|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20210417|20210417|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000009d|bank charges and GST for Apr 2021|Payment|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210417|No|No|No|No| 354|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-18.00|"
+       "||||
+"
+      "|20210417|20210417|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000009d|bank charges and GST for Apr 2021|Payment|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210417|No|No|No|No| 354|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-100.00|"
+       "||||
+"
+      "|20210515|20210515|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000009e|bank charges and GST for May 21|Payment|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210515|No|No|No|No| 355|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20210515|20210515|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000009e|bank charges and GST for May 21|Payment|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210515|No|No|No|No| 355|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-18.00|"
+       "||||
+"
+      "|20210515|20210515|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000009e|bank charges and GST for May 21|Payment|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210515|No|No|No|No| 355|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-100.00|"
+       "||||
+"
+      "|20210612|20210612|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000009f|bank charges and GST for June 21|Payment|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210612|No|No|No|No| 356|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20210612|20210612|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000009f|bank charges and GST for June 21|Payment|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210612|No|No|No|No| 356|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-18.00|"
+       "||||
+"
+      "|20210612|20210612|9ab1e601-ac56-4624-a846-d3ea0a525bd5-0000009f|bank charges and GST for June 21|Payment|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210612|No|No|No|No| 356|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-100.00|"
+       "||||
+"
+      "|20210630|20210630|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000a0|Interest on bank FD Q1 - Jun 21|Receipt|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210630|No|No|No|No| 357|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-1563.00|"
+       "||||
+"
+      "|20210630|20210630|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000a0|Interest on bank FD Q1 - Jun 21|Receipt|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210630|No|No|No|No| 357|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|1563.00|"
+       "||||
+"
+      "|20210717|20210717|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000a4|bank charges and GST for July 21|Payment|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210717|No|No|No|No| 358|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20210717|20210717|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000a4|bank charges and GST for July 21|Payment|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210717|No|No|No|No| 358|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-18.00|"
+       "||||
+"
+      "|20210717|20210717|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000a4|bank charges and GST for July 21|Payment|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210717|No|No|No|No| 358|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-100.00|"
+       "||||
+"
+      "|20210814|20210814|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000a5|bank charges and GST for Aug 21|Payment|5|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210814|No|No|No|No| 359|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20210814|20210814|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000a5|bank charges and GST for Aug 21|Payment|5|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210814|No|No|No|No| 359|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-18.00|"
+       "||||
+"
+      "|20210814|20210814|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000a5|bank charges and GST for Aug 21|Payment|5|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210814|No|No|No|No| 359|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-100.00|"
+       "||||
+"
+      "|20210911|20210911|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000a6|bank charges and GST for Sep 21|Payment|6|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210911|No|No|No|No| 360|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20210911|20210911|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000a6|bank charges and GST for Sep 21|Payment|6|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210911|No|No|No|No| 360|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-18.00|"
+       "||||
+"
+      "|20210911|20210911|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000a6|bank charges and GST for Sep 21|Payment|6|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210911|No|No|No|No| 360|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-100.00|"
+       "||||
+"
+      "||20210920|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000b2|Shree Junagadh Panjrapol Gaushala - Receipt no 6861 - donation for food for animals.|Payment|7|Cash|||Default||No|No|No|No|20210920|No|No|No|No| 228|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-1000.00|||||
+"
+      "||20210920|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000b2|Shree Junagadh Panjrapol Gaushala - Receipt no 6861 - donation for food for animals.|Payment|7|Cash|||Default||No|No|No|No|20210920|No|No|No|No| 228|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|1000.00|||||
+"
+      "||20210921|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000b1|Donation to Apnaghar - Trust for old age poor people - Receipt No 2344|Payment|8|Cash|||Default||No|No|No|No|20210921|No|No|No|No| 227|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-2000.00|||||
+"
+      "||20210921|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000b1|Donation to Apnaghar - Trust for old age poor people - Receipt No 2344|Payment|8|Cash|||Default||No|No|No|No|20210921|No|No|No|No| 227|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|2000.00|||||
+"
+      "|20210930|20210930|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000a1|Interest on bank FD Q2 - Sep 21|Receipt|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210930|No|No|No|No| 361|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-1563.00|"
+       "||||
+"
+      "|20210930|20210930|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000a1|Interest on bank FD Q2 - Sep 21|Receipt|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20210930|No|No|No|No| 361|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|1563.00|"
+       "||||
+"
+      "|20211016|20211016|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000a7|bank charges and GST for Oct 21|Payment|9|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20211016|No|No|No|No| 362|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20211016|20211016|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000a7|bank charges and GST for Oct 21|Payment|9|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20211016|No|No|No|No| 362|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-18.00|"
+       "||||
+"
+      "|20211016|20211016|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000a7|bank charges and GST for Oct 21|Payment|9|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20211016|No|No|No|No| 362|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-100.00|"
+       "||||
+"
+      "||20211017|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000ad|CM H/7135 of H M Dabhiowala for pulses purchased and distributed to porr people.|Payment|10|Cash|||Default||No|No|No|No|20211017|No|No|No|No| 223|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-237.00|||||
+"
+      "||20211017|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000ad|CM H/7135 of H M Dabhiowala for pulses purchased and distributed to porr people.|Payment|10|Cash|||Default||No|No|No|No|20211017|No|No|No|No| 223|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|237.00|||||
+"
+      "|20211113|20211113|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000a8|bank charges and GST for Nov 21|Payment|11|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20211113|No|No|No|No| 363|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20211113|20211113|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000a8|bank charges and GST for Nov 21|Payment|11|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20211113|No|No|No|No| 363|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-18.00|"
+       "||||
+"
+      "|20211113|20211113|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000a8|bank charges and GST for Nov 21|Payment|11|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20211113|No|No|No|No| 363|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-100.00|"
+       "||||
+"
+      "||20211209|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000ae|CM 30375 of Amarnath Trading Co. for oil and pulses - distributed to poor people.|Payment|12|Cash|||Default||No|No|No|No|20211209|No|No|No|No| 224|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-2320.00|||||
+"
+      "||20211209|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000ae|CM 30375 of Amarnath Trading Co. for oil and pulses - distributed to poor people.|Payment|12|Cash|||Default||No|No|No|No|20211209|No|No|No|No| 224|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|2320.00|||||
+"
+      "||20211211|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000b0|General donation - Vagheshwari Mataji Trust Receipt No 25|Payment|13|Cash|||Default||No|No|No|No|20211211|No|No|No|No| 226|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-5001.00|||||
+"
+      "||20211211|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000b0|General donation - Vagheshwari Mataji Trust Receipt No 25|Payment|13|Cash|||Default||No|No|No|No|20211211|No|No|No|No| 226|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|5001.00|||||
+"
+      "|20211218|20211218|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000a9|bank charges and GST for Dec 21|Payment|14|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20211218|No|No|No|No| 364|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20211218|20211218|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000a9|bank charges and GST for Dec 21|Payment|14|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20211218|No|No|No|No| 364|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-18.00|"
+       "||||
+"
+      "|20211218|20211218|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000a9|bank charges and GST for Dec 21|Payment|14|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20211218|No|No|No|No| 364|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-100.00|"
+       "||||
+"
+      "|20211231|20211231|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000a2|Interest on bank FD Q3 - Dec 21|Receipt|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20211231|No|No|No|No| 365|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-1563.00|"
+       "||||
+"
+      "|20211231|20211231|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000a2|Interest on bank FD Q3 - Dec 21|Receipt|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20211231|No|No|No|No| 365|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|1563.00|"
+       "||||
+"
+      "|20220122|20220122|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000aa|bank charges and GST for Jan 22|Payment|15|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220122|No|No|No|No| 366|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20220122|20220122|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000aa|bank charges and GST for Jan 22|Payment|15|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220122|No|No|No|No| 366|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-18.00|"
+       "||||
+"
+      "|20220122|20220122|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000aa|bank charges and GST for Jan 22|Payment|15|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220122|No|No|No|No| 366|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-100.00|"
+       "||||
+"
+      "||20220211|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000af|General dination - Vagheshwari Mataji Trust Receipt No 1360|Payment|16|Cash|||Default||No|No|No|No|20220211|No|No|No|No| 225|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-500.00|||||
+"
+      "||20220211|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000af|General dination - Vagheshwari Mataji Trust Receipt No 1360|Payment|16|Cash|||Default||No|No|No|No|20220211|No|No|No|No| 225|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|500.00|||||
+"
+      "|20220212|20220212|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000ab|bank charges and GST for Feb 22|Payment|17|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220212|No|No|No|No| 367|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20220212|20220212|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000ab|bank charges and GST for Feb 22|Payment|17|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220212|No|No|No|No| 367|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-18.00|"
+       "||||
+"
+      "|20220212|20220212|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000ab|bank charges and GST for Feb 22|Payment|17|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220212|No|No|No|No| 367|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-100.00|"
+       "||||
+"
+      "|20220319|20220319|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000ac|bank charges and GST for Mar 22|Payment|18|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220319|No|No|No|No| 368|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20220319|20220319|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000ac|bank charges and GST for Mar 22|Payment|18|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220319|No|No|No|No| 368|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-18.00|"
+       "||||
+"
+      "|20220319|20220319|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000ac|bank charges and GST for Mar 22|Payment|18|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220319|No|No|No|No| 368|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-100.00|"
+       "||||
+"
+      "|20220331|20220331|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000a3|Interest on bank FD Q4 - Mar 22|Receipt|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220331|No|No|No|No| 369|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-1563.00|"
+       "||||
+"
+      "|20220331|20220331|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000a3|Interest on bank FD Q4 - Mar 22|Receipt|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220331|No|No|No|No| 369|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|1563.00|"
+       "||||
+"
+      "|20220416|20220416|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000bd|bank charges and GST - Apr 22|Payment|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220416|No|No|No|No| 370|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20220416|20220416|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000bd|bank charges and GST - Apr 22|Payment|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220416|No|No|No|No| 370|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-18.00|"
+       "||||
+"
+      "|20220416|20220416|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000bd|bank charges and GST - Apr 22|Payment|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220416|No|No|No|No| 370|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-100.00|"
+       "||||
+"
+      "||20220429|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000bb|Towards donations to be made during the year 2022-23.|Receipt|1|Cash|||Default||No|No|No|No|20220429|No|No|No|No| 237|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation Receipt (Other Than For Corpus)||No|No|No|No|10000.00|||||
+"
+      "||20220429|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000bb|Towards donations to be made during the year 2022-23.|Receipt|1|Cash|||Default||No|No|No|No|20220429|No|No|No|No| 237|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||Yes|No|No|Yes|-10000.00|||||
+"
+      "||20220509|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000b5|M/S Adarsh Masala Ghar CM 231 dated 9-5-22 spices purchased for food to be prepared for poor people.|Payment|2|Cash|||Default||No|No|No|No|20220509|No|No|No|No| 231|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-5404.00|||||
+"
+      "||20220509|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000b5|M/S Adarsh Masala Ghar CM 231 dated 9-5-22 spices purchased for food to be prepared for poor people.|Payment|2|Cash|||Default||No|No|No|No|20220509|No|No|No|No| 231|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|5404.00|||||
+"
+      "||20220513|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000b6|CM 38659 dated 13-5-22 of Saptatirth Vatpuri Trust - Towards Cattle fodder.|Payment|3|Cash|||Default||No|No|No|No|20220513|No|No|No|No| 232|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-100.00|||||
+"
+      "||20220513|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000b6|CM 38659 dated 13-5-22 of Saptatirth Vatpuri Trust - Towards Cattle fodder.|Payment|3|Cash|||Default||No|No|No|No|20220513|No|No|No|No| 232|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|100.00|||||
+"
+      "|20220514|20220514|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000be|bank charges and GST - May 22|Payment|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220514|No|No|No|No| 371|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20220514|20220514|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000be|bank charges and GST - May 22|Payment|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220514|No|No|No|No| 371|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-18.00|"
+       "||||
+"
+      "|20220514|20220514|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000be|bank charges and GST - May 22|Payment|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220514|No|No|No|No| 371|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-100.00|"
+       "||||
+"
+      "|20220618|20220618|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000bf|bank charges and GST for - Jun 22|Payment|5|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220618|No|No|No|No| 372|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20220618|20220618|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000bf|bank charges and GST for - Jun 22|Payment|5|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220618|No|No|No|No| 372|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-18.00|"
+       "||||
+"
+      "|20220618|20220618|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000bf|bank charges and GST for - Jun 22|Payment|5|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220618|No|No|No|No| 372|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-100.00|"
+       "||||
+"
+      "|20220630|20220630|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000c0|Interest On FD - Apr 22 to Jun 22|Receipt|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220630|No|No|No|No| 373|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-1563.00|"
+       "||||
+"
+      "|20220630|20220630|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000c0|Interest On FD - Apr 22 to Jun 22|Receipt|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220630|No|No|No|No| 373|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|1563.00|"
+       "||||
+"
+      "|20220723|20220723|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000c4|bank charges and GST for - July 22|Payment|6|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220723|No|No|No|No| 374|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20220723|20220723|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000c4|bank charges and GST for - July 22|Payment|6|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220723|No|No|No|No| 374|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-18.00|"
+       "||||
+"
+      "|20220723|20220723|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000c4|bank charges and GST for - July 22|Payment|6|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220723|No|No|No|No| 374|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-100.00|"
+       "||||
+"
+      "||20220725|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000bc|Further receipts for additional donations during the yeear 2022-23.|Receipt|3|Cash|||Default||No|No|No|No|20220725|No|No|No|No| 238|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation Receipt (Other Than For Corpus)||No|No|No|No|10000.00|||||
+"
+      "||20220725|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000bc|Further receipts for additional donations during the yeear 2022-23.|Receipt|3|Cash|||Default||No|No|No|No|20220725|No|No|No|No| 238|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||Yes|No|No|Yes|-10000.00|||||
+"
+      "||20220808|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000ba|"""Apnaghar"" Receipt No 2368 dated 8-8-22 - Trust managing staying facilities for old people."|Payment|7|Cash|||Default||No|No|No|No|20220808|No|No|No|No| 236|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-1000.00|||||
+"
+      "||20220808|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000ba|"""Apnaghar"" Receipt No 2368 dated 8-8-22 - Trust managing staying facilities for old people."|Payment|7|Cash|||Default||No|No|No|No|20220808|No|No|No|No| 236|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|1000.00|||||
+"
+      "||20220809|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000b3|M/S Adarsh Masala Ghar - CM 777 dated 9-8-22 - spices purchased to be used in food for poor people.|Payment|8|Cash|||Default||No|No|No|No|20220809|No|No|No|No| 229|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-5765.00|||||
+"
+      "||20220809|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000b3|M/S Adarsh Masala Ghar - CM 777 dated 9-8-22 - spices purchased to be used in food for poor people.|Payment|8|Cash|||Default||No|No|No|No|20220809|No|No|No|No| 229|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|5765.00|||||
+"
+      "|20220829|20220829|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000c5|bank charges and GST for - Aug 22|Payment|9|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220829|No|No|No|No| 375|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20220829|20220829|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000c5|bank charges and GST for - Aug 22|Payment|9|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220829|No|No|No|No| 375|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-18.00|"
+       "||||
+"
+      "|20220829|20220829|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000c5|bank charges and GST for - Aug 22|Payment|9|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220829|No|No|No|No| 375|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-100.00|"
+       "||||
+"
+      "||20220908|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000b9|Shree Junagadh Panjarapol Gaushala Receipt No 12986 dated 8-9-22 Cattle fodder.|Payment|10|Cash|||Default||No|No|No|No|20220908|No|No|No|No| 235|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-1000.00|||||
+"
+      "||20220908|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000b9|Shree Junagadh Panjarapol Gaushala Receipt No 12986 dated 8-9-22 Cattle fodder.|Payment|10|Cash|||Default||No|No|No|No|20220908|No|No|No|No| 235|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|1000.00|||||
+"
+      "|20220917|20220917|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000c6|bank charges and GST for - Sep 22|Payment|11|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220917|No|No|No|No| 376|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20220917|20220917|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000c6|bank charges and GST for - Sep 22|Payment|11|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220917|No|No|No|No| 376|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-18.00|"
+       "||||
+"
+      "|20220917|20220917|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000c6|bank charges and GST for - Sep 22|Payment|11|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220917|No|No|No|No| 376|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-100.00|"
+       "||||
+"
+      "|20220930|20220930|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000c1|Interest On FD - Jul 22 to Sep 22|Receipt|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220930|No|No|No|No| 377|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-1563.00|"
+       "||||
+"
+      "|20220930|20220930|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000c1|Interest On FD - Jul 22 to Sep 22|Receipt|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20220930|No|No|No|No| 377|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|1563.00|"
+       "||||
+"
+      "||20221129|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000b8|Receipt No 37176 dated 29-11-22 of Bal Mission Charitable Trust  - towards help for children.|Payment|12|Cash|||Default||No|No|No|No|20221129|No|No|No|No| 234|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-100.00|||||
+"
+      "||20221129|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000b8|Receipt No 37176 dated 29-11-22 of Bal Mission Charitable Trust  - towards help for children.|Payment|12|Cash|||Default||No|No|No|No|20221129|No|No|No|No| 234|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|100.00|||||
+"
+      "|20221216|20221216|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000c7|bank charges and GST for - Oct 22 To Dec 22|Payment|13|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20221216|No|No|No|No| 378|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|354.00|"
+       "||||
+"
+      "|20221216|20221216|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000c7|bank charges and GST for - Oct 22 To Dec 22|Payment|13|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20221216|No|No|No|No| 378|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-54.00|"
+       "||||
+"
+      "|20221216|20221216|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000c7|bank charges and GST for - Oct 22 To Dec 22|Payment|13|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20221216|No|No|No|No| 378|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-300.00|"
+       "||||
+"
+      "||20221226|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000b7|Amarnath Trading Company CM 33635 dated 26-12-22 Rice purchased to be used with other food to be distributed to for poor people.|Payment|14|Cash|||Default||No|No|No|No|20221226|No|No|No|No| 233|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-2350.00|||||
+"
+      "||20221226|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000b7|Amarnath Trading Company CM 33635 dated 26-12-22 Rice purchased to be used with other food to be distributed to for poor people.|Payment|14|Cash|||Default||No|No|No|No|20221226|No|No|No|No| 233|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|2350.00|||||
+"
+      "|20221231|20221231|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000c2|Interest On FD - Oct 22 To Dec 22|Receipt|5|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20221231|No|No|No|No| 379|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-1563.00|"
+       "||||
+"
+      "|20221231|20221231|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000c2|Interest On FD - Oct 22 To Dec 22|Receipt|5|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20221231|No|No|No|No| 379|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|1563.00|"
+       "||||
+"
+      "||20230102|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000b4|"""Apnaghar"" Receipt No 2374 dated 2-1-23 - Trust managing staying facilities for old people."|Payment|15|Cash|||Default||No|No|No|No|20230102|No|No|No|No| 230|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-1000.00|||||
+"
+      "||20230102|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000b4|"""Apnaghar"" Receipt No 2374 dated 2-1-23 - Trust managing staying facilities for old people."|Payment|15|Cash|||Default||No|No|No|No|20230102|No|No|No|No| 230|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|1000.00|||||
+"
+      "|20230114|20230114|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000c8|bank charges and GST for - Jan 23|Payment|16|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20230114|No|No|No|No| 380|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20230114|20230114|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000c8|bank charges and GST for - Jan 23|Payment|16|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20230114|No|No|No|No| 380|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-18.00|"
+       "||||
+"
+      "|20230114|20230114|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000c8|bank charges and GST for - Jan 23|Payment|16|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20230114|No|No|No|No| 380|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-100.00|"
+       "||||
+"
+      "|20230217|20230217|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000c9|bank charges and GST for - Feb 23|Payment|17|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20230217|No|No|No|No| 381|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20230217|20230217|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000c9|bank charges and GST for - Feb 23|Payment|17|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20230217|No|No|No|No| 381|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-18.00|"
+       "||||
+"
+      "|20230217|20230217|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000c9|bank charges and GST for - Feb 23|Payment|17|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20230217|No|No|No|No| 381|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-100.00|"
+       "||||
+"
+      "|20230317|20230317|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000ca|bank charges and GST for - Mar 23|Payment|18|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20230317|No|No|No|No| 382|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20230317|20230317|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000ca|bank charges and GST for - Mar 23|Payment|18|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20230317|No|No|No|No| 382|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-18.00|"
+       "||||
+"
+      "|20230317|20230317|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000ca|bank charges and GST for - Mar 23|Payment|18|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20230317|No|No|No|No| 382|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-100.00|"
+       "||||
+"
+      "|20230331|20230331|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000c3|Interest On FD - Jan 23 to Mar 23|Receipt|6|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20230331|No|No|No|No| 383|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-1563.00|"
+       "||||
+"
+      "|20230331|20230331|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000c3|Interest On FD - Jan 23 to Mar 23|Receipt|6|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20230331|No|No|No|No| 383|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|1563.00|"
+       "||||
+"
+      "||20230401|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000cb|Received from Asha Rindani for future donations - during the financial year 2023-24|Receipt|1|Cash|||Default||No|No|No|No|20230401|No|No|No|No| 407|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation Receipt (Other Than For Corpus)||No|No|No|No|14002.00|||||
+"
+      "||20230401|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000cb|Received from Asha Rindani for future donations - during the financial year 2023-24|Receipt|1|Cash|||Default||No|No|No|No|20230401|No|No|No|No| 407|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||Yes|No|No|Yes|-14002.00|||||
+"
+      "|20230415|20230415|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000d0|Bank charges including GST (100 + 18) - Monthly - April 23|Bank Payment|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20230415|No|No|No|No| 384|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20230415|20230415|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000d0|Bank charges including GST (100 + 18) - Monthly - April 23|Bank Payment|1|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20230415|No|No|No|No| 384|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-118.00|"
+       "||||
+"
+      "|20230520|20230520|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000d1|Bank charges including GST (100 + 18) - Monthly - May 23|Bank Payment|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20230520|No|No|No|No| 385|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20230520|20230520|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000d1|Bank charges including GST (100 + 18) - Monthly - May 23|Bank Payment|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20230520|No|No|No|No| 385|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-118.00|"
+       "||||
+"
+      "|20230616|20230616|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000d2|Bank charges including GST (100 + 18) - Monthly - June 23|Bank Payment|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20230616|No|No|No|No| 386|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20230616|20230616|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000d2|Bank charges including GST (100 + 18) - Monthly - June 23|Bank Payment|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20230616|No|No|No|No| 386|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-118.00|"
+       "||||
+"
+      "|20230630|20230630|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000d3|Bank FD Quarterly Interest -  Apr 23 To Jun 23|Receipt|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20230630|No|No|No|No| 387|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-1563.00|"
+       "||||
+"
+      "|20230630|20230630|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000d3|Bank FD Quarterly Interest -  Apr 23 To Jun 23|Receipt|2|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20230630|No|No|No|No| 387|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|1563.00|"
+       "||||
+"
+      "|20230721|20230721|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000d4|Bank charges including GST (100 + 18) - Monthly - July 23|Bank Payment|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20230721|No|No|No|No| 388|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20230721|20230721|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000d4|Bank charges including GST (100 + 18) - Monthly - July 23|Bank Payment|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20230721|No|No|No|No| 388|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-118.00|"
+       "||||
+"
+      "|20230812|20230812|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000d5|Bank charges including GST (100 + 18) - Monthly - Aug 23|Bank Payment|5|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20230812|No|No|No|No| 389|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20230812|20230812|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000d5|Bank charges including GST (100 + 18) - Monthly - Aug 23|Bank Payment|5|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20230812|No|No|No|No| 389|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-118.00|"
+       "||||
+"
+      "||20230821|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000cc|Donation to Sai Pariwar Seva Trust - Receipt No 48 - charity.|Cash Payment|1|Cash|||Default||No|No|No|No|20230821|No|No|No|No| 255|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-11000.00|||||
+"
+      "||20230821|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000cc|Donation to Sai Pariwar Seva Trust - Receipt No 48 - charity.|Cash Payment|1|Cash|||Default||No|No|No|No|20230821|No|No|No|No| 255|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|11000.00|||||
+"
+      "||20230909|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000cd|Donation to Shree Junagadh Panjrapole Gaushala - Receipt No 00233|Cash Payment|2|Cash|||Default||No|No|No|No|20230909|No|No|No|No| 256|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-1500.00|||||
+"
+      "||20230909|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000cd|Donation to Shree Junagadh Panjrapole Gaushala - Receipt No 00233|Cash Payment|2|Cash|||Default||No|No|No|No|20230909|No|No|No|No| 256|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|1500.00|||||
+"
+      "|20230924|20230925|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000d6|Bank charges including GST (100 + 18) - Monthly - Sep 23|Bank Payment|6|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20230924|No|No|No|No| 406|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20230924|20230925|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000d6|Bank charges including GST (100 + 18) - Monthly - Sep 23|Bank Payment|6|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20230924|No|No|No|No| 406|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-118.00|"
+       "||||
+"
+      "|20230930|20230930|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000d7|Bank FD Quarterly Interest -  July 23 To Sep 23|Receipt|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20230930|No|No|No|No| 391|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-1563.00|"
+       "||||
+"
+      "|20230930|20230930|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000d7|Bank FD Quarterly Interest -  July 23 To Sep 23|Receipt|3|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20230930|No|No|No|No| 391|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|1563.00|"
+       "||||
+"
+      "|20231019|20231019|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000d8|Bank charges including GST (100 + 18) - Monthly - Oct 23|Bank Payment|7|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20231019|No|No|No|No| 392|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20231019|20231019|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000d8|Bank charges including GST (100 + 18) - Monthly - Oct 23|Bank Payment|7|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20231019|No|No|No|No| 392|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-118.00|"
+       "||||
+"
+      "|20231125|20231125|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000d9|Bank charges including GST (100 + 18) - Monthly - Nov 23|Bank Payment|8|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20231125|No|No|No|No| 393|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20231125|20231125|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000d9|Bank charges including GST (100 + 18) - Monthly - Nov 23|Bank Payment|8|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20231125|No|No|No|No| 393|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-118.00|"
+       "||||
+"
+      "|20231222|20231222|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000da|Bank charges including GST (100 + 18) - Monthly - Dec 23|Bank Payment|9|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20231222|No|No|No|No| 394|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20231222|20231222|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000da|Bank charges including GST (100 + 18) - Monthly - Dec 23|Bank Payment|9|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20231222|No|No|No|No| 394|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-118.00|"
+       "||||
+"
+      "|20231230|20231230|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000db|Bank FD Quarterly Interest -  Oct 23 To Dec 23|Receipt|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20231230|No|No|No|No| 395|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-1563.00|"
+       "||||
+"
+      "|20231230|20231230|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000db|Bank FD Quarterly Interest -  Oct 23 To Dec 23|Receipt|4|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20231230|No|No|No|No| 395|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Interest on Bank FD||No|No|No|No|1563.00|"
+       "||||
+"
+      "||20240117|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000ce|Donation to Shivam Charitable Trust (ApnaGhar) Receipt No 2392|Cash Payment|3|Cash|||Default||No|No|No|No|20240117|No|No|No|No| 257|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-1000.00|||||
+"
+      "||20240117|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000ce|Donation to Shivam Charitable Trust (ApnaGhar) Receipt No 2392|Cash Payment|3|Cash|||Default||No|No|No|No|20240117|No|No|No|No| 257|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|1000.00|||||
+"
+      "|20240119|20240119|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000dc|Bank charges including GST (100 + 18) - Monthly - Jan 24|Bank Payment|10|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20240119|No|No|No|No| 396|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20240119|20240119|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000dc|Bank charges including GST (100 + 18) - Monthly - Jan 24|Bank Payment|10|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20240119|No|No|No|No| 396|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-118.00|"
+       "||||
+"
+      "|20240224|20240224|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000dd|Bank charges including GST (100 + 18) - Monthly - Feb 24|Bank Payment|11|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20240224|No|No|No|No| 397|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20240224|20240224|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000dd|Bank charges including GST (100 + 18) - Monthly - Feb 24|Bank Payment|11|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20240224|No|No|No|No| 397|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-118.00|"
+       "||||
+"
+      "|20240228|20240228|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000de|FD premature withdrawn.|Contra|1|Fixed Deposit Axis Bank - A/c No 912040056499421|||Default||No|No|No|No|20240228|No|No|No|No| 398|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||Yes|No|No|Yes|-100000.00|"
+       "||||
+"
+      "|20240228|20240228|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000de|FD premature withdrawn.|Contra|1|Fixed Deposit Axis Bank - A/c No 912040056499421|||Default||No|No|No|No|20240228|No|No|No|No| 398|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Fixed Deposit Axis Bank - A/c No 912040056499421||No|No|No|Yes|100000.00|"
+       "||||
+"
+      "|20240228|20240228|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000df|Penal interest recovered by Axis bank due to premature FD withdrawal.|Bank Payment|12|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20240228|No|No|No|No| 399|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|5458.00|"
+       "||||
+"
+      "|20240228|20240228|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000df|Penal interest recovered by Axis bank due to premature FD withdrawal.|Bank Payment|12|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20240228|No|No|No|No| 399|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Penal Interest  By Axis Bank||Yes|No|No|No|-5458.00|"
+       "||||
+"
+      "|20240228|20240228|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000e0|Paid To Shivam Charitable Trust through NEFT - Cheque No 001182 - Dated 28-02-2024.|Bank Payment|13|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20240228|No|No|No|No| 400|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|130000.00|"
+       "||||
+"
+      "|20240228|20240228|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000e0|Paid To Shivam Charitable Trust through NEFT - Cheque No 001182 - Dated 28-02-2024.|Bank Payment|13|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20240228|No|No|No|No| 400|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-130000.00|"
+       "||||
+"
+      "|20240228|20240228|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000e1|NEFT charges for donation of INR 130000 to Shivam Charitable Trust through NEFT|Bank Payment|14|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20240228|No|No|No|No| 401|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|17.70|"
+       "||||
+"
+      "|20240228|20240228|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000e1|NEFT charges for donation of INR 130000 to Shivam Charitable Trust through NEFT|Bank Payment|14|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20240228|No|No|No|No| 401|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-17.70|"
+       "||||
+"
+      "||20240302|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000cf|Shree Junagadh Panjrapole Gaushala Receipt No 04139|Cash Payment|4|Cash|||Default||No|No|No|No|20240302|No|No|No|No| 258|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-5000.00|||||
+"
+      "||20240302|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000cf|Shree Junagadh Panjrapole Gaushala Receipt No 04139|Cash Payment|4|Cash|||Default||No|No|No|No|20240302|No|No|No|No| 258|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Cash||No|No|No|Yes|5000.00|||||
+"
+      "|20240323|20240323|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000e2|Monthly bank charges including GST (100 + 18) - Axis Bank - Mar 24|Bank Payment|15|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20240323|No|No|No|No| 402|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|118.00|"
+       "||||
+"
+      "|20240323|20240323|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000e2|Monthly bank charges including GST (100 + 18) - Axis Bank - Mar 24|Bank Payment|15|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20240323|No|No|No|No| 402|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Bank Charges||Yes|No|No|No|-118.00|"
+       "||||
+"
+      "|20240330|20240330|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000e3|Donation / Charity to Shivam Charitable Trust - Cheque No 1183. With this, Axis bank current account closed.|Bank Payment|16|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20240330|No|No|No|No| 405|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Current A/c Axis Bank - A/c 911020046095148||No|No|No|Yes|14420.80|"
+       "||||
+"
+      "|20240330|20240330|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000e3|Donation / Charity to Shivam Charitable Trust - Cheque No 1183. With this, Axis bank current account closed.|Bank Payment|16|Current A/c Axis Bank - A/c 911020046095148|||Default||No|No|No|No|20240330|No|No|No|No| 405|No|No|No|Yes|No|No|No|No|No|No|No|No|No|"
+       "|Donation / Charity||Yes|No|No|No|-14420.80|"
+       "||||
+"
+      "||20240331|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000e4|JV For Closing Entry Being Negative Balance Of Income & Expenditure Account Debited To Corpus Account . Thereby the Balance Sheet of the Trust has been resulted to NIL.|Journal|1||||Default||No|No|No|No|20240331|No|No|No|No| 408|No|No|No|No|No|No|No|No|No|No|No|No|No|"
+       "|Corpus||Yes|No|No|No|-130001.00|||||
+"
+      "||20240331|9ab1e601-ac56-4624-a846-d3ea0a525bd5-000000e4|JV For Closing Entry Being Negative Balance Of Income & Expenditure Account Debited To Corpus Account . Thereby the Balance Sheet of the Trust has been resulted to NIL.|Journal|1||||Default||No|No|No|No|20240331|No|No|No|No| 408|No|No|No|No|No|No|No|No|No|No|No|No|No|"
+       "|Income & Expenditure Account||No|No|No|No|130001.00|||||
