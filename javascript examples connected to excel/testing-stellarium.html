@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stellarium API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>Stellarium API Test</h1>
+    <button id="setTimeButton">Set Julian Day Time</button>
+    <div id="output"></div>
+
+    <script>
+        // Function to set time using Stellarium API
+        async function setTime() {
+            const url = 'http://192.168.1.4:8090/api/main/time'; // Update with your server IP
+            const julianDay = 2468382.0; // Example Julian Day value
+            const payload = {
+                time: julianDay, // Set Julian Day
+                timerate: 1.0
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const responseText = await response.text();
+                document.getElementById('output').innerText = `Response: ${response.status}\n${responseText}`;
+            } catch (error) {
+                document.getElementById('output').innerText = `Error: ${error}`;
+            }
+        }
+
+        // Add event listener to button
+        document.getElementById('setTimeButton').addEventListener('click', setTime);
+    </script>
+</body>
+</html>
+

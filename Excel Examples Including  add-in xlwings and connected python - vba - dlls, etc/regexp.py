@@ -126,4 +126,55 @@ def REGEXREPLM(excel_range, patterns, replacement):
             row_result.append(cell_str.strip())  # Remove leading/trailing spaces
         result.append(row_result)
     return result
+import xlwings as xw
+import sympy as sp
+from sympy import sin, cos, log, sqrt
+# Define the integration function
+def indefinite_integrate(func):
+    x = sp.symbols('x')
+    # Convert the string function to a sympy expression
+    expr = sp.sympify(func)
+    # Perform the indefinite integration
+    result = sp.integrate(expr, x)
+    return result
+# Create the UDF
+@xw.func
+@xw.arg('excel_range', xw.Range)  # Use xw.Range to get the actual range object
+def integrate_excel(excel_range):
+    # Get the address of the range directly
+    range_address = excel_range.address
+    # Convert Excel range to list of lists
+    func_list = excel_range.value  # Use .value to get the data from the range
+    # Initialize results list
+    results = []
+    # Iterate over each function in the list
+    # Check if the range contains a single cell or multiple cells
+    if len(excel_range)!=1:
+#    if ":" in range_address: (Alternative to matching length == 1 as above)
+        # Get the address of the first cell in the range
+        first_cell_address = range_address.split(":")[0].replace("$", "")
+        # Get the address of the last cell in the range
+        last_cell_address = range_address.split(":")[1].replace("$", "")
+        # Check if the range is horizontal or vertical
+        for func in func_list:
+            try:
+                result = indefinite_integrate(func)  # Each func is already a single value
+                results.append(str(result))
+            except Exception as e:
+                results.append(f"Error: {e}")
+        if first_cell_address[0] != last_cell_address[0]:
+            # Horizontal range
+            return [results]  # Return results as a horizontal array
+        else:
+            # Vertical range
+            return [[res] for res in results]  # Return results as a vertical array
+    else:
+        try:
+            result = indefinite_integrate(func_list)  # Each func is already a single value
+            results.append(str(result))
+        except Exception as e:
+            results.append(f"Error: {e}")
+        # Single cell range
+        return [results]
+
 
