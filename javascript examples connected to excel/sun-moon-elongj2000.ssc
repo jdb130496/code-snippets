@@ -1,0 +1,68 @@
+// Get Sun and Moon's J2000 ecliptic longitudes
+
+// Pause time
+core.setTimeRate(0.0);
+
+// Set date
+var date1 = "10/08/2024 19:15:00";
+
+// Split the date string into components
+var components = date1.split(" ");
+var dateParts = components[0].split("/");
+var timeParts = components[1].split(":");
+
+// Create a new Date object
+var date = new Date(dateParts[2], dateParts[1] - 1, dateParts[0], timeParts[0], timeParts[1], timeParts[2]);
+
+// Convert the Date object to the required format
+var dateString = date.toISOString().replace("Z", "");
+
+// Set the date, time, and location
+core.setDate(dateString);
+core.setObserverLocation(73.1812, 22.3072, 0, 1, "Vadodara", "Gujarat");
+
+// Wait for 2 seconds to ensure object information is updated
+core.wait(2.0);
+
+// Select objects
+core.selectObjectByName("Sun", true);
+core.selectObjectByName("Moon", true);
+
+var selectedKeys = ['elongJ2000'];
+
+function filterObjectInfo(map, keys) {
+    var filteredMap = {};
+    for (var i = 0; i < keys.length; i++) {
+        var key = keys[i];
+        if (map.hasOwnProperty(key)) {
+            filteredMap[key] = map[key];
+        }
+    }
+    return filteredMap;
+}
+
+// Get Sun's information
+core.selectObjectByName("Sun", true);
+var sunMap = core.getSelectedObjectInfo();
+var sunFilteredMap = filterObjectInfo(sunMap, selectedKeys);
+
+// Get Moon's information
+core.selectObjectByName("Moon", true);
+core.wait(1.0);
+var moonMap = core.getSelectedObjectInfo();
+var moonFilteredMap = filterObjectInfo(moonMap, selectedKeys);
+
+var output = {
+    "Date": date1,
+    "Sun": sunFilteredMap,
+    "Moon": moonFilteredMap
+};
+
+//Reset Output
+core.resetOutput()
+
+// Also output to the console
+core.output(JSON.stringify(output));
+
+//Save Output
+core.saveOutputAs("sun-moon.txt")

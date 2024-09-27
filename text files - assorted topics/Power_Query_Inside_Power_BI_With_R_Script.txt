@@ -1,0 +1,9 @@
+let
+    Source = Excel.Workbook(File.Contents("D:\sample excel file for power bi experiments.xlsx"), null, true),
+    Sheet1_Sheet = Source{[Item="Sheet1",Kind="Sheet"]}[Data],
+    #"Promoted Headers" = Table.PromoteHeaders(Sheet1_Sheet, [PromoteAllScalars=true]),
+    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Fruits", type text}, {"Quantity", Int64.Type}}),
+    #"Run R script" = R.Execute("# 'dataset' holds the input data for this script#(lf)library(gdata)#(lf)library(stringr)#(lf)dataset$Fruits<-str_replace_all(dataset$Fruits,c(a=""z"",c=""p"",C=""P""))#(lf)df<-dataset",[dataset=#"Changed Type"]),
+    #"df" = #"Run R script"{[Name="df"]}[Value]
+in
+    #"df"

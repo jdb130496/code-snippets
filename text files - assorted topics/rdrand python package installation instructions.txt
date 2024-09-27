@@ -1,0 +1,77 @@
+rdrand steps:
+
+1. change rdrand.c - as below:
+
+cpuid(unsigned int op, unsigned int subfunc, unsigned int reg[4])
+{
+
+#if USING_GCC && IS64BIT
+    __cpuid(reg, op, subfunc);
+#elif USING_GCC
+	asm volatile("push %%rbx      \n\t" /* save %ebx */
+                 "cpuid            \n\t"
+                 "movl %%ebx, %1   \n\t" /* save what cpuid just put in %ebx */
+                 "pop %%rbx       \n\t" /* restore the old %ebx */
+                 : "=a"(reg[0]), "=r"(reg[1]), "=c"(reg[2]), "=d"(reg[3])
+                 : "a"(op), "c"(subfunc)
+                 : "cc");
+#else
+    asm volatile("pushl %%ebx      \n\t" /* save %ebx */
+                 "cpuid            \n\t"
+                 "movl %%ebx, %1   \n\t" /* save what cpuid just put in %ebx */
+                 "popl %%ebx       \n\t" /* restore the old %ebx */
+                 : "=a"(reg[0]), "=r"(reg[1]), "=c"(reg[2]), "=d"(reg[3])
+                 : "a"(op), "c"(subfunc)
+                 : "cc");
+#endif
+}
+
+2. Change Setup.py as under:
+
+from setuptools import setup, Extension
+import os
+
+os.environ["CC"] = "gcc"
+os.environ["CXX"] = "g++"
+
+setup(
+    name='rdrand',
+    version='1.4.9',
+    description="Python interface to Intel hardware rng",
+    long_description= "".join(open('rdrandom.rst').readlines()),
+    author="Chris Stillson",
+    author_email="stillson@gmail.com",
+    url='https://github.com/stillson/rdrand',
+    license="New BSD license",
+    ext_modules=[Extension('_rdrand', ['rdrand.c'])],
+    py_modules = ['rdrand'],
+    keywords = ['rdrand', 'rdseed', "intel","hardware","random","number","generator","rng"],
+    data_files=[('share', ['rdrandom.rst'])],
+    classifiers = ["Development Status :: 4 - Beta",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Science/Research",
+        "License :: OSI Approved :: BSD License",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 3",
+        "Topic :: Security",
+        "Topic :: Security :: Cryptography",],
+    extras_require={
+        'tests': [],
+        'docs': [
+            'sphinx >= 1.4',
+            'sphinx_rtd_theme']}
+)
+
+3. vcruntime file copy:
+
+copy ("C:\Path\to\python_env\vcruntime140.dll") to clipboard (only to solve the error: ld.exe: cannot find -lvcruntime140)
+and paste it in C:\Path\to\mingw64\lib\gcc\x86_64-w64-mingw32\8.1.0(or your version).
+
+4. From rdrand directory issue command:
+
+py setup.py build -c mingw32
+
+5. finally:
+
+pip install .

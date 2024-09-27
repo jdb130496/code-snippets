@@ -1,0 +1,23 @@
+filter(iferror((A1:A276>0*A1:A276)*1*A1:A276,0),iferror((A1:A276>0*A1:A276)*1*A1:A276,0)<>0)
+
+Function FilterPositive(rng As Range) As Variant
+    Dim cell As Range
+    Dim result() As Variant
+    Dim i As Long
+    ReDim result(1 To rng.Cells.Count)
+    i = 1
+    For Each cell In rng
+        If cell.Value > 0 Then
+            result(i) = cell.Value
+            i = i + 1
+        End If
+    Next cell
+    ReDim Preserve result(1 To i - 1)
+    FilterPositive = result
+End Function
+
+Above function nested inside other excel functions:
+
+=IF(ISERROR(IFERROR(INDEX(FilterPositive($X$4:$X$279),ROW(A1)),"")),"",IFERROR(INDEX(FilterPositive($X$4:$X$279),ROW(A1)),"")) [Not to be entered as an array formula]
+
+ 

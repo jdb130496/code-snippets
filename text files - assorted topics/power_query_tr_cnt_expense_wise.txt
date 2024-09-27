@@ -1,0 +1,45 @@
+let
+    fn_range=(cnt as number)=>let
+    input={
+    {cnt>=1 and cnt<=5 ,"1-5 Transactions"},
+    {cnt>5,"More Than 5 Transactions"},
+    {Logical.From(cnt)=true,"Error"}   
+    },
+    output=List.First(List.Select(input,each _{0})){1}
+    in
+    output,
+    Source = Csv.Document(File.Contents("M:\04721 - Urban Roads\2023\Q2\tr_list_041023_2.CSV"),[Delimiter=",", Columns=12, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"", type text}, {"Type", type text}, {"Date", type date}, {"Num", type text}, {"Adj", type text}, {"Name", type text}, {"Memo", type text}, {"Clr", type text}, {"Split", type text}, {"Debit", type number}, {"Credit", type number}, {"Balance", type number}}),
+    #"transform" = Table.TransformColumns(#"Changed Type",{"Split",each if not (Text.StartsWith(_,"10") or Text.StartsWith(_,"21") or Text.StartsWith(_,"4")) then _ else ""}),
+    #"Filtered Rows" = Table.SelectRows(transform, each ([Split] <> "")),
+    #"Grouped Rows" = Table.Group(#"Filtered Rows", {"Split", "Name"}, {{"tr_cnt", each Table.RowCount(_), Int64.Type}, {"amount_involved", each (List.Sum([Debit])-List.Sum([Credit])), type nullable number}}),
+    #"Grouped Rows1" = Table.Group(#"Grouped Rows", {"Split"}, {{"vendors_cnt", each Table.RowCount(_), Int64.Type}, {"total_amount", each List.Sum([amount_involved]), type nullable number}}),
+    #"Sorted Rows" = Table.Sort(#"Grouped Rows1",{{"vendors_cnt", Order.Descending}})
+in
+    #"Sorted Rows"
+
+let
+    fn_range=(cnt as number)=>let
+    input={
+    {cnt>=1 and cnt<=5 ,"1-5 Transactions"},
+    {cnt>5,"More Than 5 Transactions"},
+    {Logical.From(cnt)=true,"Error"}   
+    },
+    output=List.First(List.Select(input,each _{0})){1}
+    in
+    output,
+    Source = Csv.Document(File.Contents("M:\04721 - Urban Roads\2023\Q2\tr_list_041023_2.CSV"),[Delimiter=",", Columns=12, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"", type text}, {"Type", type text}, {"Date", type date}, {"Num", type text}, {"Adj", type text}, {"Name", type text}, {"Memo", type text}, {"Clr", type text}, {"Split", type text}, {"Debit", type number}, {"Credit", type number}, {"Balance", type number}}),
+    #"transform" = Table.TransformColumns(#"Changed Type",{"Split",each if not (Text.StartsWith(_,"10") or Text.StartsWith(_,"21") or Text.StartsWith(_,"4")) then _ else ""}),
+    #"Filtered Rows" = Table.SelectRows(transform, each ([Split] <> "")),
+    #"Grouped Rows" = Table.Group(#"Filtered Rows", {"Name"}, {{"tr_cnt", each Table.RowCount(_), Int64.Type}, {"amount_involved", each (List.Sum([Debit])-List.Sum([Credit])), type nullable number}}),
+    #"Grouped Rows1" = Table.Group(#"Grouped Rows", {"tr_cnt"}, {{"no_of_vendors", each Table.RowCount(_), Int64.Type}, {"total_amount", each List.Sum([amount_involved]), type nullable number}}),
+    #"Sorted Rows" = Table.Sort(#"Grouped Rows1",{{"tr_cnt", Order.Ascending}}),
+    #"tr_cnt_range"=Table.TransformColumns(#"Sorted Rows",{"tr_cnt",each fn_range(_)}),
+    #"Grouped Rows2" = Table.Group(tr_cnt_range, {"tr_cnt"}, {{"no_of_vendors", each List.Sum([no_of_vendors]), type number}, {"Amount_involved", each List.Sum([total_amount]), type nullable number}})
+in
+    #"Grouped Rows2"
+
+

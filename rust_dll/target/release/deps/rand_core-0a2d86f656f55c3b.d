@@ -1,0 +1,12 @@
+D:\Downloads\rust_dll\target\release\deps\librand_core-0a2d86f656f55c3b.rmeta: d:\Programs\rustup\registry\src\index.crates.io-6f17d22bba15001f\rand_core-0.6.4\src\lib.rs d:\Programs\rustup\registry\src\index.crates.io-6f17d22bba15001f\rand_core-0.6.4\src\block.rs d:\Programs\rustup\registry\src\index.crates.io-6f17d22bba15001f\rand_core-0.6.4\src\error.rs d:\Programs\rustup\registry\src\index.crates.io-6f17d22bba15001f\rand_core-0.6.4\src\impls.rs d:\Programs\rustup\registry\src\index.crates.io-6f17d22bba15001f\rand_core-0.6.4\src\le.rs d:\Programs\rustup\registry\src\index.crates.io-6f17d22bba15001f\rand_core-0.6.4\src\os.rs
+
+D:\Downloads\rust_dll\target\release\deps\librand_core-0a2d86f656f55c3b.rlib: d:\Programs\rustup\registry\src\index.crates.io-6f17d22bba15001f\rand_core-0.6.4\src\lib.rs d:\Programs\rustup\registry\src\index.crates.io-6f17d22bba15001f\rand_core-0.6.4\src\block.rs d:\Programs\rustup\registry\src\index.crates.io-6f17d22bba15001f\rand_core-0.6.4\src\error.rs d:\Programs\rustup\registry\src\index.crates.io-6f17d22bba15001f\rand_core-0.6.4\src\impls.rs d:\Programs\rustup\registry\src\index.crates.io-6f17d22bba15001f\rand_core-0.6.4\src\le.rs d:\Programs\rustup\registry\src\index.crates.io-6f17d22bba15001f\rand_core-0.6.4\src\os.rs
+
+D:\Downloads\rust_dll\target\release\deps\rand_core-0a2d86f656f55c3b.d: d:\Programs\rustup\registry\src\index.crates.io-6f17d22bba15001f\rand_core-0.6.4\src\lib.rs d:\Programs\rustup\registry\src\index.crates.io-6f17d22bba15001f\rand_core-0.6.4\src\block.rs d:\Programs\rustup\registry\src\index.crates.io-6f17d22bba15001f\rand_core-0.6.4\src\error.rs d:\Programs\rustup\registry\src\index.crates.io-6f17d22bba15001f\rand_core-0.6.4\src\impls.rs d:\Programs\rustup\registry\src\index.crates.io-6f17d22bba15001f\rand_core-0.6.4\src\le.rs d:\Programs\rustup\registry\src\index.crates.io-6f17d22bba15001f\rand_core-0.6.4\src\os.rs
+
+d:\Programs\rustup\registry\src\index.crates.io-6f17d22bba15001f\rand_core-0.6.4\src\lib.rs:
+d:\Programs\rustup\registry\src\index.crates.io-6f17d22bba15001f\rand_core-0.6.4\src\block.rs:
+d:\Programs\rustup\registry\src\index.crates.io-6f17d22bba15001f\rand_core-0.6.4\src\error.rs:
+d:\Programs\rustup\registry\src\index.crates.io-6f17d22bba15001f\rand_core-0.6.4\src\impls.rs:
+d:\Programs\rustup\registry\src\index.crates.io-6f17d22bba15001f\rand_core-0.6.4\src\le.rs:
+d:\Programs\rustup\registry\src\index.crates.io-6f17d22bba15001f\rand_core-0.6.4\src\os.rs:

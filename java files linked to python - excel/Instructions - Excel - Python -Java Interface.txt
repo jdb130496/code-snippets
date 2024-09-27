@@ -1,0 +1,13 @@
+Steps to interface excel to java with python as a bridge:
+
+1. Define source .java code file (example: filename(it can be any))
+2. Ensure that java bineries are in PATH system varaiable
+3. Compile using command "java filename.java" (without quotes from command line)
+4. Class file will be generated named filename.class
+5. Install python package py4j using: pip install py4j --upgrade 
+6. Define python UDF using xlwings (Example included - named java-test-udf.py)
+7. Start java gateway server on a separate command line / Powershell window using command: java -cp "D:\dev;D:\Programs\Python\share\py4j\py4j0.10.9.7.jar;D:\OneDrive - 0yt2k\Excel Examples Including  add-in xlwings and connected python - vba - dlls, etc" py4j.GatewayServer
+(Include all folders including java compiled class file location folder and python py4j jar folder)
+8. Keep above window open and minimized. 
+7. Restart python UDF server and import functions on ribben under xlwings tab in Excel
+8. Finally use UDF defined in Excel.

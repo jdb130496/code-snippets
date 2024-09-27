@@ -1,0 +1,3 @@
+library(stringr)
+x<-c('","','",,"','",,,,,"','",,,"')
+cat(ifelse(str_detect(x,'",{1,}"'),str_replace_all(substr(str_extract(x,'",{1,}"'),2,str_length(str_extract(x,'",{1,}"'))-1),",","\t"),x))

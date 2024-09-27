@@ -1,0 +1,10 @@
+%s/\zs,\{2,\}\ze/\=substitute(submatch(0),',','\t','g')/
+%s/","/"\t"/g
+%s/",\d/"\t\d/
+%s/\zs",\d\ze/\=substitute(submatch(0),',','\t','g')/
+%s/\zs\d,\d\ze/\=substitute(submatch(0),',','\t','g')/
+%s/\zs\d,-\ze/\=substitute(submatch(0),',','\t','g')/
+%s/\zs",-\ze/\=substitute(submatch(0),',','\t','g')/
+%s/\zs",\{1,\}\ze/\=substitute(submatch(0),',','\t','g')/
+%s/\zs,"\ze/\=substitute(submatch(0),',','\t','g')
+%s/^,//

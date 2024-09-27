@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Read Excel Data</title>
+</head>
+<body>
+    <input type="file" id="input-excel" />
+    <select id="sheet-name"></select>
+    <button id="ok-button">OK</button>
+    <div id="output"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script>
+        document.getElementById('input-excel').addEventListener('change', function(e) {
+            var reader = new FileReader();
+            reader.readAsArrayBuffer(e.target.files[0]);
+            reader.onload = function(e) {
+                var data = new Uint8Array(reader.result);
+                var workbook = XLSX.read(data, {type: 'array'});
+                var sheetNameSelect = document.getElementById('sheet-name');
+                sheetNameSelect.innerHTML = '';
+                for (var i = 0; i < workbook.SheetNames.length; i++) {
+                    var sheetName = workbook.SheetNames[i];
+                    var option = document.createElement('option');
+                    option.value = sheetName;
+                    option.text = sheetName;
+                    sheetNameSelect.appendChild(option);
+                }
+            }
+        });
+        document.getElementById('ok-button').addEventListener('click', function(e) {
+            var sheetNameSelect = document.getElementById('sheet-name');
+            var sheetName = sheetNameSelect.value;
+            var fileInput = document.getElementById('input-excel');
+            var reader = new FileReader();
+            reader.readAsArrayBuffer(fileInput.files[0]);
+            reader.onload = function(e) {
+                var data = new Uint8Array(reader.result);
+                var workbook = XLSX.read(data, {type: 'array'});
+                var worksheet = workbook.Sheets[sheetName];
+                var outputDiv = document.getElementById('output');
+                outputDiv.innerHTML = '';
+                for (var rowNum = 6; rowNum < 4182; rowNum++) {
+                    var cellRef = XLSX.utils.encode_cell({c: 6, r: rowNum});
+                    if (!worksheet[cellRef]) { continue; }
+                    var cellValue = worksheet[cellRef].v;
+                    var regex = /\b\d{1,2}[\/-]\d{1,2}[\/-]\d{4}\b/g;
+                    var match = cellValue.match(regex);
+                    if (match) {
+                        var rowElement = document.createElement('div');
+                        rowElement.textContent = "Row: " + (rowNum + 1);
+                        outputDiv.appendChild(rowElement);
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+

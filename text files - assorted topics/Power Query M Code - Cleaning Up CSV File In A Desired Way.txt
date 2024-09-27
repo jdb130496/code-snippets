@@ -1,0 +1,30 @@
+#######QuickBooks Closing Date Exception Report CSV To Excel With Cleaning Up
+Of Data
+
+let
+    Source = Csv.Document(File.Contents("M:\04721 - Urban Roads\2022\Q3\Observations\closing_date_exception_report_12222022.CSV"),[Delimiter=",", Columns=11, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Num", type text}, {"Entered/Last Modified", type datetime}, {"Last modified by", type text}, {"State", type text}, {"Date", type date}, {"Name", type text}, {"Memo", type text}, {"Account", type text}, {"Split", type text}, {"Debit", type number}, {"Credit", type number}}),
+    #"Filtered Rows" = Table.SelectRows(#"Changed Type", each ([Split] <> "")),
+    #"replace blanks with null" =Table.FromRecords(Table.TransformRows(#"Filtered Rows",(r) as record=>(Record.TransformFields(r,{{"Num", each if r[Num]="" then null else r[Num]},{"State", each if r[State]="" then null else r[State]},{"Account", each if r[Account]="" then null else r[Account]}})))),
+    #"Filled Down" = Table.FillDown(#"replace blanks with null",{"Num", "Entered/Last Modified", "State", "Account", "Debit", "Credit", "Date"}),
+    #"Filtered Rows1" = Table.SelectRows(#"Filled Down", each [Account] <> "10001 · CHASE Checking - 5757" and [Account] <> "10002 · CHASE Checking - 8825" and [Account] <> "10004 · Chase Checking - 2552" and [Account] <> "10005 · Chase Checking - 5133" and [Account] <> "10006 · Chase Checking - 6289" and [Account] <> "10007 · CHASE Savings - 9203" and [Account] <> "21000 · Credit Cards:21010 · Chase Acct - 5226" and [Account] <> "21000 · Credit Cards:21020 · Chase Acct - 6088" and [Account] <> "21000 · Credit Cards:21030 · Chase Acct - 1373" and [Account] <> "10008 · Pacific Mercantile Bank - 7782"),
+    #"Grouped Rows" = Table.Group(#"Filtered Rows1", {"Num", "Entered/Last Modified", "Last modified by", "State", "Date", "Name", "Account"}, {{"Count", each Table.RowCount(_), Int64.Type}}),
+    #"Removed Columns" = Table.RemoveColumns(#"Grouped Rows",{"Count"})
+in
+    #"Removed Columns"
+
+#######QuickBooks GL CSV To Excel With Cleaning Up Of Data
+
+let
+    Source = Csv.Document(File.Contents("M:\04721 - Urban Roads\2022\Q4\other workings\gl_2021_2022.CSV"),[Delimiter=",", Columns=12, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"", type text}, {"Type", type text}, {"Date", type date}, {"Num", type text}, {"Adj", type text}, {"Name", type text}, {"Memo", type text}, {"Account", type text}, {"Split", type text}, {"Debit", type number}, {"Credit", type number}, {"Balance", type number}}),
+    #"Renamed Columns" = Table.RenameColumns(#"Changed Type",{{"", "GL_Account"}}),
+    #"Replace GL Account Blanks" = Table.TransformColumns(#"Renamed Columns",{"GL_Account",each if _="" then null else _}),
+    #"Filled Down" = Table.FillDown(#"Replace GL Account Blanks",{"GL_Account"}),
+    #"Replacing Blanks" = Table.FromRecords(Table.TransformRows(#"Filled Down",(r) as record=>(Record.TransformFields(r,{{"Split", each if r[Split]="" then "Opening Balance" else r[Split]}})))),
+    #"delete totals rows" = Table.SelectRows(#"Replacing Blanks",each not Text.Contains(Text.Upper([GL_Account]),"TOTAL")),
+    #"Removed Columns" = Table.RemoveColumns(#"delete totals rows",{"Account"})
+in
+    #"Removed Columns"

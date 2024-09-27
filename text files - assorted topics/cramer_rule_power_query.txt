@@ -1,0 +1,29 @@
+let
+    Source = Excel.CurrentWorkbook(){[Name="Table1"]}[Content],
+    Matrix = Table.ToRows(Source),
+    D = Matrix{0}{0} * Matrix{1}{1} - Matrix{0}{1} * Matrix{1}{0},
+    Dx = Matrix{0}{2} * Matrix{1}{1} - Matrix{0}{1} * Matrix{1}{2},
+    Dy = Matrix{0}{0} * Matrix{1}{2} - Matrix{0}{2} * Matrix{1}{0},
+    X = Dx / D,
+    Y = Dy / D,
+    Result = Table.FromColumns({{"X", "Y"}, {X, Y}}, {"Variable", "Value"})
+in
+    Result
+
+Google Apps Script:
+
+function solveEquations() {
+  var sheet = SpreadsheetApp.getActiveSheet();
+  var range = sheet.getRange("A2:C3");
+  var values = range.getValues();
+  
+  var D = values[0][0] * values[1][1] - values[0][1] * values[1][0];
+  var Dx = values[0][2] * values[1][1] - values[0][1] * values[1][2];
+  var Dy = values[0][0] * values[1][2] - values[0][2] * values[1][0];
+  
+  var X = Dx / D;
+  var Y = Dy / D;
+  
+  sheet.getRange("E2").setValue(X);
+  sheet.getRange("F2").setValue(Y);
+}

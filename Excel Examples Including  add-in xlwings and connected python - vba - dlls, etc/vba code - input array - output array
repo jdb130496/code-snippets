@@ -1,0 +1,17 @@
+Public Function NegativeNonZeros(arr As Variant) As Variant
+    Dim result() As Variant
+    Dim i As Long, j As Long
+    ReDim result(1 To UBound(arr, 1))
+    j = 0
+    For i = 1 To UBound(arr, 1)
+        If arr(i, 1) < 0 Then
+            j = j + 1
+            result(j) = arr(i, 1)
+        End If
+    Next i
+    For i = j + 1 To UBound(arr, 1)
+        result(i) = ""
+    Next i
+    NegativeNonZeros = result
+End Function
+ 
