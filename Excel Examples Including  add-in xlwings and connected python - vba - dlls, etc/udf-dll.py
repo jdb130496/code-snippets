@@ -14,7 +14,7 @@ import os
 import csv
 import time
 import os
-os.environ['PATH'] = r'D:\Programs\Msys2\ucrt64\bin;D:\dev\dll'+';' + os.environ['PATH']
+os.environ['PATH'] = r'D:\Programs\Msys2\ucrt64\bin;D:\dev\dll;D:\boost\stagelib\lib'+';' + os.environ['PATH']
 
 # Create FFI object
 ffi1 = FFI()

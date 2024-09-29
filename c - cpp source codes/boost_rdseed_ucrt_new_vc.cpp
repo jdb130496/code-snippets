@@ -83,5 +83,16 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
     }
     return TRUE;
 }
-// Compilation Windows (cmd): cl boost_rdseed_ucrt_new_vc.cpp /LD /EHsc /MD /link boost_thread-vc143-mt-x64-1_86.lib
-// Boost installation at D:\boost, VC installation at d:\Programs\vsbt, Windows Kits at c:\Program Files (x86)
+//Compilation using g++ in Msys2: g++ boost_rdseed_ucrt_new.cpp -std=c++26 -march=native -lpthread -lboost_thread-mt -shared -o boost_rdseed_ucrt_new.dll
+//Compilation using clang in Msys2: clang boost_rdseed_ucrt_new.cpp -march=native -lstdc++ -lpthread -lboost_thread-mt -shared -o boost_rdseed_ucrt_clang_new.dll
+//Compilation Under Windows (VC):
+//cl /I "D:\boost_1_86_0" ^
+//   /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\ucrt" ^
+//    /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um" ^
+//    /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared" ^
+//    boost_rdseed_ucrt_new.cpp ^
+//   /LD /EHsc /MD ^
+//    /link /LIBPATH:"D:\boost_1_86_0\stage\lib" ^
+//    /LIBPATH:"C:\Program Files (x86)\Windows Kits\10\Lib\10.0.26100.0\ucrt\x64" ^
+//    /LIBPATH:"C:\Program Files (x86)\Windows Kits\10\Lib\10.0.26100.0\um\x64" ^
+//    libboost_thread-vc143-mt-x64-1_86.lib
