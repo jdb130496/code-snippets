@@ -81,45 +81,23 @@ def get_sanskrit_mantras(url):
                 mantras.append(mantra_div.get_text(strip=True))
     # Return the list of mantras in a vertical format
     return [[mantra] for mantra in mantras]
-import xlwings as xw
-
-def hex_to_rgb(hex_color):
-    """Convert hex color string (#RRGGBB) to an RGB tuple."""
-    hex_color = hex_color.lstrip('#')  # Remove the '#' if present
-    red = int(hex_color[0:2], 16)
-    green = int(hex_color[2:4], 16)
-    blue = int(hex_color[4:6], 16)
-    return (red, green, blue)
-
 @xw.func
-def set_cell_color(cell_address, hex_color):
-    print(f"Called with cell_address: {cell_address} and hex_color: {hex_color}")
-
-    if cell_address is None:
-        return "Error: cell_address is None. Please provide a valid cell address."
-
-    wb = xw.Book.caller()
-    sheet = wb.sheets.active
-    print(f"Active sheet: {sheet.name}")
-
-    rgb_value = hex_to_rgb(hex_color)
-    print(f"Converted hex '{hex_color}' to RGB tuple: {rgb_value}")
-
-    try:
-        cell = sheet.range(cell_address)
-        print(f"Setting color for cell: {cell_address}")
-        print(f"Current cell value: {cell.value}")
-        
-        # Set the interior color using an RGB tuple
-        #cell.color = rgb_value
-        sheet.range(cell_address).color = rgb_value
-        print(f"Set color of {cell_address} to RGB {rgb_value}")
-    except Exception as e:
-        print(f"Error setting color: {str(e)}")
-        return f"Error setting color: {str(e)}"
-@xw.sub
-def testcolor(cell_address):
-    wb = xw.Book()
-    xw.Range(cell_address).color = (255,255,234)
-
+def EXCELXORM(range1, range2, condition1, condition2):
+    result = []
+    for val1, val2 in zip(range1, range2):
+        # Handle empty or None values as 0
+        val1 = 0 if val1 is None or val1 == "" else float(val1)
+        val2 = 0 if val2 is None or val2 == "" else float(val2)
+        # Replace 'val1' and 'val2' in the condition strings with actual values
+        condition1_eval = condition1.replace('val1', str(val1)).replace('val2', str(val2))
+        condition2_eval = condition2.replace('val1', str(val1)).replace('val2', str(val2))
+        # Evaluate the conditions dynamically using eval
+        cond1_result = eval(condition1_eval)
+        cond2_result = eval(condition2_eval)
+        # Perform XOR: True if exactly one condition is True, False otherwise
+        if (cond1_result and not cond2_result) or (not cond1_result and cond2_result):
+            result.append([True])
+        else:
+            result.append([False])
+    return result
 
