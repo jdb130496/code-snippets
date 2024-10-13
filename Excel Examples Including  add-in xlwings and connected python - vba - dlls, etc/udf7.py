@@ -1,26 +1,6 @@
-import xlwings as xw
 from cffi import FFI
-ffi = FFI()
-# Define the C function signatures
-ffi.cdef("""
-    int match_pattern_in_array(char **input_array, int array_length, const char *pattern, char ***output_array);
-    void free_matches(char **matches, int match_count);
-""")
-# Load the shared library
-lib = ffi.dlopen("regex_C.dll")
-def pattern_match_new(input_range, pattern):
-    # Flatten the list of lists and handle None values
-    input_array = [str(cell[0]) if cell and cell[0] is not None else '' for cell in input_range]
-    input_array_c = ffi.new("char *[]", [ffi.new("char[]", cell.encode('utf-8')) for cell in input_array])
-    output_array_c = ffi.new("char ***")
-    match_count = lib.match_pattern_in_array(input_array_c, len(input_array), pattern.encode('utf-8'), output_array_c)
-    if match_count < 0:
-        return "Error in matching pattern"
-    output_array = [ffi.string(output_array_c[0][i]).decode('utf-8') for i in range(match_count)]
-    # Free the allocated memory
-    lib.free_matches(output_array_c[0], match_count)
-    return output_array
 import xlwings as xw
+import os
 @xw.func
 def FILL_EMPTY(excel_range):
     filled_list = []

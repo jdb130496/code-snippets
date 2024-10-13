@@ -1,39 +1,45 @@
 import os
 import xlwings as xw
 import cffi
-# Define the C++ function signatures and load the DLL
 ffi = cffi.FFI()
 ffi.cdef("""
     int match_pattern_in_array(const char **input_array, int array_length, const char *pattern, const char ***output_array);
-    void free_matches(const char **matches_array);
+    void free_matches(const char **matches, int match_count);
 """)
 # Load the DLL
-os.environ['PATH'] = r'D:\Programs\Msys2\home\j1304\Downloads' + ';' + os.environ['PATH']
+os.environ['PATH'] = r'D:\Programs\Msys2\home\j1304\Downloads' + ';' + os.environ['PATH']+';'+r'D:\Programs\Msys2\ucrt64\lib'+';'+r'D:\Programs\Msys2\ucrt64\bin'
 dll = ffi.dlopen("regex_cpp.dll")
 @xw.func
-def match_pattern_new(input_list, pattern):
+def match_pattern_pcre2(input_list, pattern):
     try:
         # Convert input strings into a C array
         input_array = [ffi.new("char[]", (item or "").encode('utf-8')) for item in input_list]
         input_array_c = ffi.new("char*[]", input_array)
-        # Prepare output array (this should be a pointer to a pointer to a pointer)
+        
+        # Prepare output array (pointer to pointer)
         output_array_c = ffi.new("const char***")  # triple pointer
+        
         # Call the DLL function
         match_count = dll.match_pattern_in_array(input_array_c, len(input_list), pattern.encode('utf-8'), output_array_c)
-        # If the match count is negative, return an empty string ("" for no match)
+        
+        # If the match count is negative, return an empty list
         if match_count < 0:
-            return ["" for _ in input_list]  # Return an empty list
+            return [[""] for _ in input_list]  # Return an empty list vertically
+        
         # Convert output back to Python
         output_list = [ffi.string(output_array_c[0][i]).decode('utf-8') for i in range(match_count)]
-        # Create a result list matching the original input length
-        final_output = [item if item in output_list else "" for item in input_list]
+        
+        # Create a result list that matches the original input length
+        final_output = [[item] if item in output_list else [""] for item in input_list]  # Vertical output (column)
+        
         # Free the output array allocated by the DLL
-        dll.free_matches(output_array_c[0])
+        dll.free_matches(output_array_c[0], match_count)
+        
         return final_output
     except Exception as e:
-        # Handle any errors gracefully by returning a list of empty strings
         print(f"Error: {e}")
-        return ["" for _ in input_list]
+        return [[""] for _ in input_list]  # Return vertical empty list on error
+
 import re
 import xlwings as xw
 @xw.func
