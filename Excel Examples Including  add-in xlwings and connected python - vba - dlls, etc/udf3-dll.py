@@ -42,4 +42,5 @@ def match_pattern_udf(input_list, pattern):
     except Exception as e:
         print(f"Error: {e}")
         return [[""] for _ in input_list]  # Return vertical empty list on error
+# Define the C function signatures and load the DLL
 

@@ -47,4 +47,4 @@ extern "C" __declspec(dllexport) void free_matches(char** matches, int match_cou
     }
     free(matches);
 }
-// Compilation using vc: cl /LD /MD regex-boost-vc.cpp /Fe:regex-boost-vc.dll /EHsc /DLL
+// Compilation using vc: cl regex-boost-vc.cpp /LD /EHsc /MD /link /LIBPATH:D:\Programs\vsbt\VC\Tools\MSVC\14.41.34120\lib\x64 /LIBPATH:D:\boost\lib /LIBPATH:"C:\Program Files (x86)\Windows Kits\10\Lib\10.0.26100.0\um\x64" /LIBPATH:"C:\Program Files (x86)\Windows Kits\10\Lib\10.0.26100.0\ucrt\x64" libboost_regex-vc143-mt-x64-1_86.lib libboost_thread-vc143-mt-x64-1_86.lib
