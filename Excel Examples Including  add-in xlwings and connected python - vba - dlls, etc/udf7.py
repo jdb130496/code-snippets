@@ -80,4 +80,71 @@ def EXCELXORM(range1, range2, condition1, condition2):
         else:
             result.append([False])
     return result
+from rdrand import RdRandom
+import string
+import xlwings as xw
+def generate_password(length=12):
+    r = RdRandom()
+    char_set = string.ascii_letters + string.digits + '?@$#^&*'
+    special_chars = '?@$#^&*'
+    # Ensure at least one uppercase, one lowercase, and one special character
+    password = [
+        r.choice(string.ascii_uppercase),
+        r.choice(string.ascii_lowercase),
+        r.choice(special_chars)
+    ]
+    # Fill the rest of the password length with random characters
+    while len(password) < length:
+        char = r.choice(char_set)
+        # Ensure no more than two special characters
+        if char in special_chars and sum(c in special_chars for c in password) >= 2:
+            continue
+        password.append(char)
+    # Shuffle to avoid predictable patterns using rdrand
+    for i in range(len(password)):
+        j = r.randint(0, len(password) - 1)
+        password[i], password[j] = password[j], password[i]
+    # Ensure the password does not start with a special character
+    while password[0] in special_chars:
+        for i in range(len(password)):
+            j = r.randint(0, len(password) - 1)
+            password[i], password[j] = password[j], password[i]
+    return ''.join(password)
+@xw.func
+def PASSRDRAND(dummy=None):
+    return generate_password()
+
+from rdrand import RdSeedom
+import string
+import xlwings as xw
+def generate_password_rdseed(length=12):
+    r = RdSeedom()
+    char_set = string.ascii_letters + string.digits + '?@$#^&*'
+    special_chars = '?@$#^&*'
+    # Ensure at least one uppercase, one lowercase, and one special character
+    password = [
+        r.choice(string.ascii_uppercase),
+        r.choice(string.ascii_lowercase),
+        r.choice(special_chars)
+    ]
+    # Fill the rest of the password length with random characters
+    while len(password) < length:
+        char = r.choice(char_set)
+        # Ensure no more than two special characters
+        if char in special_chars and sum(c in special_chars for c in password) >= 2:
+            continue
+        password.append(char)
+    # Shuffle to avoid predictable patterns using rdseed
+    for i in range(len(password)):
+        j = r.randint(0, len(password) - 1)
+        password[i], password[j] = password[j], password[i]
+    # Ensure the password does not start with a special character
+    while password[0] in special_chars:
+        for i in range(len(password)):
+            j = r.randint(0, len(password) - 1)
+            password[i], password[j] = password[j], password[i]
+    return ''.join(password)
+@xw.func
+def PASSRDSEED(dummy=None):
+    return generate_password_rdseed()
 

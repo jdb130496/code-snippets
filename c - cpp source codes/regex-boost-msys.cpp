@@ -49,3 +49,4 @@ extern "C" {
     }
 }
 //Compilation in Msys2 with boost / g++ tool chains: g++ -shared -o regex-boost-msys.dll regex-boost-msys.cpp
+//Compilation: (Boost built from source in Msys): g++ -shared -o regex-boost-msys-new.dll regex-boost-msys.cpp -I/d/Programs/Msys2/opt/boost/include/boost-1_86 -L/D/Programs/Msys2/opt/boost/lib -lboost_thread-mgw14-mt-x64-1_86 -lboost_regex-mgw14-mt-x64-1_86 -lpthread -O2 -s -Wl,--gc-sections -fvisibility=hidden
