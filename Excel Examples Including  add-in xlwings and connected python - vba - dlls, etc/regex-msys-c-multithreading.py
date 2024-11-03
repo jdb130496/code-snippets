@@ -56,4 +56,34 @@ def REGEXMSYSC2(input_array, pattern):
     matches = match_patterns(input_list, pattern)
     
     return [[match] for match in matches]  # Wrap each match in its own list to return a vertical array
+import xlwings as xw
+from cffi import FFI
+import os
+
+ffi = FFI()
+
+# Define the C function signature
+ffi.cdef("void compare_custom(double* arr1, double* arr2, int length, bool* result);")
+
+os.environ['PATH'] = r'D:\dev\dll;D:\Programs\Msys2\ucrt64\bin;D:\Programs\Msys2\ucrt64\lib'+ os.pathsep + os.environ['PATH']
+
+# Load the shared DLL
+lib = ffi.dlopen(r'customoperator.dll')
+
+@xw.func
+def compare_custom_operator(values):
+    arr1 = [row[0] for row in values]
+    arr2 = [row[1] for row in values]
+    length = len(arr1)
+
+    arr1_c = ffi.new("double[]", arr1)
+    arr2_c = ffi.new("double[]", arr2)
+    result_c = ffi.new("bool[]", length)
+
+    # Call the DLL function
+    lib.compare_custom(arr1_c, arr2_c, length, result_c)
+
+    # Convert the C result to Python list
+    result = [[bool(result_c[i])] for i in range(length)]
+    return result
 
