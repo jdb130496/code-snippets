@@ -51,6 +51,64 @@ import xlwings as xw
 from javascript import require
 
 @xw.func
+def js_compare_strict_equivalent(values):
+    # Check if the input is a list of lists
+    if not isinstance(values[0], list):
+        return "Input must be a list of lists"
+
+    # Break down the input into two arrays
+    Ar1 = [row[0] for row in values]
+    Ar2 = [row[1] for row in values]
+
+    # Function to replace None values with 'null'
+    def replace_none_with_null(values):
+        return ['null' if val is None else val for val in values]
+
+    # Replace None values with 'null' in both arrays
+    Ar1 = replace_none_with_null(Ar1)
+    Ar2 = replace_none_with_null(Ar2)
+
+    # JavaScript code for non-strict equality check
+    js_code_strict = """
+    function CompareStrict(values1, values2) {
+        return values1.map((value, i) => {
+            if (value === 'null' || values2[i] === 'null') {
+                return value === values2[i];
+            }
+            return value === values2[i];
+        });
+    }
+    """
+
+    # Use JSPyBridge to run the JavaScript code
+    vm = require('vm')
+
+    # Create a new context and run the JavaScript code
+    ctx = vm.createContext({})
+    vm.runInContext(js_code_strict, ctx)
+
+    # Run the JavaScript function
+    js_result_strict = ctx.CompareStrict(Ar1, Ar2)
+
+    # Python equality check (loose)
+    def py_equal(values1, values2):
+        # Python loose comparison (None should be treated as 'null' for loose equality)
+        return [val1 == val2 for val1, val2 in zip(values1, values2)]
+
+    py_result_non_strict = py_equal(Ar1, Ar2)
+
+    # Prepare output with headings
+    output = [["JS-Strict-Eq.(===)", "PY-Equal(==)"]]
+
+    # Append results side by side (Value1, Value2, JS non-strict equality, Python equality)
+    for js_res, py_res in zip(js_result_strict, py_result_non_strict):
+        output.append([js_res, py_res])
+
+    return output
+import xlwings as xw
+from javascript import require
+
+@xw.func
 def js_compare_non_strict_equivalent(values):
     # Check if the input is a list of lists
     if not isinstance(values[0], list):
@@ -73,7 +131,7 @@ def js_compare_non_strict_equivalent(values):
     function CompareNonStrict(values1, values2) {
         return values1.map((value, i) => {
             if (value === 'null' || values2[i] === 'null') {
-                return value === values2[i];
+                return value == values2[i];
             }
             return value == values2[i];
         });
@@ -105,4 +163,3 @@ def js_compare_non_strict_equivalent(values):
         output.append([js_res, py_res])
 
     return output
-

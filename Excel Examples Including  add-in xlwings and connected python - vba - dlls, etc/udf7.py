@@ -114,37 +114,55 @@ def generate_password(length=12):
 def PASSRDRAND(dummy=None):
     return generate_password()
 
-from rdrand import RdSeedom
-import string
 import xlwings as xw
-def generate_password_rdseed(length=12):
-    r = RdSeedom()
-    char_set = string.ascii_letters + string.digits + '?@$#^&*'
-    special_chars = '?@$#^&*'
-    # Ensure at least one uppercase, one lowercase, and one special character
-    password = [
-        r.choice(string.ascii_uppercase),
-        r.choice(string.ascii_lowercase),
-        r.choice(special_chars)
-    ]
-    # Fill the rest of the password length with random characters
-    while len(password) < length:
-        char = r.choice(char_set)
-        # Ensure no more than two special characters
-        if char in special_chars and sum(c in special_chars for c in password) >= 2:
-            continue
-        password.append(char)
-    # Shuffle to avoid predictable patterns using rdseed
-    for i in range(len(password)):
-        j = r.randint(0, len(password) - 1)
-        password[i], password[j] = password[j], password[i]
-    # Ensure the password does not start with a special character
-    while password[0] in special_chars:
-        for i in range(len(password)):
-            j = r.randint(0, len(password) - 1)
-            password[i], password[j] = password[j], password[i]
-    return ''.join(password)
+
+# Dictionaries for number to words conversion
+units = {0: "", 1: "One", 2: "Two", 3: "Three", 4: "Four", 5: "Five", 6: "Six", 7: "Seven", 8: "Eight", 9: "Nine"}
+teens = {11: "Eleven", 12: "Twelve", 13: "Thirteen", 14: "Fourteen", 15: "Fifteen", 16: "Sixteen", 17: "Seventeen", 18: "Eighteen", 19: "Nineteen"}
+tens = {10: "Ten", 20: "Twenty", 30: "Thirty", 40: "Forty", 50: "Fifty", 60: "Sixty", 70: "Seventy", 80: "Eighty", 90: "Ninety"}
+thousands = {1_000: "Thousand", 100_000: "Lakh", 10_000_000: "Crore"}
+
+def number_to_words(n):
+    if n in units:
+        return units[n]
+    if n in teens:
+        return teens[n]
+    if n in tens:
+        return tens[n]
+    
+    for key in sorted(thousands.keys(), reverse=True):
+        if n >= key:
+            higher = n // key
+            lower = n % key
+            return number_to_words(higher) + " " + thousands[key] + ((" " + number_to_words(lower)) if lower > 0 else "")
+    
+    if n < 100:
+        return tens[(n // 10) * 10] + " " + units[n % 10]
+    if n < 1000:
+        return units[n // 100] + " Hundred " + number_to_words(n % 100)
+    
 @xw.func
-def PASSRDSEED(dummy=None):
-    return generate_password_rdseed()
+def INRWORDS(numbers):
+    # Handle the case where numbers is a single element
+    if isinstance(numbers, (int, float)):
+        numbers = [numbers]
+
+    results = []
+    for number in numbers:
+        rupees = int(number)
+        paise = round((number - rupees) * 100)
+        if rupees == 0 and paise == 0:
+            word = "Rupees Zero And Paise Zero Only"
+        elif rupees == 0 and paise > 0:
+            word = f"Paise {number_to_words(paise)} Only"
+        else:
+            word = f"Rupee {number_to_words(rupees)}" if rupees == 1 else f"Rupees {number_to_words(rupees)}"
+            if paise > 0:
+                word += f" And Paise {number_to_words(paise)} Only"
+            else:
+                word += " Only"
+        results.append(word)
+    
+    # Transpose the results to a vertical array
+    return [[result] for result in results]
 
