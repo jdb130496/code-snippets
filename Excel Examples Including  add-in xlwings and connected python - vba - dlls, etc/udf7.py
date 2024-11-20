@@ -165,4 +165,78 @@ def INRWORDS(numbers):
     
     # Transpose the results to a vertical array
     return [[result] for result in results]
+from rdrand import RdSeedom
+import string
+import xlwings as xw
+def generate_password_rdseed(length1=12):
+    r1 = RdSeedom()
+    char_set1 = string.ascii_letters + string.digits + '?@$#^&*'
+    special_chars1 = '?@$#^&*'
+    # Ensure at least one uppercase, one lowercase, and one special character
+    password1 = [
+        r1.choice(string.ascii_uppercase),
+        r1.choice(string.ascii_lowercase),
+        r1.choice(special_chars1)
+    ]
+    # Fill the rest of the password length with random characters
+    while len(password1) < length1:
+        char1 = r1.choice(char_set1)
+        # Ensure no more than two special characters
+        if char1 in special_chars1 and sum(c1 in special_chars1 for c1 in password1) >= 2:
+            continue
+        password1.append(char1)
+    # Shuffle to avoid predictable patterns using rdrand
+    for i1 in range(len(password1)):
+        j1 = r1.randint(0, len(password1) - 1)
+        password1[i1], password1[j1] = password1[j1], password1[i1]
+    # Ensure the password does not start with a special character
+    while password1[0] in special_chars1:
+        for i1 in range(len(password1)):
+            j1 = r1.randint(0, len(password1) - 1)
+            password1[i1], password1[j1] = password1[j1], password1[i1]
+    return ''.join(password1)
+@xw.func
+def PASSRDSEED(dummy=None):
+    return generate_password_rdseed()
+from rdrand import RdSeedom
+import string
+import xlwings as xw
+
+def generate_passwords(num_passwords, length1=12):
+    num_passwords = int(num_passwords)
+    r1 = RdSeedom()
+    char_set1 = string.ascii_letters + string.digits + '?@$#^&*'
+    special_chars1 = '?@$#^&*'
+    
+    def generate_password():
+        # Ensure at least one uppercase, one lowercase, and one special character
+        password1 = [
+            r1.choice(string.ascii_uppercase),
+            r1.choice(string.ascii_lowercase),
+            r1.choice(special_chars1)
+        ]
+        # Fill the rest of the password length with random characters
+        while len(password1) < length1:
+            char1 = r1.choice(char_set1)
+            # Ensure no more than two special characters
+            if char1 in special_chars1 and sum(c1 in special_chars1 for c1 in password1) >= 2:
+                continue
+            password1.append(char1)
+        # Shuffle to avoid predictable patterns using rdrand
+        for i1 in range(len(password1)):
+            j1 = r1.randint(0, len(password1) - 1)
+            password1[i1], password1[j1] = password1[j1], password1[i1]
+        # Ensure the password does not start with a special character
+        while password1[0] in special_chars1:
+            for i1 in range(len(password1)):
+                j1 = r1.randint(0, len(password1) - 1)
+                password1[i1], password1[j1] = password1[j1], password1[i1]
+        return ''.join(password1)
+    
+    passwords = [generate_password() for _ in range(num_passwords)]
+    return [[p1] for p1 in passwords]
+
+@xw.func
+def RDSEEDMULTIPW(num_passwords):
+    return generate_passwords(num_passwords)
 
