@@ -4,7 +4,7 @@ import ctypes
 from ctypes import c_char_p, c_int, POINTER, byref
 
 # Set environment variables for Boost and DLL paths
-os.environ['PATH'] += r';D:\Programs\Msys2\ucrt64\bin;D:\Programs\Msys2\opt\boost\lib;D:\dev\dll'
+os.environ['PATH'] = r'D:\Programs\Msys2\ucrt64\bin;D:\Programs\Msys2\ucrt64\lib' + ';' + os.environ['PATH'] 
 
 # Load the compiled DLL
 dll = ctypes.CDLL(r'D:\dev\dll\regex-boost-msys-new.dll')
