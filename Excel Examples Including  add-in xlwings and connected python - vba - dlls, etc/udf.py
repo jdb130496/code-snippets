@@ -476,3 +476,14 @@ def REGEXLATEST(excel_range, patterns):
                 row_result.append("")
         result.append(row_result)
     return result
+import rdrand
+import xlwings as xw
+
+@xw.func
+def RDSEED_EXCEL(min_val, max_val, count):
+    count=int(count)
+    random_numbers_rdseed = []
+    for _ in range(count):
+        random_number_rdseed = rdrand.RdSeedom().get_bits(64) % (max_val - min_val + 1) + min_val
+        random_numbers_rdseed.append(random_number_rdseed)
+    return [[random_number_rdseed_1] for random_number_rdseed_1 in random_numbers_rdseed]
