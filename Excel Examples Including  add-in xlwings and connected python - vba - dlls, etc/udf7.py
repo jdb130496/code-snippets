@@ -239,4 +239,30 @@ def generate_passwords(num_passwords, length1=12):
 @xw.func
 def RDSEEDMULTIPW(num_passwords):
     return generate_passwords(num_passwords)
+import rdrand
+import xlwings as xw
 
+@xw.func
+def RDSEED_MATRIX(min_val, max_val, count, rows, cols):
+    count=int(count)
+    rows=int(rows)
+    cols=int(cols)
+    random_numbers_rdseed = []
+    for _ in range(count):
+        random_number_rdseed = rdrand.RdSeedom().get_bits(64) % (max_val - min_val + 1) + min_val
+        random_numbers_rdseed.append(random_number_rdseed)
+    
+    # Create a 2D array to hold the random numbers
+    matrix = []
+    index = 0
+    for i in range(rows):
+        row = []
+        for j in range(cols):
+            if index < len(random_numbers_rdseed):
+                row.append(random_numbers_rdseed[index])
+                index += 1
+            else:
+                row.append(None)  # Fill with None if there are not enough random numbers
+        matrix.append(row)
+    
+    return matrix
