@@ -98,4 +98,53 @@ def java_ln(input_array):
     result = [[item] for item in result]
     gateway.close()
     return result
+import xlwings as xw
+import subprocess
+import os
+
+@xw.func
+def next_after_arrays(array1, array2):
+    # Convert inputs to lists of floats
+    def convert_to_float_list(array):
+        if isinstance(array, (float, int, str)):
+            return [float(array)]
+        elif isinstance(array, list):
+            return [float(item) for item in array]
+        return []
+
+    flat_array1 = convert_to_float_list(array1)
+    flat_array2 = convert_to_float_list(array2)
+
+    # Ensure both arrays have the same length
+    if len(flat_array1) != len(flat_array2):
+        raise ValueError("Both input arrays must have the same length.")
+
+    # Prepare the Java command with arguments
+    java_command = ["java", "NextAfterTest"] + [
+        f"{item}" for pair in zip(flat_array1, flat_array2) for item in pair
+    ]
+
+    try:
+        # Set working directory to where NextAfterTest.class is located
+        working_dir = os.path.dirname(__file__)  # Adjust as needed if the .class file is elsewhere
+
+        # Run the Java command and capture the output
+        result = subprocess.run(
+            java_command,
+            capture_output=True,
+            text=True,
+            cwd=working_dir,  # Ensures the Java class is found
+        )
+
+        # Check for errors in execution
+        if result.returncode != 0:
+            raise RuntimeError(f"Java process failed: {result.stderr.strip()}")
+
+        # Capture Java output, convert it to numbers, and return as a vertical list
+        java_output = result.stdout.strip().split('\n')
+        numeric_output = [float(item) for item in java_output]
+        return [[num] for num in numeric_output]  # Return numbers for Excel
+
+    except Exception as e:
+        return [[f"Error: {str(e)}"]]
 
