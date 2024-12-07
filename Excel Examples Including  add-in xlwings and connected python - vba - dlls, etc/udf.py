@@ -89,15 +89,6 @@ def EDATEM(date_and_months):
         result.append([(edate - datetime(1899, 12, 30)).days])
     return result
 @xw.func
-def generate_and_get_data(NUM_THREADS, NUM_NUMBERS):
-    NUM_THREADS = int(NUM_THREADS)
-    NUM_NUMBERS = int(NUM_NUMBERS)
-    C.generate_random_numbers(NUM_THREADS, NUM_NUMBERS)
-    numbers_ptr = C.get_numbers()
-    numbers = [[int(numbers_ptr[i])] for i in range(NUM_NUMBERS)]
-    C.free_numbers(numbers_ptr)
-    return numbers
-@xw.func
 @xw.arg('numbers', ndim=2)
 def check_duplicates(numbers):
     # Flatten the list of lists
@@ -123,7 +114,7 @@ rng = rdrand.RdRandom()
 @xw.func
 def generate_random_numbers_rdrand(num):
     # Generate the random numbers
-    random_numbers = [[int(rng.random() % (10**15 - 10**14)) + 10**14] for _ in range(int(num))]
+    random_numbers = [[rng.randint(10**14, 10**15 - 1)] for _ in range(int(num))]
     return random_numbers
 @xw.func
 @xw.arg('x_values', ndim=2)

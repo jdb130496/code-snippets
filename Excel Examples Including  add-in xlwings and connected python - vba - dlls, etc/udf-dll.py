@@ -174,4 +174,5 @@ def intel_rdseed_boost_vc(NUM_NUMBERS, NUM_THREAD_GROUPS, NUM_THREADS_PER_GROUP)
     # Get the numbers
     numbers = [[int(numbers_ptr[i])] for i in range(numbers_size)]
     return numbers
+#Below code copied from xlwings_trial.py file
 

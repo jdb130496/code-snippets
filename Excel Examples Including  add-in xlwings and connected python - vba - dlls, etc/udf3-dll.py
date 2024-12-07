@@ -42,5 +42,41 @@ def match_pattern_udf(input_list, pattern):
     except Exception as e:
         print(f"Error: {e}")
         return [[""] for _ in input_list]  # Return vertical empty list on error
-# Define the C function signatures and load the DLL
+from cffi import FFI
+import xlwings as xw
+import os
+# Add MSYS2 directories to PATH
+os.environ['PATH'] = (
+    r'D:\dev\dll;' +
+    r'D:\Programs\Msys2\ucrt64\bin;' +
+    r'D:\Programs\Msys2\ucrt64\lib;' +
+    r'D:\Programs\Msys2\ucrt64\include;' +
+    r'D:\Programs\Msys2\ucrt64\x86_64-w64-mingw32\bin;' +
+    r'D:\Programs\Msys2\ucrt64\x86_64-w64-mingw32\include;' +
+    os.environ['PATH']
+)
+ffi201 = FFI()
+#NUM_NUMBERS = 100000
+#NUM_THREADS = 16
 
+# Define the functions in the DLL
+ffi201.cdef("""
+    int rdrand64_step(unsigned long long *rand);
+    void generate_random_numbers(int num_threads, int num_numbers);
+    unsigned long long* get_numbers();
+    void free_numbers(unsigned long long *numbers);
+""")
+
+
+# Load the DLL
+#C = ffi.dlopen('D:\\OneDrive - 0yt2k\\Compiled dlls & executables\\rdrand_multithreaded_new_ucrt_gcc.dll')
+C = ffi201.dlopen('rdrand_multithreaded_new.dll')
+@xw.func
+def generate_and_get_data(NUM_THREADS, NUM_NUMBERS):
+    NUM_THREADS = int(NUM_THREADS)
+    NUM_NUMBERS = int(NUM_NUMBERS)
+    C.generate_random_numbers(NUM_THREADS, NUM_NUMBERS)
+    numbers_ptr = C.get_numbers()
+    numbers = [[int(numbers_ptr[i])] for i in range(NUM_NUMBERS)]
+    C.free_numbers(numbers_ptr)
+    return numbers
