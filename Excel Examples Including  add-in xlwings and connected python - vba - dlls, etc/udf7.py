@@ -198,6 +198,7 @@ def generate_password_rdseed(length1=12):
 @xw.func
 def PASSRDSEED(dummy=None):
     return generate_password_rdseed()
+
 from rdrand import RdSeedom
 import string
 import xlwings as xw
@@ -209,28 +210,52 @@ def generate_passwords(num_passwords, length1=12):
     special_chars1 = '?@$#^&*'
     
     def generate_password():
-        # Ensure at least one uppercase, one lowercase, and one special character
+        # Ensure at least one uppercase, one lowercase, and two unique special characters
         password1 = [
             r1.choice(string.ascii_uppercase),
             r1.choice(string.ascii_lowercase),
             r1.choice(special_chars1)
         ]
+        used_special_chars = set(password1[-1])
+        
+        # Add a second unique special character
+        while len(used_special_chars) < 2:
+            char1 = r1.choice(special_chars1)
+            if char1 not in used_special_chars:
+                password1.append(char1)
+                used_special_chars.add(char1)
+        
         # Fill the rest of the password length with random characters
         while len(password1) < length1:
             char1 = r1.choice(char_set1)
             # Ensure no more than two special characters
-            if char1 in special_chars1 and sum(c1 in special_chars1 for c1 in password1) >= 2:
+            if char1 in special_chars1 and char1 in used_special_chars:
                 continue
             password1.append(char1)
+        
         # Shuffle to avoid predictable patterns using rdrand
         for i1 in range(len(password1)):
             j1 = r1.randint(0, len(password1) - 1)
             password1[i1], password1[j1] = password1[j1], password1[i1]
+        
         # Ensure the password does not start with a special character
         while password1[0] in special_chars1:
             for i1 in range(len(password1)):
                 j1 = r1.randint(0, len(password1) - 1)
                 password1[i1], password1[j1] = password1[j1], password1[i1]
+        
+        # Check for repetition of special characters and replace if necessary
+        special_char_count = {char: password1.count(char) for char in special_chars1}
+        for i1, char1 in enumerate(password1):
+            if char1 in special_chars1 and special_char_count[char1] > 1:
+                new_char = char1
+                while new_char == char1 or new_char in used_special_chars:
+                    new_char = r1.choice(special_chars1)
+                password1[i1] = new_char
+                special_char_count[char1] -= 1
+                special_char_count[new_char] = special_char_count.get(new_char, 0) + 1
+                used_special_chars.add(new_char)
+        
         return ''.join(password1)
     
     passwords = [generate_password() for _ in range(num_passwords)]
@@ -239,6 +264,7 @@ def generate_passwords(num_passwords, length1=12):
 @xw.func
 def RDSEEDMULTIPW(num_passwords):
     return generate_passwords(num_passwords)
+
 import rdrand
 import xlwings as xw
 
@@ -266,3 +292,64 @@ def RDSEED_MATRIX(min_val, max_val, count, rows, cols):
         matrix.append(row)
     
     return matrix
+import xlwings as xw
+import string
+from rdrand import RdSeedom
+
+# Function to generate passwords
+def generate_passwords(num_passwords):
+    try:
+        # Convert the input to an integer
+        num_passwords = int(num_passwords)
+    except (ValueError, TypeError):
+        return "Input must be a positive integer."
+
+    # Validate the converted number
+    if num_passwords <= 0:
+        return "Input must be a positive integer."
+
+    # Helper function to generate one password
+    def generate_password():
+        special_characters = "?@$#^&*"
+        letters_and_digits = (
+            string.ascii_uppercase + string.ascii_lowercase + string.digits
+        )
+        all_characters = letters_and_digits + special_characters
+
+        # Instantiate the RdSeedom object
+        seed = RdSeedom()
+
+        while True:
+            # Select required characters
+            upper = seed.choice(string.ascii_uppercase)
+            lower = seed.choice(string.ascii_lowercase)
+            digit = seed.choice(string.digits)
+            specials = seed.sample(special_characters, 2)  # Pick exactly 2 special characters
+
+            # Remaining characters should come only from letters and digits
+            others = seed.sample(letters_and_digits, 7)  # To ensure no extra special characters
+
+            # Combine all characters
+            password_list = [upper, lower, digit] + specials + others
+
+            # Shuffle using RdSeedom
+            for i in range(len(password_list) - 1, 0, -1):
+                j = seed.randrange(0, i + 1)
+                password_list[i], password_list[j] = password_list[j], password_list[i]
+
+            password = ''.join(password_list)
+
+            # Ensure it doesn't start with a special character
+            if not password[0] in special_characters:
+                return password
+
+    # Generate the requested number of passwords
+    passwords = [generate_password() for _ in range(num_passwords)]
+    return passwords
+
+# Excel UDF
+@xw.func
+def xl_generate_passwords(num_passwords):
+    return generate_passwords(num_passwords)
+
+
