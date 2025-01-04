@@ -12,7 +12,7 @@ def process_data(data):
 
     # Process each ID
     for ID1 in IDS:
-        filtered_df = df[(df['ID'] == ID1) & (df['Type'] != 'Purchase Order') & (df['Type'] != 'Sales Order') & (df['Date'] < '2024-07-01')]
+        filtered_df = df[(df['ID'] == ID1) & (df['Type'] != 'Purchase Order') & (df['Type'] != 'Sales Order')] #& (df['Date'] < '2024-07-01')]
         grouped_df = filtered_df.groupby(['Type', 'Project: ID', 'Account']).agg({'Amount': lambda x: x.sum() * -1}).reset_index()
         grouped_df.rename(columns={'Amount': 'Amt'}, inplace=True)
         final_results.append(grouped_df)
@@ -65,7 +65,7 @@ import xlwings as xw
 @xw.arg('excel_range', ndim=2)
 @xw.arg('patterns', ndim=1)
 #@xw.arg('replacement', ndim=0)
-def REGEXREPLM(excel_range, patterns, replacement):
+def REGEXREPLM2(excel_range, patterns, replacement):
     result = []
     for row in excel_range:
         row_result = []
@@ -79,7 +79,7 @@ def REGEXREPLM(excel_range, patterns, replacement):
 
 
 @xw.func
-def SPLIT_TEXT(data, delimiter):
+def SPLIT_TEXT_2(data, delimiter):
     try:
         if not data or all(cell is None for cell in data):
             return [""]
