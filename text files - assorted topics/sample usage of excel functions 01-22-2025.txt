@@ -1,0 +1,7 @@
+SQL Statement (Using sqlite plugin (xlwings) in excel)
+SELECT "Name", SUM("Amount") FROM a GROUP BY "Name" HAVING ROUND(SUM("Amount"), 2) <= -0.01 OR ROUND(SUM("Amount"), 2) >= 0.01
+
+
+Same Result By Excel GROUPBY Function combined with other functions:
+
+=VSTACK(TAKE(D6:E6,1,),FILTER(GROUPBY(D7:D14032,ROUND(E7:E14032,2),SUM,0),ROUND(TAKE(GROUPBY(D7:D14032,ROUND(E7:E14032,2),SUM,0),,-1),2)<>0))
