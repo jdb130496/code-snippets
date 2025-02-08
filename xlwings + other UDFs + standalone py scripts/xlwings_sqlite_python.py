@@ -65,7 +65,7 @@ import xlwings as xw
 @xw.arg('excel_range', ndim=2)
 @xw.arg('patterns', ndim=1)
 #@xw.arg('replacement', ndim=0)
-def REGEXREPLM2(excel_range, patterns, replacement):
+def REGEXREPLM(excel_range, patterns, replacement):
     result = []
     for row in excel_range:
         row_result = []
@@ -79,7 +79,7 @@ def REGEXREPLM2(excel_range, patterns, replacement):
 
 
 @xw.func
-def SPLIT_TEXT_2(data, delimiter):
+def SPLIT_TEXT(data, delimiter):
     try:
         if not data or all(cell is None for cell in data):
             return [""]
@@ -89,5 +89,70 @@ def SPLIT_TEXT_2(data, delimiter):
         # Ensure all sublists have the same length by padding with empty strings
         padded_data = [sublist + [""] * (max_length - len(sublist)) for sublist in split_data]
         return padded_data
+    except Exception as e:
+        return str(e)
+
+import numpy as np
+import pandas as pd
+import xlwings as xw
+
+@xw.func
+@xw.arg('excel_range', ndim=2)
+@xw.arg('patterns', ndim=1)
+def REGEXREPLM2(excel_range, patterns, replacement):
+    # Input validation
+    if not excel_range or not patterns:
+        return [[""]]
+    
+    # Ensure replacement is a string
+    replacement = str(replacement) if replacement is not None else ""
+
+    # Convert Excel range to list of lists and handle None values
+    data_array = [
+        [str(cell).strip() if cell is not None else "" for cell in row]
+        for row in excel_range
+    ]
+
+    # Convert to pandas DataFrame with string dtype
+    df = pd.DataFrame(data_array).astype("string")
+
+    # Convert patterns to list if it's a single string
+    if isinstance(patterns, str):
+        patterns = [patterns]
+
+    # Apply regex replacements
+    for pattern in patterns:
+        if pattern:
+            pattern = str(pattern)
+            df = df.replace(pattern, replacement, regex=True)
+
+    # Convert back to nested list
+    result = df.values.tolist()
+
+    # Final cleanup of any remaining None or 'None' strings
+    result = [
+    ["" if cell is None else str(cell).strip() 
+     for cell in row]
+    for row in result
+]
+
+    return result
+
+@xw.func
+def testfunction(rng):
+    return [[x*2] for x in rng]
+
+import xlwings as xw
+
+@xw.func
+@xw.arg('rng', 'range')
+def testfunction3(rng, rf, cf):
+    try:
+        rf = int(rf)
+        cf = int(cf)
+        # Use the offset method to get the desired range
+        offset_range = rng.offset(rf, cf)
+        # Return the address of the offset range
+        return offset_range.address
     except Exception as e:
         return str(e)

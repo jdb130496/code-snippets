@@ -1,6 +1,6 @@
 import pandas as pd
 import xlwings as xw
-import re
+import regex as re1
 import numpy as np
 
 @xw.func
@@ -47,23 +47,31 @@ def process_pandas(file_path):
     # Return the combined results with headers as a dynamic array
     return output_data
 
+
 @xw.func
-@xw.arg('excel_range', ndim=2)
-@xw.arg('patterns', ndim=1)
+@xw.arg('excel_range', ndim=2)  # Expecting a 2D Excel range
+@xw.arg('patterns', ndim=1)    # Expecting a 1D list of patterns
 def REGEXSTR2(excel_range, patterns):
     result = []
     for row in excel_range:
         row_result = []
         for cell in row:
-            cell_str = str(cell)  # Convert cell to string
+            cell_str = str(cell)  # Convert the cell content to string
             cell_result = []
             for pattern in patterns:
-                match = re.search(pattern, cell_str,flags=re.UNICODE)
-                if match:
-                    cell_result.append(match.group())  # Return the matched string
+                try:
+                    # Use regex module for variable-length lookbehind
+                    match = re1.search(pattern, cell_str, flags=re.UNICODE)
+                    if match:
+                        cell_result.append(match.group())  # Add the matched string
+                except re.error as e:
+                    # Handle invalid regex pattern errors
+                    return f"Regex Error: {e}"
+            # Join matches only if all patterns are matched, otherwise return empty
             if len(cell_result) == len(patterns):
                 row_result.append(" ".join(cell_result))
             else:
                 row_result.append("")
         result.append(row_result)
     return result
+
