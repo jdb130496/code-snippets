@@ -221,79 +221,53 @@ def fill_project_and_so_amount(data):
     return result
 
 import pandas as pd
+import warnings
+
+def convert_datetime_columns(df, datetime_columns):
+    for col in datetime_columns:
+        df[col] = pd.to_datetime(df[col], errors='coerce').dt.floor('us')
+    return df
+
+import pandas as pd
 import xlwings as xw
 
 @xw.func
 def Project_SO_Inv_Summary(data):
-    # Convert the input data to a pandas DataFrame, treating empty cells as NaN
     df = pd.DataFrame(data[1:], columns=data[0]).replace('', pd.NA)
-    
-    # Filter the DataFrame for rows where Type is 'Invoice'
+    df = convert_datetime_columns(df, ['Date'])  # Add your datetime columns here
     df_filtered = df[(df['Type'] == 'Invoice')]
-    
-    # Group by 'ProjectSOPO' and 'SO Amount', and calculate the sum of 'Amount' and max of 'Date'
     df_grouped = df_filtered.groupby(['ProjectSOPO', 'SO Amount'], dropna=False).agg({
         'Amount (Gross)': 'sum',
         'Date': 'max'
     }).reset_index()
-    
-    # Rename the columns
     df_grouped.columns = ['ProjectSOPO', 'SO Amount', 'Invoice Amt', 'Last_Inv_Date']
-    
-    # Format the 'Last_Inv_Date' column as '%m/%d/%Y'
     df_grouped['Last_Inv_Date'] = pd.to_datetime(df_grouped['Last_Inv_Date'])
-    
-    # Include headers in the output
     result = [df_grouped.columns.tolist()] + df_grouped.values.tolist()
-    
     return result
-
-import pandas as pd
-import xlwings as xw
 
 @xw.func
 def Customer_Invoice_Summary(data):
-    # Convert the input data to a pandas DataFrame, treating empty cells as NaN
     df = pd.DataFrame(data[1:], columns=data[0]).replace('', pd.NA)
-    
-    # Fill the missing 'ProjectSOPO' values with the previous non-missing value
+    df = convert_datetime_columns(df, ['Date'])  # Add your datetime columns here
     df['ProjectSOPO'] = df['ProjectSOPO'].ffill()
-    
-    # Filter the DataFrame for rows where Type is 'Invoice' and calculate the sum of 'Amount' and max of 'Date'
     df_invoice = df[df['Type'] == 'Invoice'].groupby(['Customer', 'ProjectSOPO'], dropna=False).agg({
         'Amount (Gross)': 'sum',
         'Date': 'max'
     }).reset_index()
-    
-    # Rename the columns for invoice summary
     df_invoice.columns = ['Customer', 'ProjectSOPO', 'Invoice Amt', 'Last_Inv_Date']
-    
-    # Filter the DataFrame for rows where Type is not 'Invoice' and calculate the sum of 'Amount' and max of 'Date'
     df_received = df[df['Type'] != 'Invoice'].groupby(['Customer', 'ProjectSOPO'], dropna=False).agg({
         'Amount (Gross)': lambda x: -x.sum(),
         'Date': 'max'
     }).reset_index()
-    
-    # Rename the columns for received summary
     df_received.columns = ['Customer', 'ProjectSOPO', 'Received Amt', 'Last_Rec_Date']
-    
-    # Merge the invoice and received summaries on 'ProjectSOPO'
     df_summary = pd.merge(df_invoice, df_received, on=['Customer', 'ProjectSOPO'], how='outer')
-    
-    # Include headers in the output
     result = [df_summary.columns.tolist()] + df_summary.values.tolist()
-    
     return result
-
-import pandas as pd
-import xlwings as xw
 
 @xw.func
 def Project_Invoice_Summary(data):
-    # Convert the input data to a pandas DataFrame, treating empty cells as NaN
     df = pd.DataFrame(data[1:], columns=data[0]).replace('', pd.NA)
-    
-    # Ensure 'Invoice Amt' and 'Received Amt' are floats and 'Last_Rec_Date' is datetime
+    df = convert_datetime_columns(df, ['Last_Inv_Date', 'Last_Rec_Date'])  # Add your datetime columns here
     df = df.assign(
         **{
             'Invoice Amt': df['Invoice Amt'].astype(float),
@@ -302,31 +276,128 @@ def Project_Invoice_Summary(data):
             'Last_Rec_Date': pd.to_datetime(df['Last_Rec_Date'])
         }
     )
-    
-    # Group by 'ProjectSOPO', and calculate the sum of 'Invoice Amt', sum of 'Received Amt', difference, and max of 'Last_Rec_Date'
     df_grouped = df.groupby(['ProjectSOPO'], dropna=False).agg({
         'Invoice Amt': 'sum',
         'Received Amt': 'sum',
         'Last_Inv_Date': 'max',
         'Last_Rec_Date': 'max'
     }).reset_index()
-    
-    # Filter the DataFrame for dates between 01/01/2025 and 01/31/2025
-    #start_date = pd.to_datetime('2025-01-01')
-    #end_date = pd.to_datetime('2025-01-31')
     df_grouped = df_grouped[(df_grouped['Last_Rec_Date'] >= pd.to_datetime('2025-01-01')) & (df_grouped['Last_Rec_Date'] <= pd.to_datetime('2025-01-31'))]
-    # Calculate the difference
     df_grouped['Difference'] = df_grouped['Invoice Amt'] - df_grouped['Received Amt']
-    
-    # Rename the columns
     df_grouped = df_grouped[['ProjectSOPO', 'Invoice Amt', 'Received Amt', 'Difference', 'Last_Inv_Date', 'Last_Rec_Date']]
     df_grouped.columns = ['ProjectSOPO', 'INV_AMT', 'RCT_AMT', 'Difference', 'Last_Inv_Date', 'Last_Rct_Date']
-    
-    # Include headers in the output
     result = [df_grouped.columns.tolist()] + df_grouped.values.tolist()
-    
     return result
+import xlwings as xw
+from datetime import datetime
 
+@xw.func
+@xw.arg('data_range', xw.Range)
+@xw.arg('start_date', (str, datetime), default='2024-01-01')
+@xw.arg('end_date', (str, datetime), default='2024-12-31')
+def get_project_class(data_range, start_date='2024-01-01', end_date='2024-12-31'):
+    """
+    UDF to process data similar to the SQL query without using pandas
+    Args:
+        data_range: Input range containing the data (must include Type, ProjectSOPO, Date, and Class: Name columns)
+        start_date: Start date for filtering (default: '2024-01-01')
+        end_date: End date for filtering (default: '2024-12-31')
+    Returns:
+        List of lists with ProjectSOPO and Class: Name columns
+    """
+    try:
+        # Convert the data range to a list of lists
+        data = data_range.value
 
+        # Extract headers and data rows
+        headers = data[0]
+        rows = data[1:]
+
+        # Get column indices
+        type_idx = headers.index('Type')
+        project_sopo_idx = headers.index('ProjectSOPO')
+        date_idx = headers.index('Date')
+        class_name_idx = headers.index('Class: Name')
+
+        # Convert start and end dates to datetime objects if they are strings
+        if isinstance(start_date, str):
+            start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        if isinstance(end_date, str):
+            end_date = datetime.strptime(end_date, '%Y-%m-%d')
+
+        # Initialize a dictionary to store the results
+        result_dict = {}
+
+        # Iterate over the rows to filter and group data
+        for row in rows:
+            row_type = row[type_idx]
+            row_project_sopo = row[project_sopo_idx] if row[project_sopo_idx] else 'Unknown'
+            row_date = row[date_idx]
+            if isinstance(row_date, str):
+                row_date = datetime.strptime(row_date, '%Y-%m-%d')
+            row_class_name = row[class_name_idx]
+
+            if (row_type == 'Invoice' and
+                start_date <= row_date <= end_date and
+                row_class_name != 'Carvart'):
+                
+                key = (row_project_sopo, row_class_name)
+                if key not in result_dict:
+                    result_dict[key] = 1
+
+        # Convert the result dictionary to a list of lists
+        result = [[key[0], key[1]] for key in result_dict.keys()]
+
+        # Sort the result by ProjectSOPO
+        result.sort(key=lambda x: x[0])
+
+        # Add column headers
+        result.insert(0, ['ProjectSOPO', 'Class: Name'])
+
+        return result
+
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+import xlwings as xw
+from pathlib import Path
+
+@xw.func
+def projects_with_commissions(file_path):
+    """
+    Iterates through all worksheets in the specified Excel file,
+    extracts values from column D (rows 1-10) and combines them into a single list.
+    """
+    try:
+        # Create Path object and verify file exists
+        path = Path(file_path)
+        if not path.exists():
+            return [["File not found"]]
+            
+        combined_values = []
+        
+        # Create new App instance and open workbook
+        app = xw.App(visible=False)
+        wb = app.books.open(str(path))
+        
+        try:
+            # Iterate through sheets
+            combined_values = [
+                v for i in range(1, len(wb.sheets))
+                for v in wb.sheets[i].range('C1:C10').value
+                if v is not None and v != 'SO#'
+            ]   
+        finally:
+            # Clean up
+            wb.close()
+            app.quit()
+            
+        # Return results as vertical array
+        if combined_values:
+            return [[v] for v in combined_values]
+        return [["No values found"]]
+        
+    except Exception as e:
+        return [[f"Error: {str(e)}"]]
 
 
