@@ -363,7 +363,7 @@ import xlwings as xw
 from pathlib import Path
 
 @xw.func
-def projects_with_commissions(file_path):
+def SO_with_commissions(file_path):
     """
     Iterates through all worksheets in the specified Excel file,
     extracts values from column D (rows 1-10) and combines them into a single list.
@@ -400,4 +400,41 @@ def projects_with_commissions(file_path):
     except Exception as e:
         return [[f"Error: {str(e)}"]]
 
+@xw.func
+def Projects_with_commissions(file_path):
+    """
+    Iterates through all worksheets in the specified Excel file,
+    extracts values from column D (rows 1-10) and combines them into a single list.
+    """
+    try:
+        # Create Path object and verify file exists
+        path = Path(file_path)
+        if not path.exists():
+            return [["File not found"]]
+            
+        combined_values = []
+        
+        # Create new App instance and open workbook
+        app = xw.App(visible=False)
+        wb = app.books.open(str(path))
+        
+        try:
+            # Iterate through sheets
+            combined_values = [
+                v for i in range(1, len(wb.sheets))
+                for v in wb.sheets[i].range('D1:D10').value
+                if v is not None and v != 'Project #'
+            ]   
+        finally:
+            # Clean up
+            wb.close()
+            app.quit()
+            
+        # Return results as vertical array
+        if combined_values:
+            return [[v] for v in combined_values]
+        return [["No values found"]]
+        
+    except Exception as e:
+        return [[f"Error: {str(e)}"]]
 
