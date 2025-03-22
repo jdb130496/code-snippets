@@ -263,7 +263,8 @@ def generate_passwords(num_passwords, length1=12):
 
 @xw.func
 def RDSEEDMULTIPW(num_passwords):
-    return generate_passwords(num_passwords)
+    #return generate_passwords(num_passwords)
+    return [[password] for password in generate_passwords(num_passwords)]
 
 import rdrand
 import xlwings as xw
@@ -350,6 +351,7 @@ def generate_passwords(num_passwords):
 # Excel UDF
 @xw.func
 def xl_generate_passwords(num_passwords):
-    return generate_passwords(num_passwords)
+    #return generate_passwords(num_passwords)
+    return [[password] for password in generate_passwords(num_passwords)]
 
 
