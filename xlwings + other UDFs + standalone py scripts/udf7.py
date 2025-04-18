@@ -354,4 +354,93 @@ def xl_generate_passwords(num_passwords):
     #return generate_passwords(num_passwords)
     return [[password] for password in generate_passwords(num_passwords)]
 
+@xw.func
+def PRIME(lower, upper):
+    lower = int(lower)
+    upper = int(upper)
+    
+    def is_prime(n):
+        if n <= 1:
+            return False
+        for i in range(2, int(n**0.5) + 1):
+            if n % i == 0:
+                return False
+        return True
+
+    primes = [num for num in range(lower, upper + 1) if is_prime(num)]
+    return [[prime] for prime in primes]
+
+@xw.func
+def IS_PRIME_WITH_DIVISOR(number):
+    number = int(number)
+    
+    def is_prime(n):
+        if n <= 1:
+            return False, 1
+        for i in range(2, int(n**0.5) + 1):
+            if n % i == 0:
+                return False, i
+        return True, 1
+
+    prime, divisor = is_prime(number)
+    return ["Yes" if prime else "No", divisor]
+
+import xlwings as xw
+import math
+
+@xw.func
+def prime_factors(n):
+    """Returns all prime factors (including duplicates)"""
+    if isinstance(n, list):
+        results = []
+        max_length = 0
+        for num in n:
+            factors = _calculate_prime_factors(num)
+            results.append(factors)
+            if len(factors) > max_length:
+                max_length = len(factors)
+        
+        # Pad each list to the max length
+        for i in range(len(results)):
+            results[i] += [None] * (max_length - len(results[i]))
+        
+        return results
+    else:
+        return _calculate_prime_factors(n)
+
+def _calculate_prime_factors(n):
+    if n <= 1:
+        return [n]  # Return the number itself if it's <= 1
+    
+    # Get prime factors with duplicates
+    prime_factors = []
+    remaining = n
+    i = 2
+    while i * i <= remaining:
+        while remaining % i == 0:
+            prime_factors.append(i)
+            remaining = remaining // i
+        i += 1
+    if remaining > 1:
+        prime_factors.append(remaining)
+    
+    # Return prime factors without the highest prime factor
+    return prime_factors
+
+# Function to apply prime_factors to a range
+def apply_prime_factors_to_range():
+    wb = xw.Book.caller()  # Connect to the calling Excel workbook
+    sheet = wb.sheets[0]  # Use the first sheet
+    input_range = sheet.range('A1:A16')  # Adjust the range as needed
+    output_range = sheet.range('B1:B16')  # Adjust the output range as needed
+    
+    for i, cell in enumerate(input_range):
+        number = cell.value
+        factors = prime_factors(number)
+        output_range[i].value = factors
+
+# Call the function when the script is run
+if __name__ == "__main__":
+    xw.Book("YourWorkbookName.xlsx").set_mock_caller()
+    apply_prime_factors_to_range()
 

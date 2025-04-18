@@ -478,3 +478,5 @@ def RDSEED_EXCEL(min_val, max_val, count):
         random_number_rdseed = rdrand.RdSeedom().get_bits(64) % (max_val - min_val + 1) + min_val
         random_numbers_rdseed.append(random_number_rdseed)
     return [[random_number_rdseed_1] for random_number_rdseed_1 in random_numbers_rdseed]
+
+

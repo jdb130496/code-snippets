@@ -1,7 +1,7 @@
 #pyMUPDF library - pip install pyMUPDF
 import fitz
 import pandas as pd
-doc = fitz.open(r'D:\dgbdata\20221130-statements-5930-.pdf')
+doc = fitz.open(r'D:\DGB Personal Data\juhi all documents\IT Return FY 2022-23\XXXXXXXXXXX7064-01-04-2022to31-03-2023.pdf')
 text = ""
 for page in doc:
    text += page.get_text()
@@ -9,7 +9,7 @@ for page in doc:
 lines = text.split('\n')
 lines_list = [line for line in lines]
 df=pd.DataFrame(lines_list)
-with open(r"d:\dgbdata\pdftext.txt", 'w', encoding='utf-8') as f:
+with open(r"D:\DGB Personal Data\juhi all documents\IT Return FY 2022-23\pdftext.txt", 'w', encoding='utf-8') as f:
     for row in df.itertuples(index=False):
         row = [str(x) if x != '' else ' ' for x in row]
         line = ','.join(row)
