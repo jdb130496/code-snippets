@@ -444,3 +444,31 @@ if __name__ == "__main__":
     xw.Book("YourWorkbookName.xlsx").set_mock_caller()
     apply_prime_factors_to_range()
 
+@xw.func
+@xw.arg('data', ndim=1)
+def SPLIT_TEXT_M(data):
+    try:
+        if not data or all(cell is None for cell in data):
+            return [""]
+        
+        # Convert each row to string and process
+        split_data = []
+        for row in data:
+            if row is None:
+                split_data.append([""])
+            else:
+                # Convert to string and handle both number and string inputs
+                str_row = str(row)
+                # Remove any trailing comma and split
+                values = [x.strip() for x in str_row.rstrip(',').split(',')]
+                split_data.append(values)
+        
+        # Find maximum length for padding
+        max_length = max(len(sublist) for sublist in split_data)
+        
+        # Pad with empty strings to make all rows same length
+        padded_data = [sublist + [""] * (max_length - len(sublist)) for sublist in split_data]
+        
+        return padded_data
+    except Exception as e:
+        return str(e)
