@@ -444,4 +444,29 @@ if __name__ == "__main__":
     xw.Book("YourWorkbookName.xlsx").set_mock_caller()
     apply_prime_factors_to_range()
 
+import xlwings as xw
+
+@xw.func
+@xw.arg('data', ndim=1)
+def SPLIT_TEXT_MODIFIED(data, delimiter):
+    try:
+        # Step 1: Filter out completely blank or whitespace-only cells
+        filtered_data = [cell for cell in data if cell and cell.strip()]
+        
+        if not filtered_data:
+            return [[""]]
+        
+        # Step 2: Split each row by the delimiter
+        split_data = [cell.split(delimiter) for cell in filtered_data]
+        
+        # Step 3: Remove rows that are entirely empty after splitting
+        cleaned_data = [row for row in split_data if any(cell.strip() for cell in row)]
+        
+        # Step 4: Pad rows to equal length
+        max_length = max(len(row) for row in cleaned_data)
+        padded_data = [row + [""] * (max_length - len(row)) for row in cleaned_data]
+        
+        return padded_data
+    except Exception as e:
+        return str(e)
 
