@@ -1,0 +1,1014 @@
+I want to include photo as shown in image in CV which is made in Latex. My Latex Metadata is like this:
+
+
+
+% Render CV header
+
+% Needs \@firstname, \@lastname and \@tagline to be defined
+
+\newcommand*{\makecvheader}{
+
+  \ifundef{\@alternative}{
+
+    \ifundef{\@photodiameter}{
+
+      \begin{minipage}{\linewidth}
+
+    }{
+
+      \begin{minipage}{\dimexpr\linewidth-\@photodiameter-2em}
+
+    }
+
+    \color{accentcolor}\user{\@firstname}{\@lastname}\color{black}\vspace{-2mm}\\
+
+    \small{\@socialinfo}
+
+    \end{minipage}
+
+    \ifdef{\@photodiameter}{
+
+      \begin{minipage}{\@photodiameter}
+
+        \idphoto
+
+      \end{minipage}
+
+    }{}
+
+    \resumetitle{\@tagline}
+
+  }{
+
+    \ifundef{\@photodiameter}{
+
+      \begin{minipage}{\linewidth}
+
+    }{
+
+      \begin{minipage}{\dimexpr\linewidth-\@photodiameter-2em}
+
+    }
+
+    \user{\@firstname}{\@lastname}\vspace{1mm}\\
+
+    \resumetitle{\@tagline}
+
+    \smallskip\\
+
+    \small{\@socialinfo}
+
+    \end{minipage}
+
+    \ifdef{\@photodiameter}{
+
+      \begin{minipage}{\@photodiameter}
+
+        \idphoto
+
+      \end{minipage}
+
+    }{}
+
+    \bigskip
+
+  }
+
+}
+
+
+
+Actual contents of the section is like this:
+
+
+
+\documentclass[localFont,alternative]{documentMETADATA}
+
+\name{JUHI}{BAKSHI}
+
+\tagline{Assistant Professor | Navrachana University (Vadodara - Gujarat)}
+
+\begin{document}
+
+\socialinfo{
+
+
+
+
+\adjustbox{raise=1.75pt,valign=b} {\includegraphics[width=0.60cm, height=0.60cm]{Cake.png}} \hspace{-0.5mm} {Born On: April 13, 1996} \hspace{1mm} \smartphone{+(91) 63536-76309}
+
+\email{bakshi.juhi@gmail.com}\\
+
+% \address{214, School Of Business And Law, Navrachana University, Vadodara}\\
+
+     \linkedin{juhi-bakshi}
+
+     \personalLink{University Homepage}{https://nuv.ac.in/professors/juhi-bakshi/}
+
+%\infos{}
+
+}
+
+\makecvheader
+
+
+
+Can you help?
+
+
+
+It looks like you're using a LaTeX template that has built-in support for a profile picture! The key part in your metadata is the \idphoto command and the \@photodiameter variable.
+
+Here's how you can add the photo to your CV:
+
+Make sure you have a photo file: Save the photo you want to use in the same directory as your LaTeX .tex file. Let's assume you name it profile.jpg (you can use other formats like .png).
+
+Set the photo diameter: In your document preamble (before \begin{document}), you need to define \@photodiameter with the desired size of the photo. A common size is around 3cm. You can adjust this value to make the photo bigger or smaller. Add the following line to your preamble:
+
+Code snippet
+
+\def\@photodiameter{3cm}
+Include the \idphoto command: Your \makecvheader command already includes \idphoto within a conditional statement that checks if \@photodiameter is defined. This means you likely don't need to add anything extra to the \makecvheader definition itself.
+
+Load the graphicx package: If you haven't already, make sure you have the graphicx package loaded in your preamble. This package is necessary for including images in LaTeX. Add the following line to your preamble if it's not already there:
+
+Code snippet
+
+\usepackage{graphicx}
+Define the \idphoto command: You might need to define the \idphoto command if it's not already defined by your template's style file (documentMETADATA.cls). Add the following definition to your preamble:
+
+Code snippet
+
+\newcommand{\idphoto}{\includegraphics[width=\@photodiameter,height=\@photodiameter,clip,keepaspectratio]{profile.jpg}}
+width=\@photodiameter and height=\@photodiameter set the dimensions of the image based on the diameter you defined.
+clip ensures that the image is cropped to the specified dimensions (if necessary).
+keepaspectratio maintains the original aspect ratio of your image.
+profile.jpg is the name of your image file. Make sure to replace this with the actual name of your photo file.
+Putting it all together, your preamble might look something like this:
+
+Code snippet
+
+\documentclass[localFont,alternative]{documentMETADATA}
+\usepackage{graphicx} % Make sure this is included
+\name{JUHI}{BAKSHI}
+\tagline{Assistant Professor | Navrachana University (Vadodara - Gujarat)}
+\def\@photodiameter{3cm} % Set the diameter of the photo
+\newcommand{\idphoto}{\includegraphics[width=\@photodiameter,height=\@photodiameter,clip,keepaspectratio]{profile.jpg}} % Define the idphoto command
+
+\begin{document}
+\socialinfo{
+	\adjustbox{raise=1.75pt,valign=b} {\includegraphics[width=0.60cm, height=0.60cm]{Cake.png}} \hspace{-0.5mm} {Born On: April 13, 1996} \hspace{1mm} \smartphone{+(91) 63536-76309}
+	\email{bakshi.juhi@gmail.com}\\
+%	\address{214, School Of Business And Law, Navrachana University, Vadodara}\\
+     \linkedin{juhi-bakshi}
+     \personalLink{University Homepage}{https://nuv.ac.in/professors/juhi-bakshi/}
+	%\infos{}
+}
+	\makecvheader
+
+% ... rest of your CV content ...
+
+\end{document}
+Important Considerations:
+
+Template Class: The exact implementation might slightly vary depending on the specific documentMETADATA.cls file you are using. If the above doesn't work immediately, you might need to consult the documentation or examples that came with your template to see how they handle profile pictures.
+Image Path: If your image is in a subdirectory, you'll need to adjust the path in the \includegraphics command accordingly (e.g., \includegraphics{images/profile.jpg}).
+Customization: You can adjust the \@photodiameter value to change the size of the photo. You might also explore other options for image placement and styling within the \makecvheader command if needed.
+Give this a try, and let me know if you encounter any issues!
+
+
+
+
+
+I also have this section in metadata cls:
+
+
+
+% Define author's photo
+
+% Usage \photo{<diameter>}{<photo>}
+
+\newcommand{\photo}[2]{\def\@photo{#2}\def\@photodiameter{#1}}
+
+
+
+Ah, that's helpful! It looks like your documentMETADATA.cls file provides a more direct way to handle the photo using the \photo command.
+
+In this case, you can simplify the process. You no longer need to manually define \@photodiameter and \newcommand{\idphoto}{...} in your main .tex file.
+
+Here's how you can include the photo using the \photo command defined in your class file:
+
+Make sure you have a photo file: As before, save your photo in the same directory as your LaTeX file (e.g., profile.jpg).
+
+Use the \photo command in your preamble: In your document preamble (before \begin{document}), use the \photo command, providing the desired diameter and the filename of your photo. For example:
+
+Code snippet
+
+\photo{3cm}{profile.jpg}
+3cm sets the diameter of the photo. Adjust this value as needed.
+profile.jpg is the name of your image file. Replace this with the actual name of your photo file.
+Ensure \makecvheader uses the defined photo: Your \makecvheader command already seems to be set up to use \@photodiameter and potentially \@photo (or a command that utilizes them like \idphoto). Double-check the documentMETADATA.cls file to see how \@photo is used within \makecvheader. It might look something like this inside the class file:
+
+Code snippet
+
+\ifdef{\@photodiameter}{
+  \begin{minipage}{\@photodiameter}
+    \includegraphics[width=\@photodiameter,height=\@photodiameter,clip,keepaspectratio]{\@photo}
+  \end{minipage}
+}{}
+If it does, then the \photo command you added in your preamble will automatically handle setting the photo.
+
+Your preamble would now look something like this:
+
+Code snippet
+
+\documentclass[localFont,alternative]{documentMETADATA}
+\usepackage{graphicx} % Make sure this is included
+\name{JUHI}{BAKSHI}
+\tagline{Assistant Professor | Navrachana University (Vadodara - Gujarat)}
+\photo{3cm}{profile.jpg} % Set the photo diameter and filename
+
+\begin{document}
+\socialinfo{
+	\adjustbox{raise=1.75pt,valign=b} {\includegraphics[width=0.60cm, height=0.60cm]{Cake.png}} \hspace{-0.5mm} {Born On: April 13, 1996} \hspace{1mm} \smartphone{+(91) 63536-76309}
+	\email{bakshi.juhi@gmail.com}\\
+%	\address{214, School Of Business And Law, Navrachana University, Vadodara}\\
+     \linkedin{juhi-bakshi}
+     \personalLink{University Homepage}{https://nuv.ac.in/professors/juhi-bakshi/}
+	%\infos{}
+}
+	\makecvheader
+
+% ... rest of your CV content ...
+
+\end{document}
+Using the \photo command provided by your class file is the cleaner and recommended approach. Just make sure the filename and path in the \photo command are correct.
+
+Give this updated method a try! Let me know if you still have any questions or run into any issues.
+
+
+
+
+
+My .tex file is like this. Where can I include photo command:
+
+
+
+\documentclass[localFont,alternative]{documentMETADATA}
+
+\name{JUHI}{BAKSHI}
+
+\tagline{Assistant Professor | Navrachana University (Vadodara - Gujarat)}
+
+\begin{document}
+
+\socialinfo{
+
+
+
+
+\adjustbox{raise=1.75pt,valign=b} {\includegraphics[width=0.60cm, height=0.60cm]{Cake.png}} \hspace{-0.5mm} {Born On: April 13, 1996} \hspace{1mm} \smartphone{+(91) 63536-76309}
+
+\email{bakshi.juhi@gmail.com}\\
+
+% \address{214, School Of Business And Law, Navrachana University, Vadodara}\\
+
+     \linkedin{juhi-bakshi}
+
+     \personalLink{University Homepage}{https://nuv.ac.in/professors/juhi-bakshi/}
+
+%\infos{}
+
+}
+
+\makecvheader
+
+
+
+\makecvfooter
+
+{\textsc{}} %\selectlanguage{english}\today
+
+{\textsc{Juhi Bakshi - CV}}
+
+{\thepage}
+
+
+
+\input{section_headline}                % Research Statement
+
+    \input{section_experience}         % Section Professional Experience
+
+    \input{section_research_experience}         % Section Research Experience
+
+    \input{section_education} % Section Education
+
+    \input{section_certifications}          % Section Certifications
+
+\input{section_tech_stack}     % Section Skills
+
+\input{section_languages} % Section languaqes
+
+
+\input{section_interests} % Section interests
+
+    \input {section_references}             % References
+
+%\input{section_projects}                 % Section Projects
+
+%\input{section_outreach_volunteering}   % Section Professional Outreach and volunteering
+
+%\input{section_teaching_mentoring}      % Section Teaching and Mentoring
+
+%\input{section_certifications}          % Section Certifications
+
+%\input{section_references} % Section references
+
+
+
+\end{document}
+
+
+
+You should include the \photo command in the preamble of your .tex file, which is the section before the \begin{document} command.
+
+Here's where you should add it:
+
+Code snippet
+
+\documentclass[localFont,alternative]{documentMETADATA}
+\name{JUHI}{BAKSHI}
+\tagline{Assistant Professor | Navrachana University (Vadodara - Gujarat)}
+\photo{3cm}{profile.jpg} % Add the \photo command here (adjust size and filename)
+\begin{document}
+\socialinfo{
+	
+
+	\adjustbox{raise=1.75pt,valign=b} {\includegraphics[width=0.60cm, height=0.60cm]{Cake.png}} \hspace{-0.5mm} {Born On: April 13, 1996} \hspace{1mm} \smartphone{+(91) 63536-76309}
+	\email{bakshi.juhi@gmail.com}\\
+%	\address{214, School Of Business And Law, Navrachana University, Vadodara}\\
+     \linkedin{juhi-bakshi}
+     \personalLink{University Homepage}{https://nuv.ac.in/professors/juhi-bakshi/}
+	%\infos{}
+}
+	\makecvheader
+
+	\makecvfooter
+		{\textsc{}} %\selectlanguage{english}\today
+		{\textsc{Juhi Bakshi - CV}}
+		{\thepage}
+
+	\input{section_headline}                % Research Statement
+    \input{section_experience}	        	% Section Professional Experience
+    \input{section_research_experience}	        	% Section Research Experience
+    \input{section_education} % Section Education
+    \input{section_certifications}          % Section Certifications
+	\input{section_tech_stack}				    % Section Skills
+	\input{section_languages}					% Section languaqes
+	
+	\input{section_interests}				% Section interests
+    \input {section_references}             % References
+	%\input{section_projects}                 % Section Projects
+	%\input{section_outreach_volunteering}   % Section Professional Outreach and volunteering
+	%\input{section_teaching_mentoring}      % Section Teaching and Mentoring
+	%\input{section_certifications}          % Section Certifications
+	%\input{section_references} 				% Section references
+
+\end{document}
+Remember to replace profile.jpg with the actual name of your photo file and adjust 3cm to your desired photo size.
+
+By placing the \photo command in the preamble, you are defining the photo information before the actual document content begins. The \makecvheader command, as defined in your class file, will then be able to access this information and include the photo in your CV header.
+
+
+
+
+
+
+Photo as seen in the image after above guidance is slightly less aligned on Right. I want it to be aligned with the text below it:
+
+
+
+A UGC NET qualified academician pursuing PhD from NMIMS, Mumbai, I am a faculty at Navrachana University,
+
+Vadodara, Gujarat with 4+ years of experience. I continue to learn and actively contribute to research in the field
+
+of finance.
+
+
+
+Ah, I understand what you mean. You want the vertical alignment of the photo in the header to match the beginning of the paragraph below it. Let's try to adjust the LaTeX code to achieve this.
+
+It seems the current template uses a minipage environment to position the photo and the text in the header side-by-side. To control the vertical alignment more precisely, we might need to make a small modification to how the minipage for the photo is handled within the \makecvheader command in your documentMETADATA.cls file (since you don't have direct access to modify the definition of \makecvheader in your .tex file).
+
+However, we can try to influence the alignment by adjusting the vertical spacing around the \makecvheader call in your main .tex file. Let's try adding some vertical space adjustments.
+
+Modify your .tex file like this:
+
+Code snippet
+
+\documentclass[localFont,alternative]{documentMETADATA}
+\name{JUHI}{BAKSHI}
+\tagline{Assistant Professor | Navrachana University (Vadodara - Gujarat)}
+\photo{3cm}{profile.jpg} % Keep your photo command
+
+\begin{document}
+\vspace*{-0.5\baselineskip} % Adjust this value as needed
+\socialinfo{
+	
+
+	\adjustbox{raise=1.75pt,valign=b} {\includegraphics[width=0.60cm, height=0.60cm]{Cake.png}} \hspace{-0.5mm} {Born On: April 13, 1996} \hspace{1mm} \smartphone{+(91) 63536-76309}
+	\email{bakshi.juhi@gmail.com}\\
+%	\address{214, School Of Business And Law, Navrachana University, Vadodara}\\
+     \linkedin{juhi-bakshi}
+     \personalLink{University Homepage}{https://nuv.ac.in/professors/juhi-bakshi/}
+	%\infos{}
+}
+	\makecvheader
+\vspace*{-0.5\baselineskip} % Adjust this value as needed
+
+A UGC NET qualified academician pursuing PhD from NMIMS, Mumbai, I am a faculty at Navrachana University,
+Vadodara, Gujarat with 4+ years of experience. I continue to learn and actively contribute to research in the field
+of finance.
+
+	\makecvfooter
+		{\textsc{}} %\selectlanguage{english}\today
+		{\textsc{Juhi Bakshi - CV}}
+		{\thepage}
+
+	\input{section_headline}                % Research Statement
+    \input{section_experience}	        	% Section Professional Experience
+    \input{section_research_experience}	        	% Section Research Experience
+    \input{section_education} % Section Education
+    \input{section_certifications}          % Section Certifications
+	\input{section_tech_stack}				    % Section Skills
+	\input{section_languages}					% Section languaqes
+	
+	\input{section_interests}				% Section interests
+    \input {section_references}             % References
+	%\input{section_projects}                 % Section Projects
+	%\input{section_outreach_volunteering}   % Section Professional Outreach and volunteering
+	%\input{section_teaching_mentoring}      % Section Teaching and Mentoring
+	%\input{section_certifications}          % Section Certifications
+	%\input{section_references} 				% Section references
+
+\end{document}
+Explanation:
+
+\vspace*{-0.5\baselineskip}: This command adds negative vertical space. \baselineskip is the standard distance between the baselines of text. By using a negative value, we are effectively moving the following content upwards.
+How to Adjust:
+
+The value -0.5\baselineskip is just a starting point. You will likely need to adjust the 0.5 to a different value (e.g., -0.3\baselineskip, -0.7\baselineskip, or even positive values if the alignment needs to go the other way) to achieve the desired alignment.
+Compile your LaTeX document after each adjustment to see the effect.
+Experiment with slightly different values until the top of the paragraph "A UGC NET qualified academician..." aligns visually with the top of your profile picture.
+Why this approach?
+
+Since we don't have direct control over the internal structure of \makecvheader defined in the .cls file, manipulating the vertical space immediately before and after it is a common workaround to fine-tune the vertical positioning of the header elements relative to the subsequent text.
+
+Let me know how this works out for you! If it's still not quite right, we might need to explore other possibilities, although those would likely involve understanding the underlying structure of the documentMETADATA.cls file more deeply.
+
+
+
+
+
+You didn't get it. I want photo on the right only but it should end exactly where text below it ends on right. I mean margin for the photo on right should be same as text below it.
+
+
+
+Ah, I see what you mean now! You want the right edge of the photo to align perfectly with the right edge of the text in the paragraph below the header. This requires controlling the width allocated to the photo in the header.
+
+Let's try a different approach that involves setting a specific width for the photo's minipage. We can calculate this width by subtracting the width of the text in the left minipage of the header from the total \linewidth.
+
+First, we need a way to determine the width of the text on the left side of the header. Unfortunately, LaTeX doesn't have a straightforward way to directly measure the width of typeset text before it's placed.
+
+However, we can make an educated guess for the width of the text minipage based on how the header is currently laid out. Let's try modifying the \makecvheader command within your documentMETADATA.cls file. Since you can't directly edit the .cls file from here, I'll provide the modified code, and you'll need to update your class file accordingly.
+
+Modified \makecvheader (within documentMETADATA.cls):
+
+Code snippet
+
+\newcommand*{\makecvheader}{
+  \ifundef{\@alternative}{
+    \sbox0{\color{accentcolor}\user{\@firstname}{\@lastname}\color{black}\vspace{-2mm}\\
+    \small{\@socialinfo}}
+    \dimen0=\wd0 % Store the width of the left text
+
+    \begin{minipage}[t]{\dimen0} % Left minipage with natural width
+      \color{accentcolor}\user{\@firstname}{\@lastname}\color{black}\vspace{-2mm}\\
+      \small{\@socialinfo}
+    \end{minipage}\hfill
+    \ifdef{\@photodiameter}{
+      \begin{minipage}[t]{\dimexpr\linewidth-\dimen0-2em\relax} % Right minipage for photo
+        \raggedleft % Align photo to the right
+        \includegraphics[width=\dimexpr\linewidth-\dimen0-2em\relax,height=\@photodiameter,clip,keepaspectratio]{\@photo}
+      \end{minipage}
+    }{}
+    \par\noindent % Ensure subsequent text starts on a new line below the header
+    \resumetitle{\@tagline}
+  }{
+    \sbox0{\user{\@firstname}{\@lastname}\vspace{1mm}\\
+    \resumetitle{\@tagline}\smallskip\\
+    \small{\@socialinfo}}
+    \dimen0=\wd0 % Store the width of the left text
+
+    \begin{minipage}[t]{\dimen0} % Left minipage with natural width
+      \user{\@firstname}{\@lastname}\vspace{1mm}\\
+      \resumetitle{\@tagline}\smallskip\\
+      \small{\@socialinfo}
+    \end{minipage}\hfill
+    \ifdef{\@photodiameter}{
+      \begin{minipage}[t]{\dimexpr\linewidth-\dimen0-2em\relax} % Right minipage for photo
+        \raggedleft % Align photo to the right
+        \includegraphics[width=\dimexpr\linewidth-\dimen0-2em\relax,height=\@photodiameter,clip,keepaspectratio]{\@photo}
+      \end{minipage}
+    }{}
+    \bigskip
+  }
+}
+Explanation of Changes:
+
+Measure Left Text Width:
+
+We use \sbox0{...} to put the content of the left part of the header into a box without typesetting it in the document.
+\dimen0=\wd0 then stores the width of this box (the natural width of the text) into a LaTeX dimension register \dimen0.
+Set Left minipage Width:
+
+The first minipage now has a width of \dimen0, making it exactly as wide as the text it contains.
+Calculate Right minipage Width:
+
+The second minipage (for the photo) now has a width calculated as \dimexpr\linewidth-\dimen0-2em\relax.
+\linewidth is the total width of the text area.
+\dimen0 is the width of the left text.
+-2em accounts for the horizontal space (usually 1em on each side) between the two minipages introduced by \hfill. You might need to adjust this value (e.g., -1em or remove it entirely) depending on the spacing defined by your template.
+\relax is used to end the \dimexpr.
+Right Alignment of Photo:
+
+\raggedleft is added inside the photo's minipage to align the image to the right.
+Set Photo Width:
+
+The width argument of \includegraphics is also set to \dimexpr\linewidth-\dimen0-2em\relax to make the photo fill the entire width of its minipage.
+How to Use:
+
+Locate \makecvheader: Open your documentMETADATA.cls file and find the definition of the \makecvheader command.
+Replace the Code: Carefully replace the existing code for \makecvheader with the modified code provided above.
+Compile: Save the changes to your .cls file and then compile your main .tex file.
+Important Notes:
+
+Class File Modification: This solution requires you to modify the .cls file of your template. Be cautious when doing this, and it's always a good idea to create a backup of the original file.
+Spacing Adjustment: The -2em in the width calculation might need adjustment based on the horizontal spacing your template uses between the header elements. If the alignment isn't perfect, try changing this value slightly.
+\@photodiameter: Ensure that \@photodiameter is still defined appropriately in your preamble using the \photo command, as it's used for the height of the image.
+This approach should make the right edge of the photo's minipage align with the right edge of the text below the header. Let me know if you have any trouble modifying your .cls file or if the alignment still isn't quite right after these changes!
+
+
+
+
+
+Is there no simple solution? As I reduce the size of photo, it moves further away from right edges of the text below photo
+
+Can we not change here to align right margins for text and photo? Is there any other way in document meta data changes?
+
+
+
+\documentclass[localFont,alternative]{documentMETADATA}
+
+\name{JUHI}{BAKSHI}
+
+\tagline{Assistant Professor | Navrachana University (Vadodara - Gujarat)}
+
+\photo{2.75cm}{Photo - Saree.jpg}
+
+\begin{document}
+
+
+
+You're right, directly manipulating the \photo command in your .tex file won't give you the precise right-edge alignment you're looking for because the header is likely structured with a fixed width or a width determined by the content on the left.
+
+Since you have the \photo command in your metadata class, let's try to adjust the \makecvheader command within that .cls file again, focusing on right alignment and controlling the width of the photo container.
+
+Modified \makecvheader (within documentMETADATA.cls):
+
+Code snippet
+
+\newcommand*{\makecvheader}{
+  \ifundef{\@alternative}{
+    \begin{minipage}[t]{\linewidth-\@photodiameter-1em} % Left text minipage
+      \color{accentcolor}\user{\@firstname}{\@lastname}\color{black}\vspace{-2mm}\\
+      \small{\@socialinfo}
+    \end{minipage}\hfill
+    \ifdef{\@photodiameter}{
+      \begin{minipage}[t]{\@photodiameter} % Right photo minipage with fixed diameter
+        \raggedleft % Align content to the right
+        \includegraphics[width=\linewidth,height=\@photodiameter,clip,keepaspectratio]{\@photo}
+      \end{minipage}
+    }{}
+    \par\noindent
+    \resumetitle{\@tagline}
+  }{
+    \begin{minipage}[t]{\linewidth-\@photodiameter-1em} % Left text minipage
+      \user{\@firstname}{\@lastname}\vspace{1mm}\\
+      \resumetitle{\@tagline}\smallskip\\
+      \small{\@socialinfo}
+    \end{minipage}\hfill
+    \ifdef{\@photodiameter}{
+      \begin{minipage}[t]{\@photodiameter} % Right photo minipage with fixed diameter
+        \raggedleft % Align content to the right
+        \includegraphics[width=\linewidth,height=\@photodiameter,clip,keepaspectratio]{\@photo}
+      \end{minipage}
+    }{}
+    \bigskip
+  }
+}
+Explanation of Changes:
+
+Fixed Photo Width: The width of the minipage containing the photo is now set to \@photodiameter (the value you provide in the \photo command in your .tex file). This gives the photo a fixed width.
+Left Text Width: The minipage containing the text on the left now takes up the remaining width: \linewidth - \@photodiameter - 1em. The -1em accounts for some horizontal spacing between the text and the photo. You might need to adjust this value (e.g., -0.5em or remove it) based on your template's spacing.
+Right Alignment: \raggedleft is used within the photo's minipage to align the image to the right edge of that minipage.
+Photo Scaling: The width of the \includegraphics is set to \linewidth within the photo's minipage. This will make the image scale to fit the full width of its allocated \@photodiameter wide space, while respecting the aspect ratio due to keepaspectratio.
+How to Use:
+
+Locate \makecvheader: Open your documentMETADATA.cls file.
+Replace Code: Replace the existing \makecvheader definition with the modified code above.
+Adjust \photo Command: In your .tex file, use the \photo command to set the desired width of the photo. For example:
+Code snippet
+
+\photo{3cm}{Photo - Saree.jpg}
+Experiment with the 3cm value until the right edge of the photo aligns with the right margin of the text below.
+Compile: Save the .cls file and then compile your .tex file.
+Why this approach?
+
+By giving the photo a fixed width (\@photodiameter) and aligning its content to the right within that space, and by making the left text take up the remaining width, we can control the horizontal placement of the photo more directly. The \raggedleft ensures the photo sticks to the right edge of its allocated space.
+
+You'll likely need to fine-tune the value you pass to the \photo command in your .tex file (the 3cm in the example) to achieve the exact alignment you desire with the right margin of the subsequent text.
+
+Let me know if this revised approach in your documentMETADATA.cls helps you achieve the desired alignment! Remember to experiment with the width value in the \photo command in your .tex file.
+
+
+
+
+
+That complete disturbed the text and photo appeared below text.
+
+
+Oh, I understand! My apologies. It seems the changes to the \makecvheader in the .cls file disrupted the intended two-column layout of the header. That was definitely not the goal.
+
+Let's revert the \makecvheader in your documentMETADATA.cls file back to its original structure. We need to find a way to control the right alignment of the photo without breaking the header's layout.
+
+Here's a revised strategy that focuses on right-aligning the content within the photo's existing minipage in the \makecvheader.
+
+Modified \makecvheader (within documentMETADATA.cls):
+
+Code snippet
+
+\newcommand*{\makecvheader}{
+  \ifundef{\@alternative}{
+    \ifundef{\@photodiameter}{
+      \begin{minipage}{\linewidth}
+    }{
+      \begin{minipage}{\dimexpr\linewidth-\@photodiameter-2em}
+    }
+    \color{accentcolor}\user{\@firstname}{\@lastname}\color{black}\vspace{-2mm}\\
+    \small{\@socialinfo}
+    \end{minipage}
+    \ifdef{\@photodiameter}{
+      \begin{minipage}[t]{\@photodiameter}
+        \raggedleft % Align photo to the right of its minipage
+        \includegraphics[width=\@photodiameter,height=\@photodiameter,clip,keepaspectratio]{\@photo}
+      \end{minipage}
+    }{}
+    \resumetitle{\@tagline}
+  }{
+    \ifundef{\@photodiameter}{
+      \begin{minipage}{\linewidth}
+    }{
+      \begin{minipage}{\dimexpr\linewidth-\@photodiameter-2em}
+    }
+    \user{\@firstname}{\@lastname}\vspace{1mm}\\
+    \resumetitle{\@tagline}
+    \smallskip\\
+    \small{\@socialinfo}
+    \end{minipage}
+    \ifdef{\@photodiameter}{
+      \begin{minipage}[t]{\@photodiameter}
+        \raggedleft % Align photo to the right of its minipage
+        \includegraphics[width=\@photodiameter,height=\@photodiameter,clip,keepaspectratio]{\@photo}
+      \end{minipage}
+    }{}
+    \bigskip
+  }
+}
+Key Change:
+
+I've added \raggedleft inside the minipage that contains the \idphoto (which now uses \@photo as defined by your \photo command). \raggedleft aligns the content (in this case, the image) to the right side of its containing minipage.
+How to Use:
+
+Locate \makecvheader: Open your documentMETADATA.cls file.
+Replace Code: Replace the existing \makecvheader definition with the modified code above.
+Keep \photo in .tex: Ensure you have the \photo command in your .tex file to set the size:
+Code snippet
+
+\documentclass[localFont,alternative]{documentMETADATA}
+\name{JUHI}{BAKSHI}
+\tagline{Assistant Professor | Navrachana University (Vadodara - Gujarat)}
+\photo{2.75cm}{Photo - Saree.jpg} % Adjust the size as needed
+\begin{document}
+% ... your document content ...
+Adjust Photo Size: Experiment with the value in the \photo command (e.g., 2.75cm, 3cm, etc.) in your .tex file. As you change the size, the right edge of the photo should move, and you can try to visually align it with the right margin of the text below.
+Compile: Save the .cls file and then compile your .tex file.
+Why this approach?
+
+This method keeps the original two-column structure of the header intact. By using \raggedleft within the photo's minipage, we are telling LaTeX to place the image as far to the right as possible within that allocated space (defined by \@photodiameter). You can then control the width of this space using the first argument of the \photo command in your .tex file to achieve the desired right alignment.
+
+Give this a try and let me know if it gets you closer to the alignment you want! Remember to adjust the size in the \photo command in your .tex file to fine-tune the position.
+
+
+
+
+
+
+Photo has gone above heading. Looks very ugly
+
+
+
+Analysis
+I understand. I apologize that the previous modification made the layout worse. Let's try one more adjustment to the \makecvheader command in your documentMETADATA.cls file to fix the vertical alignment.
+
+Modified \makecvheader (within documentMETADATA.cls):
+
+Code snippet
+
+\newcommand*{\makecvheader}{
+  \ifundef{\@alternative}{
+    \ifundef{\@photodiameter}{
+      \begin{minipage}[b]{\linewidth} % Align bottom
+    }{
+      \begin{minipage}[b]{\dimexpr\linewidth-\@photodiameter-2em\relax} % Align bottom
+    }
+    \color{accentcolor}\user{\@firstname}{\@lastname}\color{black}\vspace{-2mm}\\
+    \small{\@socialinfo}
+    \end{minipage}\hfill
+    \ifdef{\@photodiameter}{
+      \begin{minipage}[b]{\@photodiameter} % Align bottom
+        \raggedleft
+        \includegraphics[width=\@photodiameter,height=\@photodiameter,clip,keepaspectratio]{\@photo}
+      \end{minipage}
+    }{}
+    \resumetitle{\@tagline}
+  }{
+    \ifundef{\@photodiameter}{
+      \begin{minipage}[b]{\linewidth} % Align bottom
+    }{
+      \begin{minipage}[b]{\dimexpr\linewidth-\@photodiameter-2em\relax} % Align bottom
+    }
+    \user{\@firstname}{\@lastname}\vspace{1mm}\\
+    \resumetitle{\@tagline}
+    \smallskip\\
+    \small{\@socialinfo}
+    \end{minipage}\hfill
+    \ifdef{\@photodiameter}{
+      \begin{minipage}[b]{\@photodiameter} % Align bottom
+        \raggedleft
+        \includegraphics[width=\@photodiameter,height=\@photodiameter,clip,keepaspectratio]{\@photo}
+      \end{minipage}
+    }{}
+    \bigskip
+  }
+}
+Key Change:
+
+I've changed the vertical alignment specifier of both minipage environments from the default (which is usually [t] for top alignment) to [b] which aligns them to the bottom. This should force both the text and the photo to align at their bottom edges, hopefully bringing the photo down to the level of the text below the header.
+How to Use:
+
+Locate \makecvheader: Open your documentMETADATA.cls file.
+
+Replace Code: Replace the existing \makecvheader definition with the modified code above.
+
+Keep \photo in .tex: Make sure you have the \photo command in your .tex file to set the size:
+
+Code snippet
+
+\documentclass[localFont,alternative]{documentMETADATA}
+\name{JUHI}{BAKSHI}
+\tagline{Assistant Professor | Navrachana University (Vadodara - Gujarat)}
+\photo{2.75cm}{Photo - Saree.jpg} % Adjust the size as needed
+\begin{document}
+% ... your document content ...
+Adjust Photo Size: Experiment with the value in the \photo command (e.g., 2.75cm, 3cm, etc.) in your .tex file. As you change the size, the right edge of the photo should move, and you can try to visually align it with the right margin of the text below.
+
+Compile: Save the .cls file and then compile your .tex file.
+
+By aligning the minipages to the bottom, we aim to bring the photo down to the same level as the text below it. Please try this adjustment in your .cls file and let me know if it improves the layout. If it's still not perfect, we may need to consider more complex adjustments within the class file, but let's try this simpler approach first.
+
+
+Sources and related content
+image_9c4751
+
+PNG
+image_923f0f
+
+PNG
+image_91d289
+
+PNG
+
+
+
+
+I changed like this:
+
+
+Okay, I see the change you made in your .tex file. You've added \noindent before the paragraph that follows the \makecvheader.
+
+While \noindent prevents indentation of the first line of the paragraph, it doesn't directly control the vertical alignment between the header elements (the text and the photo). The issue of the photo appearing above the heading is likely still related to the vertical alignment of the minipage environments within the \makecvheader command in your documentMETADATA.cls file.
+
+Did you also make the change in the \makecvheader in your .cls file to use [b] for the vertical alignment of the minipages as suggested in my previous response? That change is crucial for bringing the photo down.
+
+To reiterate the necessary change in your documentMETADATA.cls file:
+
+Please ensure the \makecvheader command in your .cls file looks like this (specifically the [b] in the minipage definitions):
+
+Code snippet
+
+\newcommand*{\makecvheader}{
+  \ifundef{\@alternative}{
+    \ifundef{\@photodiameter}{
+      \begin{minipage}[b]{\linewidth} % Changed to [b]
+    }{
+      \begin{minipage}[b]{\dimexpr\linewidth-\@photodiameter-2em\relax} % Changed to [b]
+    }
+    \color{accentcolor}\user{\@firstname}{\@lastname}\color{black}\vspace{-2mm}\\
+    \small{\@socialinfo}
+    \end{minipage}\hfill
+    \ifdef{\@photodiameter}{
+      \begin{minipage}[b]{\@photodiameter} % Changed to [b]
+        \raggedleft
+        \includegraphics[width=\@photodiameter,height=\@photodiameter,clip,keepaspectratio]{\@photo}
+      \end{minipage}
+    }{}
+    \resumetitle{\@tagline}
+  }{
+    \ifundef{\@photodiameter}{
+      \begin{minipage}[b]{\linewidth} % Changed to [b]
+    }{
+      \begin{minipage}[b]{\dimexpr\linewidth-\@photodiameter-2em\relax} % Changed to [b]
+    }
+    \user{\@firstname}{\@lastname}\vspace{1mm}\\
+    \resumetitle{\@tagline}
+    \smallskip\\
+    \small{\@socialinfo}
+    \end{minipage}\hfill
+    \ifdef{\@photodiameter}{
+      \begin{minipage}[b]{\@photodiameter} % Changed to [b]
+        \raggedleft
+        \includegraphics[width=\@photodiameter,height=\@photodiameter,clip,keepaspectratio]{\@photo}
+      \end{minipage}
+    }{}
+    \bigskip
+  }
+}
+And in your .tex file, keep the \photo command:
+
+Code snippet
+
+\documentclass[localFont,alternative]{documentMETADATA}
+\name{JUHI}{BAKSHI}
+\tagline{Assistant Professor | Navrachana University (Vadodara - Gujarat)}
+\photo{2.75cm}{Photo - Saree.jpg} % Adjust size as needed
+\begin{document}
+\noindent % This will prevent indentation of the first paragraph
+A UGC NET qualified academician pursuing PhD from NMIMS, Mumbai, I am a faculty at Navrachana University,
+Vadodara, Gujarat with 4+ years of experience. I continue to learn and actively contribute to research in the field
+of finance.
+
+\socialinfo{
+	\adjustbox{raise=1.75pt,valign=b} {\includegraphics[width=0.60cm, height=0.60cm]{Cake.png}} \hspace{-0.5mm} {Born On: April 13, 1996} \hspace{1mm} \smartphone{+(91) 63536-76309}
+	\email{bakshi.juhi@gmail.com}\\
+%	\address{214, School Of Business And Law, Navrachana University, Vadodara}\\
+     \linkedin{juhi-bakshi}
+     \personalLink{University Homepage}{https://nuv.ac.in/professors/juhi-bakshi/}
+	%\infos{}
+}
+	\makecvheader
+
+	\makecvfooter
+		{\textsc{}} %\selectlanguage{english}\today
+		{\textsc{Juhi Bakshi - CV}}
+		{\thepage}
+
+	\input{section_headline}
+  % ... rest of your content ...
+\end{document}
+The \noindent in your .tex file addresses the paragraph indentation, but the vertical alignment of the photo in the header is controlled by the minipage alignment within the \makecvheader definition in the .cls file. Please make sure that change is also applied.
+
+Let me know if making this change in the .cls file resolves the issue of the photo appearing above the heading!
+
+
+
+
+
+
+I changed like this:
+
+
+
+\newcommand*{\makecvheader}{
+
+  \ifundef{\@alternative}{
+
+    \ifundef{\@photodiameter}{
+
+      \begin{minipage}{\linewidth}
+
+    }{
+
+      \begin{minipage}{\dimexpr\linewidth-\@photodiameter-2em}
+
+    }
+
+    \color{accentcolor}\user{\@firstname}{\@lastname}\color{black}\vspace{-2mm}\\
+
+    \small{\@socialinfo}
+
+    \end{minipage}
+
+    \ifdef{\@photodiameter}{
+
+      \begin{minipage}{\@photodiameter}
+
+        \idphoto
+
+      \end{minipage}
+
+    }{}
+
+    \resumetitle{\@tagline}
+
+  }{
+
+    \ifundef{\@photodiameter}{
+
+      \begin{minipage}{\linewidth}
+
+    }{
+
+      \begin{minipage}{\dimexpr\linewidth-\@photodiameter-0.25em}
+
+    }
+
+    \user{\@firstname}{\@lastname}\vspace{1mm}\\
+
+    \resumetitle{\@tagline}
+
+    \smallskip\\
+
+    \small{\@socialinfo}
+
+    \end{minipage}
+
+    \ifdef{\@photodiameter}{
+
+      \begin{minipage}{\@photodiameter}
+
+        \idphoto
+
+      \end{minipage}
+
+    }{}
+
+    \bigskip
+
+  }
+
+}
+
+Changed here instead of what you suggested above:
+
+
+
+\begin{minipage}{\dimexpr\linewidth-\@photodiameter-0.25em}
+
+
+
+That also seem to move photo alignment in line with text below it.
+
+
+
+Okay, I understand now! You've adjusted the width of the left minipage in the alternative part of the \makecvheader definition in your documentMETADATA.cls file by changing -2em to -0.25em.
+
+Code snippet
+
+\begin{minipage}{\dimexpr\linewidth-\@photodiameter-0.25em}
+This modification likely reduced the width allocated to the text on the left, effectively pushing the photo (which is in a minipage of width \@photodiameter floated to the right using \hfill implicitly) further to the right and potentially aligning its vertical start closer to the text below.
+
+Important Considerations:
+
+Alternative Layout: You've made this change within the \ifundef{\@alternative}{...}{...} structure. This means this specific adjustment will only apply if the \@alternative command is not defined in your main .tex file. If you or your template are using the alternative layout, this is the correct place to make the adjustment.
+Spacing: The -0.25em value controls the horizontal space between the text and the photo. You might need to fine-tune this value further (e.g., -0.1em, 0em, or even a positive value if you need more space) to achieve the exact horizontal alignment of the photo's right edge with the text below.
+Vertical Alignment: While this change seems to have indirectly helped with the vertical alignment in your specific case, it's primarily a horizontal adjustment. The underlying vertical alignment of the minipage environments (which I was trying to address with the [b] specifier) might still be influencing the overall vertical positioning.
+If this adjustment to the -0.25em value in the alternative layout section of \makecvheader in your .cls file gives you the desired alignment, then that's great!
+
+My apologies for focusing on the [b] alignment in the previous responses when the horizontal spacing was the more direct issue in your specific scenario with the alternative layout.
+
+Final Recommendations:
+
+Fine-tune -0.25em: Experiment with slightly different values for this to get the horizontal alignment of the photo's right edge exactly where you want it relative to the text below.
+Check Non-Alternative Layout: If you ever switch to a layout where \@alternative is defined, you might need to make a similar adjustment in the first part of the \makecvheader definition (where -2em is currently used) to maintain the alignment.
+I'm glad you found a solution by adjusting the horizontal spacing in the alternative layout's minipage width! Let me know if you have any more questions or encounter further issues.

@@ -1,0 +1,99 @@
+Got this error building gimp in archlinux - I chnaged repository in PKGBUILD from gitlab to github: After cloning repository and changing url as above, I used command:DISABLE_MESON=0 makepkg -si --nocheck --nodeps But compilation error is at this stage: [ 1% | 52<1<2560 | ?bps ] Compiling C object libgimpconfig/libgimpconfig-3.0.so.0.0.3.p/gimpconfig-serialize.c.o FAILED: libgimpconfig/libgimpconfig-3.0.so.0.0.3.p/gimpconfig-serialize.c.o cc -Ilibgimpconfig/libgimpconfig-3.0.so.0.0.3.p -Ilibgimpconfig -I../gimp/libgimpconfig -I. -I../gimp -I/usr/include/cairo -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/harfbuzz -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/sysprof-6 -I/usr/include/pixman-1 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/gegl-0.4 -I/usr/include/gio-unix-2.0 -I/usr/include/json-glib-1.0 -I/usr/include/babl-0.1 -fdiagnostics-color=always -D_FILE_OFFSET_BITS=64 -Wall -Winvalid-pch -O2 -g -Wabsolute-value -Wdeclaration-after-statement -Wenum-conversion -Wno-strict-prototypes -Wold-style-definition -Wunused-function -Wunused-value -Werror=implicit-function-declaration -fdiagnostics-show-option -fno-common -Wformat -Wformat-security -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-format-attribute -Wpointer-arith -Wreturn-type -Wtype-limits -DHAVE_CONFIG_H -march=x86-64 -mtune=generic -O2 -pipe -fno-plt -fexceptions -Wp,-D_FORTIFY_SOURCE=3 -Wformat -Werror=format-security -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -g -ffile-prefix-map=/home/admin/Downloads/gimp-git/src=/usr/src/debug/gimp-git -flto=auto -fPIC -pthread '-DG_LOG_DOMAIN="LibGimpConfig"' -DGIMP_CONFIG_COMPILATION -MD -MQ libgimpconfig/libgimpconfig-3.0.so.0.0.3.p/gimpconfig-serialize.c.o -MF libgimpconfig/libgimpconfig-3.0.so.0.0.3.p/gimpconfig-serialize.c.o.d -o libgimpconfig/libgimpconfig-3.0.so.0.0.3.p/gimpconfig-serialize.c.o -c ../gimp/libgimpconfig/gimpconfig-serialize.c ../gimp/libgimpconfig/gimpconfig-serialize.c: In function ‘gimp_config_serialize_value’: ../gimp/libgimpconfig/gimpconfig-serialize.c:525:16: error: two or more data types in declaration specifiers 525 | gboolean bool; | ^~~~ ../gimp/libgimpconfig/gimpconfig-serialize.c:525:7: warning: useless type name in empty declaration 525 | gboolean bool; | ^~~~~~~~ ../gimp/libgimpconfig/gimpconfig-serialize.c:527:12: error: expected identifier or ‘(’ before ‘=’ token 527 | bool = g_value_get_boolean (value); | ^ In file included from /include/glib-2.0/glib/giochannel.h:36, from /include/glib-2.0/glib.h:56, from /include/glib-2.0/gobject/gbinding.h:30, from /include/glib-2.0/glib-object.h:24, from /include/gegl-0.4/gegl.h:22, from ../gimp/libgimpconfig/gimpconfig-serialize.c:25: ../gimp/libgimpconfig/gimpconfig-serialize.c:528:29: error: expected expression before ‘bool’ 528 | g_string_append (str, bool ? "yes" : "no"); | ^~~~ /include/glib-2.0/glib/gstring.h:269:26: note: in definition of macro ‘g_string_append’ 269 | (__builtin_constant_p (val) ? | ^~~ ../gimp/libgimpconfig/gimpconfig-serialize.c:528:34: error: expected ‘)’ before ‘?’ token 528 | g_string_append (str, bool ? "yes" : "no"); | ^ /include/glib-2.0/glib/gstring.h:271:35: note: in definition of macro ‘g_string_append’ 271 | const char * const __val = (val); | ^~~ /include/glib-2.0/glib/gstring.h:271:34: note: to match this ‘(’ 271 | const char * const __val = (val); | ^ ../gimp/libgimpconfig/gimpconfig-serialize.c:528:7: note: in expansion of macro ‘g_string_append’ 528 | g_string_append (str, bool ? "yes" : "no"); | ^~~~~~~~~~~~~~~ /include/glib-2.0/glib/gstring.h:271:39: error: expected expression before ‘;’ token 271 | const char * const __val = (val); | ^ ../gimp/libgimpconfig/gimpconfig-serialize.c:528:7: note: in expansion of macro ‘g_string_append’ 528 | g_string_append (str, bool ? "yes" : "no"); | ^~~~~~~~~~~~~~~ ../gimp/libgimpconfig/gimpconfig-serialize.c:528:29: error: expected expression before ‘bool’ 528 | g_string_append (str, bool ? "yes" : "no"); | ^~~~ /include/glib-2.0/glib/gstring.h:251:37: note: in definition of macro ‘g_string_append_len’ 251 | g_string_append_len_inline (gstr, val, len) | ^~~ ../gimp/libgimpconfig/gimpconfig-serialize.c:528:7: note: in expansion of macro ‘g_string_append’ 528 | g_string_append (str, bool ? "yes" : "no"); | ^~~~~~~~~~~~~~~ /include/glib-2.0/glib/gstring.h:251:3: error: too few arguments to function ‘g_string_append_len_inline’; expected 3, have 2 251 | g_string_append_len_inline (gstr, val, len) | ^~~~~~~~~~~~~~~~~~~~~~~~~~ /include/glib-2.0/glib/gstring.h:278:5: note: in expansion of macro ‘g_string_append_len’ 278 | g_string_append_len (gstr, val, (gssize) -1)) | ^~~~~~~~~~~~~~~~~~~ ../gimp/libgimpconfig/gimpconfig-serialize.c:528:7: note: in expansion of macro ‘g_string_append’ 528 | g_string_append (str, bool ? "yes" : "no"); | ^~~~~~~~~~~~~~~ /include/glib-2.0/glib/gstring.h:218:1: note: declared here 218 | g_string_append_len_inline (GString *gstring, | ^~~~~~~~~~~~~~~~~~~~~~~~~~ ninja: build stopped: subcommand failed. ==> ERROR: A failure occurred in build(). Aborting...
+Okay, I see the compilation error. It seems like the variable name bool on line 525 in ../gimp/libgimpconfig/gimpconfig-serialize.c is conflicting with a type or keyword. This is likely because bool is a keyword in C++ and often defined as a macro or type in C headers (like <stdbool.h>).
+
+The simplest solution is to rename that specific variable. Would you like me to modify the file gimp/libgimpconfig/gimpconfig-serialize.c to rename the bool variable to something like b to avoid this conflict?
+
+problem is after changing as above when I issue command DISABLE_MESON=0 makepkg -si --nocheck --nodeps in cloned repository, it again downloads this C file and therefore overwrites my changes. What to do? after cloning gimp before makepkg can I change?
+You've hit a common issue when working with build systems like makepkg. It's designed to start fresh each time, ensuring a reproducible build. It fetches the source (as defined in the PKGBUILD) and then proceeds with the build steps, overwriting any manual changes you made to the downloaded source code.
+
+The correct approach is to modify the PKGBUILD itself to apply your change after the source code is downloaded/extracted but before the compilation begins. This is typically done in the prepare() function of the PKGBUILD.
+
+Here's how you can do it:
+
+Open your PKGBUILD file in a text editor.
+
+Find the prepare() function. If it doesn't exist, you'll need to add it.
+
+Add a command to modify the file. You can use sed (a stream editor) to replace the variable name automatically. Add the following lines inside the prepare() function:
+
+bash
+
+
+prepare() {
+  cd "${srcdir}/${_pkgname}" # Or adjust based on your PKGBUILD's source dir structure
+
+  # Rename the 'bool' variable to 'b' in the problematic file
+  sed -i -e 's/gboolean bool;/gboolean b;/' \
+         -e 's/bool = g_value_get_boolean (value);/b = g_value_get_boolean (value);/' \
+         -e 's/g_string_append (str, bool ? "yes" : "no");/g_string_append (str, b ? "yes" : "no");/' \
+         libgimpconfig/gimpconfig-serialize.c
+
+  # ... any other commands that might already be in prepare() ...
+}
+
+Note: Make sure the path libgimpconfig/gimpconfig-serialize.c is correct relative to the directory you cd into at the start of the prepare() function (often ${srcdir}/${_pkgname} or similar). Check your specific PKGBUILD for the correct source directory variable (_pkgname is common, but might differ).
+Save the PKGBUILD file.
+
+Run the makepkg command again: DISABLE_MESON=0 makepkg -si --nocheck --nodeps
+
+Now, makepkg will extract the source code and then automatically run the sed command within the prepare() function to patch the file before starting the actual build process. This ensures your fix is applied every time you build.
+
+Can you reolve this another error after I resolved above error: [ 75% | 1925<1<636 | ?bps ] Compiling C object plug-ins/selection-to-path/selection-to-path.p/curve.c.o FAILED: plug-ins/selection-to-path/selection-to-path.p/curve.c.o cc -Iplug-ins/selection-to-path/selection-to-path.p -Iplug-ins/selection-to-path -I../gimp/plug-ins/selection-to-path -I. -I../gimp -I/usr/include/cairo -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/harfbuzz -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/sysprof-6 -I/usr/include/pixman-1 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/gegl-0.4 -I/usr/include/gio-unix-2.0 -I/usr/include/json-glib-1.0 -I/usr/include/babl-0.1 -I/usr/include/gtk-3.0 -I/usr/include/pango-1.0 -I/usr/include/cloudproviders -I/usr/include/at-spi2-atk/2.0 -I/usr/include/at-spi-2.0 -I/usr/include/atk-1.0 -I/usr/include/dbus-1.0 -I/usr/lib/dbus-1.0/include -I/usr/include/fribidi -fdiagnostics-color=always -D_FILE_OFFSET_BITS=64 -Wall -Winvalid-pch -O2 -g -Wabsolute-value -Wdeclaration-after-statement -Wenum-conversion -Wno-strict-prototypes -Wold-style-definition -Wunused-function -Wunused-value -Werror=implicit-function-declaration -fdiagnostics-show-option -fno-common -Wformat -Wformat-security -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-format-attribute -Wpointer-arith -Wreturn-type -Wtype-limits -DHAVE_CONFIG_H -march=x86-64 -mtune=generic -O2 -pipe -fno-plt -fexceptions -Wp,-D_FORTIFY_SOURCE=3 -Wformat -Werror=format-security -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -g -ffile-prefix-map=/home/admin/Downloads/gimp-git/src=/usr/src/debug/gimp-git -flto=auto -pthread -MD -MQ plug-ins/selection-to-path/selection-to-path.p/curve.c.o -MF plug-ins/selection-to-path/selection-to-path.p/curve.c.o.d -o plug-ins/selection-to-path/selection-to-path.p/curve.c.o -c ../gimp/plug-ins/selection-to-path/curve.c In file included from ../gimp/plug-ins/selection-to-path/global.h:25, from ../gimp/plug-ins/selection-to-path/curve.c:23: ../gimp/plug-ins/selection-to-path/types.h:23:16: error: cannot use keyword ‘false’ as enumeration constant 23 | typedef enum { false = 0, true = 1 } boolean; | ^~~~~ ../gimp/plug-ins/selection-to-path/types.h:23:16: note: ‘false’ is a keyword with ‘-std=c23’ onwards ninja: build stopped: subcommand failed. ==> ERROR: A failure occurred in build(). Aborting...
+Okay, this is a similar issue to the previous one, but in a different file and related to C language standards.
+
+The error cannot use keyword ‘false’ as enumeration constant in ../gimp/plug-ins/selection-to-path/types.h means the code is trying to define an enum member named false. However, in modern C standards (like C23, which your compiler might be defaulting to or influenced by), false (along with true and bool) are keywords defined in the <stdbool.h> header. The custom definition conflicts with the standard keyword.
+
+The fix is to remove the custom boolean enum definition and use the standard C boolean type provided by <stdbool.h>.
+
+You need to modify your PKGBUILD's prepare() function again to patch this after the source is extracted. Add the following commands inside the prepare() function, likely after the cd "${srcdir}/${_pkgname}" command and the previous sed commands you added:
+
+bash
+
+
+  # Patch selection-to-path plugin for boolean type conflict
+  _sel_path_dir="plug-ins/selection-to-path"
+  _types_h="${_sel_path_dir}/types.h"
+
+  # 1. Add #include <stdbool.h> at the beginning of types.h
+  sed -i '1i#include <stdbool.h>' "${_types_h}"
+
+  # 2. Comment out the conflicting enum definition in types.h
+  sed -i 's|^typedef enum { false = 0, true = 1 } boolean;.*|// &|' "${_types_h}"
+
+  # 3. Replace usages of the custom 'boolean' type with standard 'bool'
+  #    within the selection-to-path plugin source files.
+  find "${_sel_path_dir}" \( -name '*.c' -o -name '*.h' \) -exec sed -i 's/\bboolean\b/bool/g' {} +
+
+
+Explanation:
+
+We define variables for the plugin directory and the specific header file for clarity.
+The first sed command inserts #include <stdbool.h> at the very beginning (line 1) of types.h.
+The second sed command finds the line starting with typedef enum { false = 0, true = 1 } boolean; and comments it out by adding //  at the beginning (& represents the matched line).
+The find command searches for all .c and .h files within the plug-ins/selection-to-path directory and executes sed on each to replace the whole word (\b denotes word boundaries) boolean with the standard bool.
+Add these lines to your PKGBUILD's prepare() function, save it, and then run DISABLE_MESON=0 makepkg -si --nocheck --nodeps again. This should resolve the conflict.
+
+Actually your above suggestion requires some modification because I have cloned repository in /home/Downloads and my path to curve.c is: /home/admin/Downloads/gimp-git/src/gimp/plug-ins/selection-to-path
+You are absolutely right to double-check the paths! My apologies if the previous explanation wasn't clear enough about the context.
+
+The commands I provided use relative paths:
+
+_sel_path_dir="plug-ins/selection-to-path"
+_types_h="${_sel_path_dir}/types.h" (which becomes plug-ins/selection-to-path/types.h)
+These relative paths assume that the commands are being run from within the main GIMP source code directory.
+
+In a typical Arch Linux PKGBUILD, the prepare() function first changes the directory into the extracted source folder. Based on the path you provided (/home/admin/Downloads/gimp-git/src/gimp/plug-ins/selection-to-path), the prepare() function likely contains a command similar to this near the beginning:
+
+bash
+
+
+cd "${srcdir}/gimp"
+or perhaps:
+
+bash
+
+
+cd "$pkgname" # If pkgname is defined as 'gimp'
+If your prepare() function correctly cds into the /home/admin/Downloads/gimp-git/src/gimp directory before running the patching commands, then the relative paths plug-ins/selection-to-path and plug-ins/selection-to-path/types.h are correct and the commands I gave you previously should work without modification.
+
+Could you please check your PKGBUILD's prepare() function and confirm that it changes directory into the main gimp source folder (${srcdir}/gimp or similar) before the sed and find commands are executed? If it does, the previous commands are correct. If it doesn't, or if it cds somewhere else, we'll need to adjust the paths accordingly.
