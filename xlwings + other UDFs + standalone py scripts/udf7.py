@@ -469,4 +469,100 @@ def SPLIT_TEXT_MODIFIED(data, delimiter):
         return padded_data
     except Exception as e:
         return str(e)
+import xlwings as xw
 
+@xw.func
+def PYTHON_METHODS(source_range: xw.Range, operation: xw.Range, append_range: xw.Range = None, index: xw.Range=None, item: xw.Range=None):
+    """
+    Performs various Python list operations on source_range based on the operation specified.
+    
+    Args:
+        source_range (xw.Range): The range containing the original values.
+        operation (xw.Range): A single cell containing the operation to perform (e.g., ".append", ".extend", ".clear", etc.).
+        append_range (xw.Range): The range containing the values to append (optional, used for ".append" and ".extend").
+        index (xw.Range): A single cell containing the index for operations like ".insert" or ".pop" (optional).
+        item (xw.Range): A single cell containing the item for operations like ".count", ".index", ".insert", or ".remove" (optional).
+    
+    Returns:
+        list or str: The modified list or the result of the operation (e.g., count, index).
+    """
+    # Convert source_range to a list
+    source_values = source_range.value if isinstance(source_range.value, list) else [source_range.value]
+    source_values = [item for sublist in source_values for item in (sublist if isinstance(sublist, list) else [sublist])]
+
+    # Handle operations
+    if operation.value == ".append":
+        if append_range is None:
+            return "Error: append_range is required for '.append'."
+        append_values = append_range.value if isinstance(append_range.value, list) else [append_range.value]
+        for value in append_values:
+            source_values.append(value)
+        return source_values
+
+    elif operation.value == ".extend":
+        if append_range is None:
+            return "Error: append_range is required for '.extend'."
+        append_values = append_range.value if isinstance(append_range.value, list) else [append_range.value]
+        for value in append_values:
+            if isinstance(value, (list, tuple, str)):
+                source_values.extend(value)
+            else:
+                source_values.extend([value])
+        return source_values
+
+    elif operation.value == ".clear":
+        source_values.clear()
+        return None
+
+    elif operation.value == ".count":
+        if item is None:
+            return "Error: item is required for '.count'."
+        return source_values.count(item.value)
+
+    elif operation.value == ".copy":
+        return source_values.copy()
+
+    elif operation.value == ".index":
+        if item is None:
+            return "Error: item is required for '.index'."
+        try:
+            return source_values.index(item.value)
+        except ValueError:
+            return f"Error: {item.value} not found in the list."
+
+    elif operation.value == ".insert":
+        if index is None or item is None:
+            return "Error: index and item are required for '.insert'."
+        try:
+            source_values.insert(int(index.value), item.value)
+            return source_values
+        except (ValueError, TypeError):
+            return "Error: Invalid index."
+
+    elif operation.value == ".pop":
+        if index is None:
+            try:
+                return source_values.pop()
+            except IndexError:
+                return "Error: Cannot pop from an empty list."
+        else:
+            try:
+                return source_values.pop(int(index.value))
+            except (IndexError, ValueError, TypeError):
+                return "Error: Invalid index."
+
+    elif operation.value == ".remove":
+        if item is None:
+            return "Error: item is required for '.remove'."
+        try:
+            source_values.remove(item.value)
+            return source_values
+        except ValueError:
+            return f"Error: {item.value} not found in the list."
+
+    elif operation.value == ".reverse":
+        source_values.reverse()
+        return source_values
+
+    else:
+        return "Error: Unsupported operation. Supported operations are '.append', '.extend', '.clear', '.count', '.copy', '.index', '.insert', '.pop', '.remove', '.reverse'."
