@@ -109,13 +109,6 @@ def RandomGennp(n):
     numbers_list = [[number] for number in numbers]
     # Return the list of lists
     return numbers_list
-import rdrand
-rng = rdrand.RdRandom()
-@xw.func
-def generate_random_numbers_rdrand(num):
-    # Generate the random numbers
-    random_numbers = [[rng.randint(10**14, 10**15 - 1)] for _ in range(int(num))]
-    return random_numbers
 @xw.func
 @xw.arg('x_values', ndim=2)
 @xw.arg('z_values', ndim=2)
@@ -422,19 +415,6 @@ def fetch_commodity_data(base, start_date, end_date):
     # Convert the DataFrame to a 2D list, including headers
     data_list = [df.columns.values.tolist()] + df.values.tolist()
     return data_list
-from rdrand import RdSeedom
-@xw.func
-def generate_random_numbers_rdseed(n):
-    s = RdSeedom()
-    random_numbers = []
-    n = int(n)
-    while len(random_numbers) < n:
-        # Generate a random integer with exactly 15 digits
-        num = s.randint(100000000000000, 999999999999999)
-        # Append the number as a list to create a list of lists
-        random_numbers.append([num])
-    return random_numbers
-    return output_list
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
@@ -467,16 +447,17 @@ def REGEXLATEST(excel_range, patterns):
                 row_result.append("")
         result.append(row_result)
     return result
-import rdrand
-import xlwings as xw
+#import rdrand
+#import xlwings as xw
 
-@xw.func
-def RDSEED_EXCEL(min_val, max_val, count):
-    count=int(count)
-    random_numbers_rdseed = []
-    for _ in range(count):
-        random_number_rdseed = rdrand.RdSeedom().get_bits(64) % (max_val - min_val + 1) + min_val
-        random_numbers_rdseed.append(random_number_rdseed)
-    return [[random_number_rdseed_1] for random_number_rdseed_1 in random_numbers_rdseed]
+#@xw.func
+#def RDSEED_EXCEL(min_val, max_val, count):
+#    count=int(count)
+#    random_numbers_rdseed = []
+#    for _ in range(count):
+#        random_number_rdseed = rdrand.RdSeedom().get_bits(64) % (max_val - min_val + 1) + min_val
+#        random_numbers_rdseed.append(random_number_rdseed)
+#    return [[random_number_rdseed_1] for random_number_rdseed_1 in random_numbers_rdseed]
+
 
 

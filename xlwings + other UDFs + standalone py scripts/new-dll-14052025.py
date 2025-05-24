@@ -88,10 +88,11 @@ def intel_rdseed_boost_claude(NUM_NUMBERS, NUM_THREAD_GROUPS, NUM_THREADS_PER_GR
 # For testing outside of Excel
 if __name__ == "__main__":
     # Simple test with small values
-    test_result = intel_rdseed_boost_claude(100, 2, 2)
-    print(f"Generated {len(test_result)-1} random numbers")
-    if len(test_result) > 3:  # Print a sample of numbers
-        print("Sample numbers:")
-        for i in range(3):
-            print(f"  {test_result[i][0]}")
-    print(test_result[-1][0])  # Print the timing information
+    test_result = intel_rdseed_boost_claude(10000000, 2, 2)
+    print(test_result)
+#    print(f"Generated {len(test_result)-1} random numbers")
+#    if len(test_result) > 3:  # Print a sample of numbers
+#        print("Sample numbers:")
+#        for i in range(3):
+#            print(f"  {test_result[i][0]}")
+#    print(test_result[-1][0])  # Print the timing information
