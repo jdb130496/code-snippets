@@ -1,0 +1,133 @@
+let
+    // Load data from tab-delimited CSV file
+    Source = Csv.Document(File.Contents("C:\path\to\your\file.csv"), [Delimiter=#(tab), Columns=null, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+    
+    // Change data types - Dates as date, company name as string, all others as decimal
+    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{
+        {"Capitaline Code", type number}, 
+        {"Company Name", type text}, 
+        {"Date", type date}, 
+        {"Open Price", type number}, 
+        {"High Price", type number}, 
+        {"Low Price", type number}, 
+        {"Close Price", type number}, 
+        {"Total Volume (Adjusted)", type number},
+        {"Market Cap", type number}, 
+        {"Debt-Equity Ratio", type number}
+    }),
+    
+    // Add average price column (average of open, high, low, close)
+    #"Added Average Price" = Table.AddColumn(#"Changed Type", "Average Price", each 
+        ([Open Price] + [High Price] + [Low Price] + [Close Price]) / 4
+    , type number),
+    
+    // Sort the data company wise then date wise
+    #"Sorted Rows" = Table.Sort(#"Added Average Price",{{"Company Name", Order.Ascending}, {"Date", Order.Ascending}}),
+    
+    // Group by company to get summary statistics (using Average Price instead of High Price)
+    #"Grouped Rows" = Table.Group(#"Sorted Rows", {"Capitaline Code", "Company Name"}, {
+        {"Data", each _, type table},
+        {"Latest Date", each List.Max([Date]), type date},
+        {"Earliest Date", each List.Min([Date]), type date},
+        {"Latest Price", each 
+            let
+                MaxDate = List.Max([Date]),
+                FilteredRows = Table.SelectRows(_, each [Date] = MaxDate)
+            in
+                List.First(FilteredRows[Average Price])
+        , type number},
+        {"Earliest Price", each 
+            let
+                MinDate = List.Min([Date]),
+                FilteredRows = Table.SelectRows(_, each [Date] = MinDate)
+            in
+                List.First(FilteredRows[Average Price])
+        , type number},
+        {"Latest Market Cap", each 
+            let
+                MaxDate = List.Max([Date]),
+                FilteredRows = Table.SelectRows(_, each [Date] = MaxDate)
+            in
+                List.First(FilteredRows[Market Cap])
+        , type number},
+        {"Latest Debt Equity Ratio", each 
+            let
+                MaxDate = List.Max([Date]),
+                FilteredRows = Table.SelectRows(_, each [Date] = MaxDate)
+            in
+                List.First(FilteredRows[#"Debt-Equity Ratio"])
+        , type number},
+        {"All Prices", each [Average Price], type list},
+        {"Price Count", each Table.RowCount(_), Int64.Type}
+    }),
+    
+    // Calculate CAGR using your specific formula
+    #"Added CAGR" = Table.AddColumn(#"Grouped Rows", "Price CAGR", each 
+        let
+            LatestPrice = [Latest Price],
+            EarliestPrice = [Earliest Price],
+            DaysDiff = Duration.Days([Latest Date] - [Earliest Date]) + 1,
+            YearsTimesQuarters = (DaysDiff / 365) * 4,
+            CAGR = if YearsTimesQuarters > 0 and EarliestPrice > 0 then
+                (Number.Power(LatestPrice / EarliestPrice, 1 / YearsTimesQuarters) - 1) * 4 * 100
+            else
+                null
+        in
+            CAGR
+    , type number),
+    
+    // Calculate Standard Deviation and Mean
+    #"Added Stats" = Table.AddColumn(#"Added CAGR", "Mean", each 
+        let
+            PriceList = [All Prices],
+            Mean = List.Average(PriceList)
+        in
+            Mean
+    , type number),
+    
+    #"Added Std Dev" = Table.AddColumn(#"Added Stats", "Standard Deviation", each 
+        let
+            PriceList = [All Prices],
+            Mean = List.Average(PriceList),
+            Variance = List.Average(List.Transform(PriceList, each Number.Power(_ - Mean, 2))),
+            StdDev = Number.Sqrt(Variance)
+        in
+            StdDev
+    , type number),
+    
+    // Calculate Coefficient of Variation (COV)
+    #"Added COV" = Table.AddColumn(#"Added Std Dev", "COV", each 
+        let
+            Mean = [Mean],
+            StdDev = [Standard Deviation],
+            COV = if Mean > 0 then StdDev / Mean else null
+        in
+            COV
+    , type number),
+    
+    // Select and reorder final columns
+    #"Selected Columns" = Table.SelectColumns(#"Added COV", {
+        "Capitaline Code", 
+        "Company Name", 
+        "Price CAGR", 
+        "Mean",
+        "Standard Deviation", 
+        "COV",
+        "Latest Price", 
+        "Latest Debt Equity Ratio", 
+        "Latest Market Cap"
+    }),
+    
+    // Round numerical values for better display
+    #"Rounded Values" = Table.TransformColumns(#"Selected Columns", {
+        {"Price CAGR", each Number.Round(_, 4), type number},
+        {"Mean", each Number.Round(_, 2), type number},
+        {"Standard Deviation", each Number.Round(_, 2), type number},
+        {"COV", each Number.Round(_, 4), type number},
+        {"Latest Price", each Number.Round(_, 2), type number},
+        {"Latest Debt Equity Ratio", each Number.Round(_, 2), type number},
+        {"Latest Market Cap", each Number.Round(_, 2), type number}
+    })
+in
+    #"Rounded Values"

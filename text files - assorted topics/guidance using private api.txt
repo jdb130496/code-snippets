@@ -1,7 +1,7 @@
 http://api.scraperlink.com/investpy/?email=asharindani51@gmail.com&url=https%3A%2F%2Fapi.investing.com%2Fapi%2Ffinancialdata%2Fhistorical%2F1202623%3Fstart-date%3D2018-01-01%26end-date%3D2024-04-03%26time-frame%3DDaily%26add-missing-rows%3Dfalse
 
 Query for knowing investing id: An integer used in above
-https://tvc4.investing.com/b12dcd570c91a748a3b7dd4a7ee79167/1731301434/56/56/23/search?limit=30000&query=TATE&type=Stock&exchange=
+https://tvc4.investing.com/b12dcd570c91a748a3b7dd4a7ee79167/1748173008/56/56/23/search?limit=30000&query=TATE&type=Stock&exchange=
 
 1731301434: Current unix timestamp
 

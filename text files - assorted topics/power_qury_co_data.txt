@@ -1,0 +1,39 @@
+let
+    // Assuming your data is in a table called "Source"
+    Source = Excel.CurrentWorkbook(){[Name="Table2"]}[Content],
+    
+    // Change data types
+    #"Changed Type" = Table.TransformColumnTypes(Source,{
+        {"Date", type date}, 
+        {"Open Price", type number}, 
+        {"High Price", type number}, 
+        {"Low Price", type number}, 
+        {"Close Price", type number}, 
+        {"Total Volume (Adjusted)", Int64.Type}, 
+        {"Market Cap", type number}
+    }),
+    
+    // Add Year column as text
+    #"Added Year" = Table.AddColumn(#"Changed Type", "Year", each Text.From(Date.Year([Date])), type text),
+    
+    // Group by Company Name and Year, then find minimum Low Price
+    #"Grouped Rows" = Table.Group(#"Added Year", {"Company Name", "Year"}, {
+        {"Yearly Lowest Price", each List.Min([Low Price]), type number}
+    }),
+    
+    // Pivot the Year column to create separate columns for each year
+    #"Pivoted Column" = Table.Pivot(#"Grouped Rows", List.Distinct(#"Grouped Rows"[Year]), "Year", "Yearly Lowest Price"),
+    
+    // Rename columns to match your desired format
+    #"Renamed Columns" = Table.RenameColumns(#"Pivoted Column", {
+        {"2020", "Year 2020"},
+        {"2021", "Year 2021"}, 
+        {"2022", "Year 2022"},
+        {"2023", "Year 2023"},
+        {"2024", "Year 2024"}
+    }),
+    
+    // Sort by Company Name
+    #"Sorted Rows" = Table.Sort(#"Renamed Columns",{{"Company Name", Order.Ascending}})
+in
+    #"Sorted Rows"

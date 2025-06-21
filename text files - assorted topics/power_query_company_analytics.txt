@@ -1,0 +1,120 @@
+let
+    Source = Excel.CurrentWorkbook(){[Name="Table1"]}[Content],
+    
+    // Change data types
+    #"Changed Type" = Table.TransformColumnTypes(Source,{
+        {"Capitaline Code", Int64.Type}, 
+        {"Company Name", type text}, 
+        {"Date", type date}, 
+        {"High Price", type number}, 
+        {"Market Cap", type number}, 
+        {"Company Long Name", type text}, 
+        {"Debt-Equity Ratio", type number}
+    }),
+    
+    // Group by company to get summary statistics
+    #"Grouped Rows" = Table.Group(#"Changed Type", {"Capitaline Code", "Company Name"}, {
+        {"Data", each _, type table},
+        {"Latest Date", each List.Max([Date]), type date},
+        {"Earliest Date", each List.Min([Date]), type date},
+        {"Latest Price", each 
+            let
+                MaxDate = List.Max([Date]),
+                FilteredRows = Table.SelectRows(_, each [Date] = MaxDate)
+            in
+                List.First(FilteredRows[High Price])
+        , type number},
+        {"Earliest Price", each 
+            let
+                MinDate = List.Min([Date]),
+                FilteredRows = Table.SelectRows(_, each [Date] = MinDate)
+            in
+                List.First(FilteredRows[High Price])
+        , type number},
+        {"Latest Market Cap", each 
+            let
+                MaxDate = List.Max([Date]),
+                FilteredRows = Table.SelectRows(_, each [Date] = MaxDate)
+            in
+                List.First(FilteredRows[Market Cap])
+        , type number},
+        {"Latest Debt Equity Ratio", each 
+            let
+                MaxDate = List.Max([Date]),
+                FilteredRows = Table.SelectRows(_, each [Date] = MaxDate)
+            in
+                List.First(FilteredRows[#"Debt-Equity Ratio"])
+        , type number},
+        {"All Prices", each [High Price], type list},
+        {"Price Count", each Table.RowCount(_), Int64.Type}
+    }),
+    
+    // Calculate CAGR using your specific formula
+    #"Added CAGR" = Table.AddColumn(#"Grouped Rows", "Price CAGR", each 
+        let
+            LatestPrice = [Latest Price],
+            EarliestPrice = [Earliest Price],
+            DaysDiff = Duration.Days([Latest Date] - [Earliest Date]) + 1,
+            YearsTimesQuarters = (DaysDiff / 365) * 4,
+            CAGR = if YearsTimesQuarters > 0 and EarliestPrice > 0 then
+                (Number.Power(LatestPrice / EarliestPrice, 1 / YearsTimesQuarters) - 1) * 4 * 100
+            else
+                null
+        in
+            CAGR
+    , type number),
+    
+    // Calculate Standard Deviation and Mean
+    #"Added Stats" = Table.AddColumn(#"Added CAGR", "Mean", each 
+        let
+            PriceList = [All Prices],
+            Mean = List.Average(PriceList)
+        in
+            Mean
+    , type number),
+    
+    #"Added Std Dev" = Table.AddColumn(#"Added Stats", "Standard Deviation", each 
+        let
+            PriceList = [All Prices],
+            Mean = List.Average(PriceList),
+            Variance = List.Average(List.Transform(PriceList, each Number.Power(_ - Mean, 2))),
+            StdDev = Number.Sqrt(Variance)
+        in
+            StdDev
+    , type number),
+    
+    // Calculate Coefficient of Variation (COV)
+    #"Added COV" = Table.AddColumn(#"Added Std Dev", "COV", each 
+        let
+            Mean = [Mean],
+            StdDev = [Standard Deviation],
+            COV = if Mean > 0 then StdDev / Mean else null
+        in
+            COV
+    , type number),
+    
+    // Select and reorder final columns
+    #"Selected Columns" = Table.SelectColumns(#"Added COV", {
+        "Capitaline Code", 
+        "Company Name", 
+        "Price CAGR", 
+        "Mean",
+        "Standard Deviation", 
+        "COV",
+        "Latest Price", 
+        "Latest Debt Equity Ratio", 
+        "Latest Market Cap"
+    }),
+    
+    // Round numerical values for better display
+    #"Rounded Values" = Table.TransformColumns(#"Selected Columns", {
+        {"Price CAGR", each Number.Round(_, 4), type number},
+        {"Mean", each Number.Round(_, 2), type number},
+        {"Standard Deviation", each Number.Round(_, 2), type number},
+        {"COV", each Number.Round(_, 4), type number},
+        {"Latest Price", each Number.Round(_, 2), type number},
+        {"Latest Debt Equity Ratio", each Number.Round(_, 2), type number},
+        {"Latest Market Cap", each Number.Round(_, 2), type number}
+    })
+in
+    #"Rounded Values"
