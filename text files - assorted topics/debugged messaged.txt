@@ -1,0 +1,242 @@
+$ gvim python_focussed_diagnostics.py
+(venv313)
+j1304@dhawal123 MSYS /d/dev
+$ py python_focussed_diagnostics.py
+🔍 FOCUSED ANALYSIS OF PROBLEM TABS
+============================================================
+
+=== ANALYZING TAB: 2010-2015 ===
+Raw data shape: (4251, 367)
+Companies: 4251
+
+Column Analysis:
+  ❌ Market Capitalisation: MISSING
+    Similar columns: ['Jan 2010 Market Capitalisation', 'Feb 2010 Market Capitalisation', 'Mar 2010 Market Capitalisation']
+  ❌ 365 days Low Price: MISSING
+    Similar columns: ['Jan 2010 Adjusted Closing Price', 'Jan 2010 365 days First Closing', 'Jan 2010 365 days First Closing Date']
+  ❌ Adjusted Closing Price: MISSING
+    Similar columns: ['Jan 2010 Adjusted Closing Price', 'Jan 2010 365 days First Closing', 'Jan 2010 365 days First Closing Date']
+Processed data shape: (259311, 9)
+
+=== ANALYZING TAB: 2020-2025 ===
+Raw data shape: (5434, 367)
+Companies: 5434
+
+Column Analysis:
+  ❌ Market Capitalisation: MISSING
+    Similar columns: ['Jan 2020 Market Capitalisation', 'Feb 2020 Market Capitalisation', 'Mar 2020 Market Capitalisation']
+  ❌ 365 days Low Price: MISSING
+    Similar columns: ['Jan 2020 Adjusted Closing Price', 'Jan 2020 365 days First Closing', 'Jan 2020 365 days First Closing Date']
+  ❌ Adjusted Closing Price: MISSING
+    Similar columns: ['Jan 2020 Adjusted Closing Price', 'Jan 2020 365 days First Closing', 'Jan 2020 365 days First Closing Date']
+Processed data shape: (331474, 9)
+
+=== ANALYZING TAB: 2000-2005 ===
+Raw data shape: (4465, 367)
+Companies: 4465
+
+Column Analysis:
+  ❌ Market Capitalisation: MISSING
+    Similar columns: ['Jan 2000 Market Capitalisation', 'Feb 2000 Market Capitalisation', 'Mar 2000 Market Capitalisation']
+  ❌ 365 days Low Price: MISSING
+    Similar columns: ['Jan 2000 Adjusted Closing Price', 'Jan 2000 365 days Low Price', 'Jan 2000 365 days Low Price Date']
+  ❌ Adjusted Closing Price: MISSING
+    Similar columns: ['Jan 2000 Adjusted Closing Price', 'Jan 2000 365 days Low Price', 'Jan 2000 365 days Low Price Date']
+Processed data shape: (272365, 9)
+
+=== ANALYZING TAB: 2005-2010 ===
+Raw data shape: (3685, 367)
+Companies: 3685
+
+Column Analysis:
+  ❌ Market Capitalisation: MISSING
+    Similar columns: ['Jan 2005 Market Capitalisation', 'Feb 2005 Market Capitalisation', 'Mar 2005 Market Capitalisation']
+  ❌ 365 days Low Price: MISSING
+    Similar columns: ['Jan 2005 Adjusted Closing Price', 'Jan 2005 365 days Low Price', 'Jan 2005 365 days Low Price Date']
+  ❌ Adjusted Closing Price: MISSING
+    Similar columns: ['Jan 2005 Adjusted Closing Price', 'Jan 2005 365 days Low Price', 'Jan 2005 365 days Low Price Date']
+Processed data shape: (224785, 9)
+
+=== ANALYZING TAB: 2015-2020 ===
+Raw data shape: (4965, 367)
+Companies: 4965
+
+Column Analysis:
+  ❌ Market Capitalisation: MISSING
+    Similar columns: ['Jan 2015 Market Capitalisation', 'Feb 2015 Market Capitalisation', 'Mar 2015 Market Capitalisation']
+  ❌ 365 days Low Price: MISSING
+    Similar columns: ['Jan 2015 365 days Low Price Date', 'Jan 2015 365 days Low Price', 'Jan 2015 Adjusted Closing Price']
+  ❌ Adjusted Closing Price: MISSING
+    Similar columns: ['Jan 2015 365 days Low Price Date', 'Jan 2015 365 days Low Price', 'Jan 2015 Adjusted Closing Price']
+Processed data shape: (302865, 9)
+
+============================================================
+🔍 DETAILED FILTERING ANALYSIS
+============================================================
+
+=== FILTERING ANALYSIS FOR 2010-2015 ===
+Starting rows: 259311
+
+📊 Column: Market Capitalisation
+   Total rows: 259311
+   Not null: 207160 (79.9%)
+   > 0: 207160 (79.9%)
+   Sample values: [76.599345, 6.858714, 1385.128361, 2083.080419, 30.78, None, None, 7016.662966, None, None]
+   Data type: Float64
+❌ CRITICAL: Column '365 days Low Price' not found!
+   Available columns: ['365 days First Closing', '365 days First Closing Date', 'Adjusted Closing Price', 'Company Name', 'Date', 'Market Capitalisation', 'Month_Year', 'Source_Tab', 'Total Returns (%)']
+
+📊 Column: Adjusted Closing Price
+   Total rows: 259311
+   Not null: 207160 (79.9%)
+   > 0: 207160 (79.9%)
+   Sample values: [26.725, 11.36, 82.1, 1849.15, 17.1, None, None, 1527.05, None, None]
+   Data type: Float64
+
+🔬 STEP-BY-STEP FILTERING:
+   Start: 259311 rows
+   After Market Cap filter: 207160 rows
+   After Adjusted Close filter: 207160 rows
+   ✓ 207160 rows survive filtering for 2010-2015
+
+=== FILTERING ANALYSIS FOR 2020-2025 ===
+Starting rows: 331474
+
+📊 Column: Market Capitalisation
+   Total rows: 331474
+   Not null: 236900 (71.5%)
+   > 0: 236502 (71.3%)
+   Sample values: [123.326324, 11587.794349, 75.231162, None, 363.745094, 25802.361208, 10.062, None, 2.05792, 478.597993]
+   Data type: Float64
+❌ CRITICAL: Column '365 days Low Price' not found!
+   Available columns: ['365 days First Closing', '365 days First Closing Date', 'Adjusted Closing Price', 'Company Name', 'Date', 'Market Capitalisation', 'Month_Year', 'Source_Tab', 'Total Returns (%)']
+
+📊 Column: Adjusted Closing Price
+   Total rows: 331474
+   Not null: 236952 (71.5%)
+   > 0: 236952 (71.5%)
+   Sample values: [34.95, 332.5125, 100.2, None, 2.25, 22904.75, 5.59, None, 0.59, 187.85]
+   Data type: Float64
+
+🔬 STEP-BY-STEP FILTERING:
+   Start: 331474 rows
+   After Market Cap filter: 236502 rows
+   After Adjusted Close filter: 236502 rows
+   ✓ 236502 rows survive filtering for 2020-2025
+
+=== FILTERING ANALYSIS FOR 2000-2005 ===
+Starting rows: 272365
+
+📊 Column: Market Capitalisation
+   Total rows: 272365
+   Not null: 150125 (55.1%)
+   > 0: 150030 (55.1%)
+   Sample values: [None, 699.560847, 5.4, 56.595375, 1093.65169, 17.72925, 5.002362, 0.934014, None, 12.451826]
+   Data type: Float64
+
+📊 Column: 365 days Low Price
+   Total rows: 272365
+   Not null: 150170 (55.1%)
+   > 0: 150170 (55.1%)
+   Sample values: [None, 205.0, 2.0, 13.0, 49.2, 9.456835, 3.05, 1.0, None, 1.25]
+   Data type: Float64
+
+📊 Column: Adjusted Closing Price
+   Total rows: 272365
+   Not null: 150170 (55.1%)
+   > 0: 150170 (55.1%)
+   Sample values: [None, 621.0, 3.0, 184.05, 52.81, 15.35, 10.0, 2.0, None, 8.3]
+   Data type: Float64
+
+🔬 STEP-BY-STEP FILTERING:
+   Start: 272365 rows
+   After Market Cap filter: 150030 rows
+   After Low Price filter: 150030 rows
+   After Adjusted Close filter: 150030 rows
+   ✓ 150030 rows survive filtering for 2000-2005
+
+=== FILTERING ANALYSIS FOR 2005-2010 ===
+Starting rows: 224785
+
+📊 Column: Market Capitalisation
+   Total rows: 224785
+   Not null: 175689 (78.2%)
+   > 0: 175661 (78.1%)
+   Sample values: [None, None, None, 647.459898, 9.684, 870.210608, 4118.439268, 81.25425, 7.253425, None]
+   Data type: Float64
+
+📊 Column: 365 days Low Price
+   Total rows: 224785
+   Not null: 175689 (78.2%)
+   > 0: 175689 (78.2%)
+   Sample values: [None, None, None, 361.0, 1.632, 43.65, 112.2, 20.05, 5.26, None]
+   Data type: Float64
+
+📊 Column: Adjusted Closing Price
+   Total rows: 224785
+   Not null: 175689 (78.2%)
+   > 0: 175689 (78.2%)
+   Sample values: [None, None, None, 574.75, 5.38, 211.55, 194.35, 70.35, 14.5, None]
+   Data type: Float64
+
+🔬 STEP-BY-STEP FILTERING:
+   Start: 224785 rows
+   After Market Cap filter: 175661 rows
+   After Low Price filter: 175661 rows
+   After Adjusted Close filter: 175661 rows
+   ✓ 175661 rows survive filtering for 2005-2010
+
+=== FILTERING ANALYSIS FOR 2015-2020 ===
+Starting rows: 302865
+
+📊 Column: Market Capitalisation
+   Total rows: 302865
+   Not null: 219205 (72.4%)
+   > 0: 219150 (72.4%)
+   Sample values: [132.051097, None, 5.760882, 514.386592, 7652.98163, 18.684, None, 469.136, None, 928.482521]
+   Data type: Float64
+
+📊 Column: 365 days Low Price
+   Total rows: 302865
+   Not null: 219229 (72.4%)
+   > 0: 219229 (72.4%)
+   Sample values: [26.5, None, 6.12, 5.97, 3500.0, 7.0, None, 3.08, None, 135.75]
+   Data type: Float64
+
+📊 Column: Adjusted Closing Price
+   Total rows: 302865
+   Not null: 219229 (72.4%)
+   > 0: 219229 (72.4%)
+   Sample values: [39.05, None, 8.99, 8.76, 6793.55, 10.38, None, 134.5, None, 201.5]
+   Data type: Float64
+
+🔬 STEP-BY-STEP FILTERING:
+   Start: 302865 rows
+   After Market Cap filter: 219150 rows
+   After Low Price filter: 219150 rows
+   After Adjusted Close filter: 219150 rows
+   ✓ 219150 rows survive filtering for 2015-2020
+
+============================================================
+📋 COLUMN STRUCTURE COMPARISON
+============================================================
+
+2010-2015: 6 unique metrics
+
+2020-2025: 6 unique metrics
+
+2000-2005: 6 unique metrics
+
+2005-2010: 6 unique metrics
+
+2015-2020: 6 unique metrics
+
+📊 METRIC COMPARISON:
+
+2010-2015:
+  Missing metrics: ['365 days Low Price', '365 days Low Price Date']
+  Extra metrics: ['365 days First Closing', '365 days First Closing Date']
+
+2020-2025:
+  Missing metrics: ['365 days Low Price', '365 days Low Price Date']
+  Extra metrics: ['365 days First Closing', '365 days First Closing Date']

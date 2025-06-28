@@ -1,0 +1,150 @@
+let
+    // Step 1: Get all tables from current workbook
+    Source = Excel.CurrentWorkbook(),
+    
+    // Filter to get only your defined tables (Table2, Table3, Table4, Table5, Table6)
+    DataTables = Table.SelectRows(Source, each Text.Contains([Name], "Table") and [Name] <> "Table1"),
+    
+    // Step 2: Process each table separately and combine
+    ProcessTable = (tbl as table, tableName as text) =>
+        let
+            // Get column names
+            ColumnNames = Table.ColumnNames(tbl),
+            
+            // Separate Company Name from date columns
+            CompanyNameCol = {"Company Name"},
+            DateColumns = List.RemoveItems(ColumnNames, CompanyNameCol),
+            
+            // Unpivot all date columns
+            Unpivoted = Table.UnpivotOtherColumns(tbl, CompanyNameCol, "DateMetric", "Value"),
+            
+            // Parse the DateMetric column to extract Date and Metric
+            // Format: "01/01/2000 Date" or "01/01/2000 Market Capitalisation"
+            ParsedData = Table.AddColumn(Unpivoted, "ParsedInfo", each
+                let
+                    Parts = Text.Split([DateMetric], " "),
+                    DatePart = Parts{0},
+                    MetricPart = Text.Combine(List.Skip(Parts, 1), " ")
+                in
+                    [Date = DatePart, Metric = MetricPart]
+            ),
+            
+            // Expand the parsed info
+            ExpandParsed = Table.ExpandRecordColumn(ParsedData, "ParsedInfo", {"Date", "Metric"}),
+            
+            // Remove the original DateMetric column
+            CleanedData = Table.RemoveColumns(ExpandParsed, {"DateMetric"}),
+            
+            // Add source table identifier
+            AddSource = Table.AddColumn(CleanedData, "SourceTable", each tableName)
+        in
+            AddSource,
+    
+    // Apply the function to each table and combine results
+    ProcessedTables = Table.AddColumn(DataTables, "ProcessedData", each ProcessTable([Content], [Name])),
+    AllProcessedData = Table.Combine(Table.Column(ProcessedTables, "ProcessedData")),
+    
+    // Step 3: Pivot to get proper structure (one row per company per date)
+    PivotedData = Table.Pivot(AllProcessedData, List.Distinct(AllProcessedData[Metric]), "Metric", "Value"),
+    
+    // Step 4: Clean and convert data types
+    // Handle the case where column names might be slightly different
+    AvailableColumns = Table.ColumnNames(PivotedData),
+    
+    // Find columns by pattern matching (in case of slight variations)
+    MarketCapCol = List.First(List.Select(AvailableColumns, each Text.Contains(_, "Market Capitalisation")), "Market Capitalisation"),
+    LowPriceCol = List.First(List.Select(AvailableColumns, each Text.Contains(_, "365 days Low Price") and not Text.Contains(_, "Date")), "365 days Low Price"),
+    AdjustedPriceCol = List.First(List.Select(AvailableColumns, each Text.Contains(_, "Adjusted Closing Price")), "Adjusted Closing Price"),
+    TotalReturnsCol = List.First(List.Select(AvailableColumns, each Text.Contains(_, "Total Returns")), "Total Returns (%)"),
+    LowPriceDateCol = List.First(List.Select(AvailableColumns, each Text.Contains(_, "365 days Low Price Date")), "365 days Low Price Date"),
+    
+    // Clean and convert data types
+    CleanedData = 
+        let
+            Step1 = if Table.HasColumns(PivotedData, {MarketCapCol}) then 
+                        Table.TransformColumns(PivotedData, {{MarketCapCol, each try Number.FromText(Text.Replace(Text.From(_), ",", "")) otherwise null, type nullable number}})
+                    else PivotedData,
+            Step2 = if Table.HasColumns(Step1, {LowPriceCol}) then 
+                        Table.TransformColumns(Step1, {{LowPriceCol, each try Number.FromText(Text.From(_)) otherwise null, type nullable number}})
+                    else Step1,
+            Step3 = if Table.HasColumns(Step2, {AdjustedPriceCol}) then 
+                        Table.TransformColumns(Step2, {{AdjustedPriceCol, each try Number.FromText(Text.From(_)) otherwise null, type nullable number}})
+                    else Step2,
+            Step4 = if Table.HasColumns(Step3, {TotalReturnsCol}) then 
+                        Table.TransformColumns(Step3, {{TotalReturnsCol, each try Number.FromText(Text.From(_)) otherwise null, type nullable number}})
+                    else Step3,
+            Step5 = Table.TransformColumns(Step4, {{"Date", each try Date.FromText(_) otherwise null, type nullable date}})
+        in
+            Step5,
+    
+    // Step 5: Remove rows with null values in critical columns
+    FilterNulls = Table.SelectRows(CleanedData, each 
+        Record.FieldOrDefault(_, MarketCapCol, null) <> null and 
+        Record.FieldOrDefault(_, LowPriceCol, null) <> null and 
+        Record.FieldOrDefault(_, AdjustedPriceCol, null) <> null and 
+        Record.FieldOrDefault(_, AdjustedPriceCol, null) <> 0 and
+        [Date] <> null),
+    
+    // Step 6: Calculate ratio
+    AddRatio = Table.AddColumn(FilterNulls, "Low_to_Adjusted_Ratio", 
+        each Record.FieldOrDefault(_, LowPriceCol, 0) / Record.FieldOrDefault(_, AdjustedPriceCol, 1), type number),
+    
+    // Step 7: Calculate market cap percentiles
+    MarketCapValues = List.RemoveNulls(Table.Column(AddRatio, MarketCapCol)),
+    SortedMarketCap = List.Sort(MarketCapValues),
+    FifthPercentile = if List.Count(SortedMarketCap) > 0 then List.Percentile(SortedMarketCap, 0.05) else 0,
+    
+    // Add percentile rank
+    AddPercentile = Table.AddColumn(AddRatio, "MarketCap_Percentile", each
+        let
+            MarketCap = Record.FieldOrDefault(_, MarketCapCol, 0),
+            Position = List.PositionOf(SortedMarketCap, MarketCap)
+        in
+            if Position >= 0 then (Position + 1) / List.Count(SortedMarketCap) * 100 else 100, type number),
+    
+    // Filter companies below 5th percentile
+    FilterBelow5th = Table.SelectRows(AddPercentile, each [MarketCap_Percentile] <= 5),
+    
+    // Step 8: Get top 30 and bottom 30 companies based on ratio
+    SortedByRatio = Table.Sort(FilterBelow5th, {{"Low_to_Adjusted_Ratio", Order.Ascending}}),
+    TotalCompanies = Table.RowCount(SortedByRatio),
+    
+    Bottom30Count = List.Min({30, TotalCompanies}),
+    Top30Count = List.Min({30, List.Max({0, TotalCompanies - 30})}),
+    
+    Bottom30 = Table.FirstN(SortedByRatio, Bottom30Count),
+    Top30 = if TotalCompanies > 30 then Table.LastN(SortedByRatio, Top30Count) else #table(Table.ColumnNames(SortedByRatio), {}),
+    
+    // Combine both groups
+    CombinedResults = Table.Combine({Bottom30, Top30}),
+    
+    // Add group identifier
+    Bottom30Companies = Table.Column(Bottom30, "Company Name"),
+    AddGroup = Table.AddColumn(CombinedResults, "Group", each
+        if List.Contains(Bottom30Companies, [#"Company Name"]) then "Bottom 30" else "Top 30", type text),
+    
+    // Step 9: Final formatting - create a standardized column structure
+    StandardizedColumns = Table.SelectColumns(AddGroup, 
+        List.Intersect({Table.ColumnNames(AddGroup), {
+            "Company Name", "Date", MarketCapCol, TotalReturnsCol,
+            LowPriceDateCol, LowPriceCol, AdjustedPriceCol,
+            "Low_to_Adjusted_Ratio", "MarketCap_Percentile", "Group", "SourceTable"
+        }})),
+    
+    // Rename columns to standard names
+    RenamedColumns = Table.RenameColumns(StandardizedColumns, {
+        {"Company Name", "Name Of Company"},
+        {MarketCapCol, "Market Capitalization"},
+        {TotalReturnsCol, "Total Returns"},
+        {LowPriceDateCol, "365 days Low Price Date"},
+        {LowPriceCol, "365 days Low Price"},
+        {AdjustedPriceCol, "Adjusted Closing Price"},
+        {"Low_to_Adjusted_Ratio", "Ratio (365 Low/Adj Close)"},
+        {"MarketCap_Percentile", "Percentile at step 2"}
+    }),
+    
+    // Sort final results
+    SortedFinal = Table.Sort(RenamedColumns, {{"Name Of Company", Order.Ascending}, {"Date", Order.Ascending}})
+    
+in
+    SortedFinal
