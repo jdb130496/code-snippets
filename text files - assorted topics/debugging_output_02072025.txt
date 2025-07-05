@@ -1,0 +1,342 @@
+$ py testing_api.py
+🏢 SHREE RAM URBAN INFRASTRUCTURE TICKER FINDER
+==================================================
+🚨 DEBUGGING: Search API returns wrong company (SRMA instead of SRAM)
+==================================================
+🔍 COMPREHENSIVE SEARCH FOR SHREE RAM URBAN INFRASTRUCTURE
+============================================================
+Issue identified: Search API returns SRMA (wrong company) instead of SRAM
+============================================================
+
+=== TRYING KNOWN PATTERNS ===
+
+--- Testing pattern: 503205 ---
+Search '503205': Status 403
+Error: <!DOCTYPE html><html lang="en-US"><head><title>Just a moment...</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta nam
+Historical data for 503205: Status 200
+Historical response: []
+Historical data error for 503205: 'list' object has no attribute 'get'
+
+--- Testing pattern: BSE:503205 ---
+Search 'BSE:503205': Status 200
+Raw response: []
+Historical data for BSE:503205: Status 200
+Historical response: []
+Historical data error for BSE:503205: 'list' object has no attribute 'get'
+
+--- Testing pattern: BO:503205 ---
+Search 'BO:503205': Status 200
+Raw response: []
+Historical data for BO:503205: Status 200
+Historical response: []
+Historical data error for BO:503205: 'list' object has no attribute 'get'
+
+--- Testing pattern: SHREERAM ---
+Search 'SHREERAM': Status 200
+Raw response: [
+  {
+    "symbol": "SHRM",
+    "full_name": "NSE:SHRM",
+    "description": "Shree Rama Multi Tech Ltd",
+    "type": "Stock",
+    "ticker": "946854",
+    "exchange": "NSE"
+  },
+  {
+    "symbol": "SHRR",
+    "full_name": "NSE:SHRR",
+    "description": "Shreeram Proteins Ltd",
+    "type": "Stock",
+    "ticker": "1165850",
+    "exchange": "NSE"
+  },
+  {
+    "symbol": "SHRM",
+    "full_name": "BSE:SHRM",
+    "description": "Shree Rama Multi Tech Ltd",
+    "type": "Stock",
+    "ticker": "977473",
+    "exchange": "BSE"
+  }
+]
+Historical data for SHREERAM: Status 200
+Historical response: []
+Historical data error for SHREERAM: 'list' object has no attribute 'get'
+
+--- Testing pattern: BSE:SHREERAM ---
+Search 'BSE:SHREERAM': Status 200
+Raw response: []
+Historical data for BSE:SHREERAM: Status 200
+Historical response: []
+Historical data error for BSE:SHREERAM: 'list' object has no attribute 'get'
+
+--- Testing pattern: BO:SHREERAM ---
+Search 'BO:SHREERAM': Status 200
+Raw response: []
+Historical data for BO:SHREERAM: Status 200
+Historical response: []
+Historical data error for BO:SHREERAM: 'list' object has no attribute 'get'
+
+--- Testing pattern: SRAM ---
+Search 'SRAM': Status 200
+Raw response: [
+  {
+    "symbol": "SRMA",
+    "full_name": "BSE:SRMA",
+    "description": "Shriram Asset Management Co Ltd",
+    "type": "Stock",
+    "ticker": "988590",
+    "exchange": "BSE"
+  }
+]
+Historical data for SRAM: Status 200
+Historical response: []
+Historical data error for SRAM: 'list' object has no attribute 'get'
+
+--- Testing pattern: BSE:SRAM ---
+Search 'BSE:SRAM': Status 200
+Raw response: []
+Historical data for BSE:SRAM: Status 200
+Historical response: []
+Historical data error for BSE:SRAM: 'list' object has no attribute 'get'
+
+--- Testing pattern: BO:SRAM ---
+Search 'BO:SRAM': Status 200
+Raw response: []
+Historical data for BO:SRAM: Status 200
+Historical response: []
+Historical data error for BO:SRAM: 'list' object has no attribute 'get'
+
+--- Testing pattern: NSE:SHREERAM ---
+Search 'NSE:SHREERAM': Status 200
+Raw response: []
+Historical data for NSE:SHREERAM: Status 200
+Historical response: []
+Historical data error for NSE:SHREERAM: 'list' object has no attribute 'get'
+
+--- Testing pattern: IN:SHREERAM ---
+Search 'IN:SHREERAM': Status 200
+Raw response: []
+Historical data for IN:SHREERAM: Status 200
+Historical response: []
+Historical data error for IN:SHREERAM: 'list' object has no attribute 'get'
+❌ No known patterns worked
+
+=== SCRAPING INVESTING.COM PAGE FOR TICKER ID ===
+Page access: Status 200
+Found pair_id_alt: ['349', '385', '627', '6397', '13994', '68', '2111', '8830', '1224074', '1232345', '13818', '40823']
+Found instrument_id: ['13994', '6497', '6408', '1166239', '8274', '1175355', '8359', '16678', '6435', '26490', '17195', '252', '6369', '13063', '1172292', '988586']
+Found ticker_data: ['67066G104', '88160R101', '770700102', '69608A108', '037833100', '594918104', '30303M102', '517834107', '983134107', '12008R107', '695156109', '552953101', '427866108', '000943499', '594972408', '969457100', '05464C101', '443201108', '21037T109', '934423104', 'US2605661048', 'XC0009694271', '02079K305', '023135106', '64110L106', 'US6311011026', '846900', '000000000UKX', '01609W102', 'SHREERAM']
+Found symbol_data: ['TSLA', 'HOOD', 'PLTR', 'AAPL', 'MSFT', 'META', 'LVS', 'WYNN', 'BLDR', 'PKG', 'MGM', 'HSY', 'LYB', 'MSTR', 'WMB', 'AXON', 'HWM', 'CEG', 'WBD', 'CL', 'LCO', 'NG', 'GC', 'SI', 'HG', 'ZS', 'US10YT=X', 'US30YT=X', 'US5YT=X', 'US3MT=X', 'TYU25', 'FGBL', 'US2US10=RR', 'US30', 'DJI', 'IXIC', 'DX', 'AMD', 'UNH', 'AMZN', 'SMCI', 'GOOGL', 'NFLX', 'COIN', 'NDX', 'DE40', 'UK100', 'FCHI', 'JP225', 'BABA', 'KC', 'SRAM', '\\u0026#x24;', 'Aaaa', 'Aaa ', 'A Aa', 'A  A', 'Aa A', 'Aa  ']
+
+--- Testing extracted ID (pair_id_alt): 349 ---
+Historical data for 349: Status 200
+Historical response: {
+  "t": [
+    1748908800,
+    1748995200,
+    1749081600,
+    1749168000,
+    1749427200,
+    1749513600,
+    1749600000,
+    1749686400,
+    1749772800,
+    1750032000,
+    1750118400,
+    1750204800,
+    1750291200,
+    1750377600,
+    1750636800,
+    1750723200,
+    1750809600,
+    1750896000,
+    1750982400,
+    1751241600,
+    1751328000,
+    1751414400
+  ],
+  "c": [
+    7.18800020217896,
+    7.30600023269653,
+    7.10799980163574,
+    7.1560001373291,
+    7.28999996185303,
+    7.35599994659424,
+    7.34999990463257,
+    7.07800006866455,
+    6.88199996948242,
+    7.00400018692017,
+    6.82000017166138,
+    6.84000015258789,
+    6.70599985122681,
+    6.84800004959106,
+    6.78399991989136,
+    7.22399997711182,
+    7.05000019073486,
+    7.06599998474121,
+    7.15199995040894,
+    7.17999982833862,
+    7.25600004196167,
+    7.35500001907349
+  ],
+  "o": [
+    7.13000011444092,
+    7.19999980926514,
+    7.27400016784668,
+    7.11199998855591,
+    7.1560001373291,
+    7.28999996185303,
+    7.34200000762939,
+    7.21000003814697,
+    6.73600006103516,
+    6.88399982452393,
+    6.95599985122681,
+    6.77799987792969,
+    6.7480001449585,
+    6.76800012588501,
+    6.68599987030029,
+    7.09999990463257,
+    7.25,
+    7.09000015258789,
+    7.11800003051758,
+    7.19600009918213,
+    7.2020001411438,
+    7.27799987792969
+  ],
+  "h": [
+    7.18800020217896,
+    7.34000015258789,
+    7.28000020980835,
+    7.17799997329712,
+    7.32000017166138,
+    7.39200019836426,
+    7.42000007629395,
+    7.21400022506714,
+    6.90999984741211,
+    7.07000017166138,
+    6.95599985122681,
+    6.92199993133545,
+    6.80999994277954,
+    6.86399984359741,
+    6.83199977874756,
+    7.25,
+    7.26000022888184,
+    7.1399998664856,
+    7.15199995040894,
+    7.22599983215332,
+    7.30800008773804,
+    7.38000011444092
+  ],
+  "l": [
+    7.08599996566772,
+    7.18800020217896,
+    7.03999996185303,
+    7.10200023651123,
+    7.14200019836426,
+    7.27600002288818,
+    7.32999992370605,
+    7.0460000038147,
+    6.66200017929077,
+    6.86600017547607,
+    6.80200004577637,
+    6.7480001449585,
+    6.68599987030029,
+    6.76000022888184,
+    6.68400001525879,
+    7.09200000762939,
+    6.94999980926514,
+    7.01599979400635,
+    7.07000017166138,
+    7.08799982070923,
+    7.19600009918213,
+    7.25500011444092
+  ],
+  "v": [
+    5712079,
+    7578174,
+    6209547,
+    2910251,
+    3882494,
+    3926124,
+    4747735,
+    7396911,
+    10213433,
+    6304834,
+    6726302,
+    7978976,
+    3745066,
+    12815257,
+    4692826,
+    12865663,
+    8258950,
+    2539485,
+    3535112,
+    4745164,
+    4298350,
+    1767760
+  ],
+  "vo": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "vac": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "s": "ok"
+}
+✅ SUCCESS! Working ticker ID: 349
+
+🎉 SUCCESS!
+==================================================
+Method: page_scraping
+Ticker ID: 349
+Description: Shree Ram Urban Infrastructure Ltd
+
+📊 HISTORICAL DATA SAMPLE:
+Status: ok
+Recent close prices: [7.17999982833862, 7.25600004196167, 7.35500001907349]
+Recent dates: ['2025-06-30', '2025-07-01', '2025-07-02']
+
+✅ Use this ticker ID: 349

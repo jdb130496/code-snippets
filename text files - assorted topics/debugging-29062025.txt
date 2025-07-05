@@ -1,0 +1,197 @@
+$ py debugging-duplicates-29062025.py
+Starting debug analysis...
+Processing Excel file: 2000-2025-new.xlsx
+Available tabs: ['2000-2005', '2005-2010', '2010-2015', '2015-2020', '2020-2025']
+Tabs to process: ['2000-2005', '2005-2010', '2010-2015', '2015-2020', '2020-2025']
+Processing tab: 2000-2005
+  Tab 2000-2005 has 4465 rows
+  Melted data has 1634190 rows
+Processing tab: 2005-2010
+  Tab 2005-2010 has 3685 rows
+  Melted data has 1348710 rows
+Processing tab: 2010-2015
+  Tab 2010-2015 has 4251 rows
+  Melted data has 1555866 rows
+Processing tab: 2015-2020
+  Tab 2015-2020 has 4965 rows
+  Melted data has 1817190 rows
+Processing tab: 2020-2025
+  Tab 2020-2025 has 5434 rows
+  Melted data has 1988844 rows
+Combined data has 8344800 rows
+Extracting dates and metrics...
+After date extraction: 8344800 rows
+Pivoting data...
+Pivoted data has 1390800 rows
+Converting Date column...
+Filtering month-end dates...
+After month-end filtering: 568656 rows
+
+==================================================
+DEBUGGING DUPLICATE DATES
+==================================================
+Total rows in filtered data: 568656
+Columns: ['Company Name', 'Month_Year', 'Source_Tab', 'Date', 'Adjusted Closing Price', 'Market Capitalisation', 'Total Returns (%)', '365 days Low Price', '365 days Low Price Date']
+
+Analyzing Month_Year + Company combinations across tabs...
+Found 4931 Month_Year + Company combinations appearing in multiple tabs
+
+First 20 duplicate combinations:
+  Jan 2020 - Dish T V India Ltd.
+    Tabs: ['2020-2025' '2015-2020']
+    Dates: [43861.]
+    Tab count: 2
+
+  Jan 2005 - Orient Information Technology Ltd. [Merged]
+    Tabs: ['2005-2010' '2000-2005']
+    Dates: [38383.]
+    Tab count: 2
+
+  Jan 2005 - Jain Studios Ltd.
+    Tabs: ['2000-2005' '2005-2010']
+    Dates: [38383.]
+    Tab count: 2
+
+  Jan 2005 - Sayaji Hotels Ltd.
+    Tabs: ['2005-2010' '2000-2005']
+    Dates: [38383.]
+    Tab count: 2
+
+  Jan 2020 - Morarka Finance Ltd.
+    Tabs: ['2015-2020' '2020-2025']
+    Dates: [43861.]
+    Tab count: 2
+
+  Jan 2020 - I C I C I Bank Ltd.
+    Tabs: ['2020-2025' '2015-2020']
+    Dates: [43861.]
+    Tab count: 2
+
+  Jan 2005 - Atul Auto Ltd.
+    Tabs: ['2000-2005' '2005-2010']
+    Dates: [38383.]
+    Tab count: 2
+
+  Jan 2005 - Wyeth Ltd. [Merged]
+    Tabs: ['2000-2005' '2005-2010']
+    Dates: [38383.]
+    Tab count: 2
+
+  Jan 2020 - Omaxe Ltd.
+    Tabs: ['2015-2020' '2020-2025']
+    Dates: [43861.]
+    Tab count: 2
+
+  Jan 2020 - Bajaj Consumer Care Ltd.
+    Tabs: ['2020-2025' '2015-2020']
+    Dates: [43861.]
+    Tab count: 2
+
+  Jan 2005 - Disa India Ltd.
+    Tabs: ['2000-2005' '2005-2010']
+    Dates: [38383.]
+    Tab count: 2
+
+  Jan 2005 - Hytone Texstyles Ltd.
+    Tabs: ['2005-2010' '2000-2005']
+    Dates: [38383.]
+    Tab count: 2
+
+  Jan 2005 - Shahi Shipping Ltd.
+    Tabs: ['2005-2010' '2000-2005']
+    Dates: [38383.]
+    Tab count: 2
+
+  Jan 2020 - Ashnisha Industries Ltd.
+    Tabs: ['2015-2020' '2020-2025']
+    Dates: [43861.]
+    Tab count: 2
+
+  Jan 2020 - Ujjivan Small Finance Bank Ltd.
+    Tabs: ['2015-2020' '2020-2025']
+    Dates: [43861.]
+    Tab count: 2
+
+  Jan 2020 - Shahi Shipping Ltd.
+    Tabs: ['2020-2025' '2015-2020']
+    Dates: [43861.]
+    Tab count: 2
+
+  Jan 2020 - S P M L Infra Ltd.
+    Tabs: ['2020-2025' '2015-2020']
+    Dates: [43861.]
+    Tab count: 2
+
+  Jan 2005 - Jalpac India Ltd.
+    Tabs: ['2000-2005' '2005-2010']
+    Dates: [38383.]
+    Tab count: 2
+
+  Jan 2005 - Assam Company India Ltd.
+    Tabs: ['2005-2010' '2000-2005']
+    Dates: [38383.]
+    Tab count: 2
+
+  Jan 2020 - Patanjali Foods Ltd.
+    Tabs: ['2015-2020' '2020-2025']
+    Dates: [43861.]
+    Tab count: 2
+
+
+==============================
+DETAILED CHECK FOR Jan 2005
+==============================
+Total rows for Jan 2005: 4830
+Data breakdown for Jan 2005:
+  Tab: 2000-2005
+    Unique companies: 2415
+    Total records: 2415
+    Unique dates: 1
+    Dates: [38383.]
+
+  Tab: 2005-2010
+    Unique companies: 2415
+    Total records: 2415
+    Unique dates: 1
+    Dates: [38383.]
+
+Sample records for Jan 2005:
+  3M India Ltd. - Tab: 2000-2005 - Date: 38383.0
+  3P Land Holdings Ltd. - Tab: 2000-2005 - Date: 38383.0
+  63 Moons Technologies Ltd. - Tab: 2000-2005 - Date: 38383.0
+  A B B India Ltd. - Tab: 2000-2005 - Date: 38383.0
+  A B C Bearings Ltd. [Merged] - Tab: 2000-2005 - Date: 38383.0
+  A B C India Ltd. - Tab: 2000-2005 - Date: 38383.0
+  A B L Biotechnologies Ltd. - Tab: 2000-2005 - Date: 38383.0
+  A B M Knowledgeware Ltd. - Tab: 2000-2005 - Date: 38383.0
+  A C C Ltd. - Tab: 2000-2005 - Date: 38383.0
+  A C E Edutrend Ltd. - Tab: 2000-2005 - Date: 38383.0
+
+==============================
+DETAILED CHECK FOR Jan 2020
+==============================
+Total rows for Jan 2020: 5032
+Data breakdown for Jan 2020:
+  Tab: 2015-2020
+    Unique companies: 2516
+    Total records: 2516
+    Unique dates: 1
+    Dates: [43861.]
+
+  Tab: 2020-2025
+    Unique companies: 2516
+    Total records: 2516
+    Unique dates: 1
+    Dates: [43861.]
+
+Sample records for Jan 2020:
+  20 Microns Ltd. - Tab: 2015-2020 - Date: 43861.0
+  360 One Wam Ltd. - Tab: 2015-2020 - Date: 43861.0
+  3B Blackbio Dx Ltd. - Tab: 2015-2020 - Date: 43861.0
+  3I Infotech Ltd. - Tab: 2015-2020 - Date: 43861.0
+  3M India Ltd. - Tab: 2015-2020 - Date: 43861.0
+  52 Weeks Entertainment Ltd. - Tab: 2015-2020 - Date: 43861.0
+  5Paisa Capital Ltd. - Tab: 2015-2020 - Date: 43861.0
+  63 Moons Technologies Ltd. - Tab: 2015-2020 - Date: 43861.0
+  7Nr Retail Ltd. - Tab: 2015-2020 - Date: 43861.0
+  A & M Febcon Ltd. - Tab: 2015-2020 - Date: 43861.0

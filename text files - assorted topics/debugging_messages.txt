@@ -1,0 +1,159 @@
+$ py debugging-2-29062025.py
+=== DEBUGGING SCRIPT TO FIND MISSING MONTHS ===
+
+Step 1: Processing Excel file...
+Processing tabs: ['2000-2005', '2005-2010', '2010-2015', '2015-2020', '2020-2025']
+
+Processing tab: 2000-2005
+  Tab 2000-2005: 4465 rows, 367 columns
+  Value columns found: 366
+  After melting: 1634190 rows
+
+Processing tab: 2005-2010
+  Tab 2005-2010: 3685 rows, 367 columns
+  Value columns found: 366
+  After melting: 1348710 rows
+
+Processing tab: 2010-2015
+  Tab 2010-2015: 4251 rows, 367 columns
+  Value columns found: 366
+  After melting: 1555866 rows
+
+Processing tab: 2015-2020
+  Tab 2015-2020: 4965 rows, 367 columns
+  Value columns found: 366
+  After melting: 1817190 rows
+
+Processing tab: 2020-2025
+  Tab 2020-2025: 5434 rows, 367 columns
+  Value columns found: 366
+  After melting: 1988844 rows
+
+Combined data: 8344800 rows
+
+Step 2: Extracting dates and metrics...
+
+Extracting dates and metrics from 8344800 rows...
+Sample column patterns: ['Jan 2025 365 days Low Price', 'Nov 2022 365 days Low Price Date', 'Apr 2006 Total Returns (%)', 'Dec 2008 365 days Low Price', 'Aug 2019 Adjusted Closing Price', 'May 2002 Date', 'Oct 2019 Adjusted Closing Price', 'Oct 2002 365 days Low Price', 'Oct 2016 Date', 'Apr 2020 Market Capitalisation']
+Rows before date filter: 8344800
+Rows after date filter: 8344800
+Rows filtered out: 0
+
+=== After extracting dates and metrics ===
+Total rows: 8344800
+Unique months: 301
+Present test months: ['Apr 2000', 'Sep 2000', 'Dec 2000', 'Mar 2001', 'Jun 2001', 'Sep 2001', 'Dec 2001']
+First 20 months: ['Apr 2000', 'Apr 2001', 'Apr 2002', 'Apr 2003', 'Apr 2004', 'Apr 2005', 'Apr 2006', 'Apr 2007', 'Apr 2008', 'Apr 2009', 'Apr 2010', 'Apr 2011', 'Apr 2012', 'Apr 2013', 'Apr 2014', 'Apr 2015', 'Apr 2016', 'Apr 2017', 'Apr 2018', 'Apr 2019']
+
+Step 3: Pivoting and converting dates...
+
+=== Before pivoting ===
+Total rows: 8344800
+Unique months: 301
+Present test months: ['Apr 2000', 'Sep 2000', 'Dec 2000', 'Mar 2001', 'Jun 2001', 'Sep 2001', 'Dec 2001']
+First 20 months: ['Apr 2000', 'Apr 2001', 'Apr 2002', 'Apr 2003', 'Apr 2004', 'Apr 2005', 'Apr 2006', 'Apr 2007', 'Apr 2008', 'Apr 2009', 'Apr 2010', 'Apr 2011', 'Apr 2012', 'Apr 2013', 'Apr 2014', 'Apr 2015', 'Apr 2016', 'Apr 2017', 'Apr 2018', 'Apr 2019']
+Pivoted data: 1390800 rows, 9 columns
+
+=== After pivoting ===
+Total rows: 1390800
+Unique months: 301
+Present test months: ['Apr 2000', 'Sep 2000', 'Dec 2000', 'Mar 2001', 'Jun 2001', 'Sep 2001', 'Dec 2001']
+First 20 months: ['Apr 2000', 'Apr 2001', 'Apr 2002', 'Apr 2003', 'Apr 2004', 'Apr 2005', 'Apr 2006', 'Apr 2007', 'Apr 2008', 'Apr 2009', 'Apr 2010', 'Apr 2011', 'Apr 2012', 'Apr 2013', 'Apr 2014', 'Apr 2015', 'Apr 2016', 'Apr 2017', 'Apr 2018', 'Apr 2019']
+Converting Date column...
+Found 1 additional date columns to convert
+
+=== After date conversion ===
+Total rows: 1390800
+Unique months: 301
+Present test months: ['Apr 2000', 'Sep 2000', 'Dec 2000', 'Mar 2001', 'Jun 2001', 'Sep 2001', 'Dec 2001']
+First 20 months: ['Apr 2000', 'Apr 2001', 'Apr 2002', 'Apr 2003', 'Apr 2004', 'Apr 2005', 'Apr 2006', 'Apr 2007', 'Apr 2008', 'Apr 2009', 'Apr 2010', 'Apr 2011', 'Apr 2012', 'Apr 2013', 'Apr 2014', 'Apr 2015', 'Apr 2016', 'Apr 2017', 'Apr 2018', 'Apr 2019']
+
+Step 4: Filtering month-end dates...
+
+=== Before month-end filtering ===
+Total rows: 1390800
+Unique months: 301
+Present test months: ['Apr 2000', 'Sep 2000', 'Dec 2000', 'Mar 2001', 'Jun 2001', 'Sep 2001', 'Dec 2001']
+First 20 months: ['Apr 2000', 'Apr 2001', 'Apr 2002', 'Apr 2003', 'Apr 2004', 'Apr 2005', 'Apr 2006', 'Apr 2007', 'Apr 2008', 'Apr 2009', 'Apr 2010', 'Apr 2011', 'Apr 2012', 'Apr 2013', 'Apr 2014', 'Apr 2015', 'Apr 2016', 'Apr 2017', 'Apr 2018', 'Apr 2019']
+Checking 1390800 rows for month-end dates...
+Sample dates (Excel serial):
+  36556.0 -> 2000-01-31 (Month-end: True)
+  36556.0 -> 2000-01-31 (Month-end: True)
+  36556.0 -> 2000-01-31 (Month-end: True)
+  36556.0 -> 2000-01-31 (Month-end: True)
+  36556.0 -> 2000-01-31 (Month-end: True)
+  36556.0 -> 2000-01-31 (Month-end: True)
+  36550.0 -> 2000-01-25 (Month-end: False)
+  36556.0 -> 2000-01-31 (Month-end: True)
+  36556.0 -> 2000-01-31 (Month-end: True)
+  36556.0 -> 2000-01-31 (Month-end: True)
+Rows before month-end filter: 1390800
+Rows after month-end filter: 568656
+Rows filtered out: 822144
+
+=== After month-end filtering ===
+Total rows: 568656
+Unique months: 211
+Present test months: ['Dec 2001']
+MISSING test months: ['Apr 2000', 'Sep 2000', 'Dec 2000', 'Mar 2001', 'Jun 2001', 'Sep 2001']
+First 20 months: ['Apr 2001', 'Apr 2002', 'Apr 2003', 'Apr 2004', 'Apr 2007', 'Apr 2008', 'Apr 2010', 'Apr 2012', 'Apr 2013', 'Apr 2014', 'Apr 2015', 'Apr 2018', 'Apr 2019', 'Apr 2020', 'Apr 2021', 'Apr 2024', 'Aug 2000', 'Aug 2001', 'Aug 2004', 'Aug 2005']
+
+Step 5: Calculating ratios and rankings...
+
+=== Before ratio calculation ===
+Total rows: 568656
+Unique months: 211
+Present test months: ['Dec 2001']
+MISSING test months: ['Apr 2000', 'Sep 2000', 'Dec 2000', 'Mar 2001', 'Jun 2001', 'Sep 2001']
+First 20 months: ['Apr 2001', 'Apr 2002', 'Apr 2003', 'Apr 2004', 'Apr 2007', 'Apr 2008', 'Apr 2010', 'Apr 2012', 'Apr 2013', 'Apr 2014', 'Apr 2015', 'Apr 2018', 'Apr 2019', 'Apr 2020', 'Apr 2021', 'Apr 2024', 'Aug 2000', 'Aug 2001', 'Aug 2004', 'Aug 2005']
+Found adjusted closing price column: Adjusted Closing Price
+Found low price column: 365 days Low Price
+Found low price date column: 365 days Low Price Date
+
+=== After adding ratio and date columns ===
+Total rows: 568656
+Unique months: 211
+Present test months: ['Dec 2001']
+MISSING test months: ['Apr 2000', 'Sep 2000', 'Dec 2000', 'Mar 2001', 'Jun 2001', 'Sep 2001']
+First 20 months: ['Apr 2001', 'Apr 2002', 'Apr 2003', 'Apr 2004', 'Apr 2007', 'Apr 2008', 'Apr 2010', 'Apr 2012', 'Apr 2013', 'Apr 2014', 'Apr 2015', 'Apr 2018', 'Apr 2019', 'Apr 2020', 'Apr 2021', 'Apr 2024', 'Aug 2000', 'Aug 2001', 'Aug 2004', 'Aug 2005']
+Rows before price filter: 568656
+Rows after price filter: 568656
+Rows filtered out: 0
+
+=== After filtering valid prices ===
+Total rows: 568656
+Unique months: 211
+Present test months: ['Dec 2001']
+MISSING test months: ['Apr 2000', 'Sep 2000', 'Dec 2000', 'Mar 2001', 'Jun 2001', 'Sep 2001']
+First 20 months: ['Apr 2001', 'Apr 2002', 'Apr 2003', 'Apr 2004', 'Apr 2007', 'Apr 2008', 'Apr 2010', 'Apr 2012', 'Apr 2013', 'Apr 2014', 'Apr 2015', 'Apr 2018', 'Apr 2019', 'Apr 2020', 'Apr 2021', 'Apr 2024', 'Aug 2000', 'Aug 2001', 'Aug 2004', 'Aug 2005']
+Rows before unique filter: 568656
+Rows after unique filter: 563725
+Duplicate rows removed: 4931
+
+=== After removing duplicates ===
+Total rows: 563725
+Unique months: 211
+Present test months: ['Dec 2001']
+MISSING test months: ['Apr 2000', 'Sep 2000', 'Dec 2000', 'Mar 2001', 'Jun 2001', 'Sep 2001']
+First 20 months: ['Apr 2001', 'Apr 2002', 'Apr 2003', 'Apr 2004', 'Apr 2007', 'Apr 2008', 'Apr 2010', 'Apr 2012', 'Apr 2013', 'Apr 2014', 'Apr 2015', 'Apr 2018', 'Apr 2019', 'Apr 2020', 'Apr 2021', 'Apr 2024', 'Aug 2000', 'Aug 2001', 'Aug 2004', 'Aug 2005']
+✗ Apr 2000: 0 companies (MISSING)
+✗ Sep 2000: 0 companies (MISSING)
+✗ Dec 2000: 0 companies (MISSING)
+Total unique periods for ranking: 211
+
+=== Final ranking results ===
+Total rows: 12660
+Unique months: 211
+Present test months: ['Dec 2001']
+MISSING test months: ['Apr 2000', 'Sep 2000', 'Dec 2000', 'Mar 2001', 'Jun 2001', 'Sep 2001']
+First 20 months: ['Apr 2001', 'Apr 2002', 'Apr 2003', 'Apr 2004', 'Apr 2007', 'Apr 2008', 'Apr 2010', 'Apr 2012', 'Apr 2013', 'Apr 2014', 'Apr 2015', 'Apr 2018', 'Apr 2019', 'Apr 2020', 'Apr 2021', 'Apr 2024', 'Aug 2000', 'Aug 2001', 'Aug 2004', 'Aug 2005']
+
+Step 6: Exporting results...
+Results exported to ranking_results_debug.xlsx
+
+FINAL SUMMARY:
+Total records in output: 12660
+Unique months in output: 211
+Date range: Apr 2001 to Sep 2024
+
+Processing completed successfully!

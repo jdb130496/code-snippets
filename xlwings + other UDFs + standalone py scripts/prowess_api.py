@@ -349,7 +349,7 @@ def test_simple_request():
     """Simple test exactly matching documentation"""
     import requests
     
-    API_KEY = ""  # Replace with your actual API key
+    API_KEY = "0be95582cf2a260c6be0b3ea5ebb7c32"  # Replace with your actual API key
     BATCH_FILE_PATH = r"D:\Downloads\52_week.bt"
     
     url = 'https://prowess.cmie.com/api/sendbatch'

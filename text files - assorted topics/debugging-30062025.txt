@@ -1,0 +1,95 @@
+$ py polars-processing-30062025.py
+=== STEP 1: Loading Excel File ===
+Combined data: 8344800 rows
+
+=== STEP 2: Extracting Dates and Metrics ===
+After extraction: 8344800 rows
+
+=== STEP 3: Pivoting Data ===
+After pivoting: 1390800 rows
+
+=== STEP 4: Analyzing Dates Before Filtering ===
+=== DATE ANALYSIS ===
+Total rows: 1390800
+Rows with valid dates: 989200
+
+Sample date values (first 20):
+  36556.0 -> 31/01/2000 ✓
+  36556.0 -> 31/01/2000 ✓
+  36556.0 -> 31/01/2000 ✓
+  36556.0 -> 31/01/2000 ✓
+  36556.0 -> 31/01/2000 ✓
+  36556.0 -> 31/01/2000 ✓
+  36550.0 -> 25/01/2000 ✗
+  36556.0 -> 31/01/2000 ✓
+  36556.0 -> 31/01/2000 ✓
+  36556.0 -> 31/01/2000 ✓
+
+=== MONTH ANALYSIS ===
+
+Jan 2000: 4465 rows
+  Date range: 36528.0 to 36556.0
+    36556.0 -> 31/01/2000 ✓
+    36556.0 -> 31/01/2000 ✓
+    36556.0 -> 31/01/2000 ✓
+    36556.0 -> 31/01/2000 ✓
+    36556.0 -> 31/01/2000 ✓
+
+Apr 2000: 4465 rows
+  Date range: 36619.0 to 36644.0
+    36644.0 -> 28/04/2000 ✗
+    36644.0 -> 28/04/2000 ✗
+    36644.0 -> 28/04/2000 ✗
+    36644.0 -> 28/04/2000 ✗
+    36644.0 -> 28/04/2000 ✗
+
+Jan 2005: 8150 rows
+  Date range: 38355.0 to 38383.0
+    38383.0 -> 31/01/2005 ✓
+    38383.0 -> 31/01/2005 ✓
+    38383.0 -> 31/01/2005 ✓
+    38383.0 -> 31/01/2005 ✓
+    38383.0 -> 31/01/2005 ✓
+
+Jan 2020: 10399 rows
+  Date range: 43831.0 to 43861.0
+    43861.0 -> 31/01/2020 ✓
+    43861.0 -> 31/01/2020 ✓
+    43861.0 -> 31/01/2020 ✓
+    43861.0 -> 31/01/2020 ✓
+    43861.0 -> 31/01/2020 ✓
+
+=== STEP 5: Filtering Month-End Dates ===
+
+=== MONTH-END FILTERING ===
+Before filtering: 1390800 total rows
+
+Month-wise breakdown (first 10):
+  Apr 2000: 2903 total, 0 month-end
+  Apr 2001: 2112 total, 1132 month-end
+  Apr 2002: 2185 total, 1517 month-end
+  Apr 2003: 2144 total, 1510 month-end
+  Apr 2004: 2410 total, 1891 month-end
+  Apr 2005: 2645 total, 0 month-end
+  Apr 2006: 2758 total, 0 month-end
+  Apr 2007: 2850 total, 2538 month-end
+  Apr 2008: 2955 total, 2741 month-end
+  Apr 2009: 3001 total, 0 month-end
+
+After filtering: 568656 rows kept
+Removed: 822144 rows with non-month-end dates
+
+Months remaining after filter: 211
+First 10 months: ['Apr 2001', 'Apr 2002', 'Apr 2003', 'Apr 2004', 'Apr 2007', 'Apr 2008', 'Apr 2010', 'Apr 2012', 'Apr 2013', 'Apr 2014']
+  Apr 2000: 0 companies ✗ (LOST)
+  Jan 2000: 2305 companies ✓
+  Jan 2005: 4830 companies ✓
+  Jan 2020: 5032 companies ✓
+After filtering: 568656 rows
+
+=== STEP 6: Calculating Rankings ===
+After fix - Jan 2005: 2415 rows, Jan 2020: 2516 rows
+Final rankings: 12660 rows
+Results exported to: ranking_results_month_end_only.xlsx
+Export completed successfully!
+

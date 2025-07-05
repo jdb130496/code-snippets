@@ -258,7 +258,7 @@ def get_url_data_id_new(investingid, from_date, to_date):
     from_date = datetime.strptime(from_date, "%d/%m/%Y").strftime("%Y-%m-%d")
     to_date = datetime.strptime(to_date, "%d/%m/%Y").strftime("%Y-%m-%d")
     # Construct the URL
-    url = f'http://api.scraperlink.com/investpy/?email=asharindani51@gmail.com&url=https%3A%2F%2Fapi.investing.com%2Fapi%2Ffinancialdata%2Fhistorical%2F{investingid}%3Fstart-date%3D{from_date}%26end-date%3D{to_date}%26time-frame%3DDaily%26add-missing-rows%3Dfalse'
+    url = f'http://api.scraperlink.com/investpy/?email=asharindani51@gmail.com&amp;url=https%3A%2F%2Fapi.investing.com%2Fapi%2Ffinancialdata%2Fhistorical%2F{investingid}%3Fstart-date%3D{from_date}%26end-date%3D{to_date}%26time-frame%3DDaily%26add-missing-rows%3Dfalse'
     # Fetch data from the API
     response = requests.get(url)
     json_output = response.json()
