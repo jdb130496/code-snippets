@@ -72,7 +72,37 @@ __declspec(dllexport) bool* evaluate_short_circuit(double *array1, double *array
     // Allocate memory for boolean result array
     bool *result = (bool *)malloc(size * sizeof(bool));
 
-    // Handle multithreading logic
+    // Handle single-element case
+    if (size == 1) {
+        bool cond1, cond2;
+
+        // Evaluate first condition (either val1 vs var1 or val1 vs val2)
+        if (use_const1) {
+            cond1 = compare(array1[0], comp_op1, var1);
+        } else {
+            cond1 = compare(array1[0], comp_op1, array2[0]);
+        }
+
+        // Evaluate second condition (either val2 vs var2 or val2 vs val1)
+        if (use_const2) {
+            cond2 = compare(array2[0], comp_op2, var2);
+        } else {
+            cond2 = compare(array2[0], comp_op2, array1[0]);
+        }
+
+        // Apply logical operator (either "||" or "&&")
+        if (strcmp(logical_operator, "||") == 0) {
+            result[0] = cond1 || cond2;
+        } else if (strcmp(logical_operator, "&&") == 0) {
+            result[0] = cond1 && cond2;
+        } else {
+            result[0] = false; // Invalid operator
+        }
+
+        return result;
+    }
+
+    // Handle multithreading logic for larger arrays
     HANDLE *threads = (HANDLE *)malloc(num_threads * sizeof(HANDLE));
     thread_data *thread_params = (thread_data *)malloc(num_threads * sizeof(thread_data));
 
@@ -108,4 +138,5 @@ __declspec(dllexport) bool* evaluate_short_circuit(double *array1, double *array
     // Return the boolean result array
     return result;
 }
+
 // Compilation VC (cl): cl short-circuit.c /LD /Fe:short-circuit.dll

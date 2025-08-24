@@ -9,7 +9,7 @@ void free_matches(char **matches, int match_count);
 """)
 
 # Load the DLL
-os.environ['PATH'] = r'D:\Programs\Msys2\home\j1304\Downloads' + ';' + os.environ['PATH'] + ';' + r'D:\Programs\Msys2\ucrt64\lib' + ';' + r'D:\Programs\Msys2\ucrt64\bin'
+os.environ['PATH'] =  r'D:\Programs\msys64\ucrt64\bin' + ';' + r'D:\Programs\msys64\home\juhi\Downloads' + ';' + os.environ['PATH'] + ';' + r'D:\Programs\msys64\ucrt64\lib'
 dll = ffi.dlopen("regex-C-xlwings.dll")
 
 @xw.func
@@ -48,11 +48,11 @@ import os
 # Add MSYS2 directories to PATH
 os.environ['PATH'] = (
     r'D:\dev\dll;' +
-    r'D:\Programs\Msys2\ucrt64\bin;' +
-    r'D:\Programs\Msys2\ucrt64\lib;' +
-    r'D:\Programs\Msys2\ucrt64\include;' +
-    r'D:\Programs\Msys2\ucrt64\x86_64-w64-mingw32\bin;' +
-    r'D:\Programs\Msys2\ucrt64\x86_64-w64-mingw32\include;' +
+    r'D:\Programs\msys64\ucrt64\bin;' +
+    r'D:\Programs\msys64\ucrt64\lib;' +
+    r'D:\Programs\msys64\ucrt64\include;' +
+    r'D:\Programs\msys64\ucrt64\x86_64-w64-mingw32\bin;' +
+    r'D:\Programs\msys64\ucrt64\x86_64-w64-mingw32\include;' +
     os.environ['PATH']
 )
 ffi201 = FFI()

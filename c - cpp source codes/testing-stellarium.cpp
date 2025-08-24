@@ -30,7 +30,7 @@ bool setTime(double julianDay, int timerate) {
         std::cout << "JSON Payload: " << jsonData << std::endl;
 
         // Set the URL
-        curl_easy_setopt(curl, CURLOPT_URL, "http://192.168.1.4:8090/api/main/time");
+        curl_easy_setopt(curl, CURLOPT_URL, "http://192.168.1.3:8090/api/main/time");
 
         // Specify that this is a POST request
         curl_easy_setopt(curl, CURLOPT_POST, 1L);

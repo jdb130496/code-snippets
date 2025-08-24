@@ -6,7 +6,7 @@ import os
 from cffi import FFI
 
 # Ensure the DLL path is in the system PATH
-os.environ['PATH'] = r'D:\Programs\Msys2\ucrt64\bin;D:\dev\dll;D:\boost\stagelib\lib' + ';' + os.environ['PATH']
+os.environ['PATH'] = r'D:\Programs\msys64\ucrt64\bin;D:\dev\dll;D:\boost\libs' + ';' + os.environ['PATH']
 
 # Create FFI object
 ffi = FFI()

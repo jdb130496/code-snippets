@@ -140,4 +140,4 @@ void free_matches(char** matches, int match_count) {
     free(matches);
 }
 //Compilation: gcc -shared -o regex-msys-c-pcre2-multithreading.dll regex-msys-c-pcre2-multithreading.c -lpcre2-8 -lpthread
-//Optimization - Reducing Size Of Compiled dll: gcc -shared -o regex-msys-c-pcre2-multithreading.dll regex-msys-c-pcre2-multithreading.c -lpcre2-8 -lpthread -O2 -s -flto -Wl,--gc-sections -fvisibility=hidden
+//Optimization - Reducing size of compiled dll:  gcc -shared -o regex-msys-c-pcre2-multithreading.dll regex-msys-c-pcre2-multithreading.c -lpcre2-8 -lpthread -O2 -s -flto -Wl,--gc-sections -fvisibility=hidden
