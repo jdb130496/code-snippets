@@ -1,0 +1,10 @@
+README.txt
+rdrand.c
+rdrand.py
+rdrandom.rst
+setup.py
+rdrand.egg-info/PKG-INFO
+rdrand.egg-info/SOURCES.txt
+rdrand.egg-info/dependency_links.txt
+rdrand.egg-info/requires.txt
+rdrand.egg-info/top_level.txt
