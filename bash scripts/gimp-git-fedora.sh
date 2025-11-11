@@ -111,7 +111,11 @@ echo "Building GEGL..."
 if [[ ! -d gegl ]]; then
     git clone --depth 1 https://gitlab.gnome.org/GNOME/gegl.git
 else
-    cd gegl && git pull && cd ..
+    cd gegl
+    # Clean up any untracked files that might conflict
+    git clean -fd
+    git pull
+    cd ..
 fi
 cd gegl
 rm -rf build
@@ -151,21 +155,22 @@ if [[ ! -d gimp ]]; then
     git clone --depth 1 https://gitlab.gnome.org/GNOME/gimp.git
 fi
 
-if [[ ! -d gimp-data ]]; then
-    git clone --depth 1 https://gitlab.gnome.org/GNOME/gimp-data.git
-fi
-
 cd gimp
-rm -rf gimp-data build
-git pull
-cd ..
 
-cd gimp-data
-git pull
-cd ..
+# Handle the gimp-data symlink issue
+echo "Cleaning up submodule state..."
+rm -rf .git/modules/gimp-data
+rm -rf gimp-data
+git submodule deinit -f gimp-data 2>/dev/null || true
 
-cd gimp
-ln -sf ../gimp-data .
+rm -rf build
+git pull
+
+# Initialize submodules with shallow clone for speed
+echo "Initializing gimp-data submodule (shallow clone)..."
+git submodule sync
+GIT_TRACE=1 GIT_CURL_VERBOSE=1 GIT_PROGRESS_DELAY=0 git submodule update --init --depth 1 --progress gimp-data
+echo "✓ gimp-data submodule initialized"
 
 # Verify glycin is available
 echo "Checking for glycin support..."
