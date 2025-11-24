@@ -38,40 +38,116 @@ fi
 mkdir -p ~/gimp-build
 cd ~/gimp-build
 
-export PKG_CONFIG_PATH="/usr/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/local/lib64/pkgconfig:/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"
+export PKG_CONFIG_PATH="/usr/local/lib64/pkgconfig:/usr/local/lib/pkgconfig:/usr/lib64/pkgconfig:/usr/lib/pkgconfig:$PKG_CONFIG_PATH"
 export LD_LIBRARY_PATH="/usr/local/lib64:/usr/local/lib:$LD_LIBRARY_PATH"
 export GI_TYPELIB_PATH="/usr/local/lib64/girepository-1.0:/usr/local/lib/girepository-1.0:$GI_TYPELIB_PATH"
 
-needs_build() {
-    local component=$1
-    local version_check=$2
-    if ! command -v pkg-config &> /dev/null; then
-        return 0
+check_version_update() {
+    local repo_dir=$1
+    local current_version=$2
+    
+    cd "$repo_dir"
+    git fetch --tags -q 2>/dev/null || git fetch --tags
+    
+    if [[ "$repo_dir" == *"babl"* ]]; then
+        LATEST_TAG=$(git tag | grep "^BABL_0_1" | sort -V | tail -1)
+        LATEST_VERSION=$(echo "$LATEST_TAG" | sed 's/BABL_//' | tr '_' '.')
+    elif [[ "$repo_dir" == *"gegl"* ]]; then
+        LATEST_TAG=$(git describe --tags origin/master)
+        LATEST_VERSION=$(echo "$LATEST_TAG" | sed 's/GEGL_//' | tr '_' '.')
     fi
-    if ! pkg-config --exists "$version_check" 2>/dev/null; then
+    
+    cd - > /dev/null
+    
+    if [[ "$current_version" != "$LATEST_VERSION" ]]; then
         return 0
     fi
     return 1
 }
 
-if [[ "$REBUILD_BABL" == true ]] || needs_build "babl" "babl-0.1"; then
+echo "Building LCMS2..."
+if [[ ! -d Little-CMS ]]; then
+    git clone --depth 1 https://github.com/mm2/Little-CMS.git
+fi
+cd Little-CMS
+git pull -q 2>/dev/null || true
+rm -rf build
+meson setup build --prefix=/usr/local > /dev/null
+ninja -C build 2>&1 | grep -v "WARNING: Glycin running without sandbox" | cat
+sudo ninja -C build install 2>&1 | grep -v "WARNING: Glycin running without sandbox" | cat
+sudo ldconfig
+cd ..
+
+BABL_INSTALLED_VERSION=""
+if pkg-config --exists babl-0.1 2>/dev/null; then
+    BABL_INSTALLED_VERSION=$(pkg-config --modversion babl-0.1)
+fi
+
+if [[ "$REBUILD_BABL" == true ]] || [[ -z "$BABL_INSTALLED_VERSION" ]]; then
+    BUILD_BABL=true
+elif [[ ! -d babl ]]; then
+    BUILD_BABL=true
+else
+    if check_version_update "babl" "$BABL_INSTALLED_VERSION"; then
+        echo "BABL update available: $BABL_INSTALLED_VERSION -> $LATEST_VERSION"
+        BUILD_BABL=true
+    else
+        echo "BABL $BABL_INSTALLED_VERSION is up to date"
+        BUILD_BABL=false
+    fi
+fi
+
+if [[ "$BUILD_BABL" == true ]]; then
     echo "Building BABL..."
     if [[ ! -d babl ]]; then
         git clone https://gitlab.gnome.org/GNOME/babl.git
     fi
     cd babl
-    git fetch --tags
+    git fetch --tags -q 2>/dev/null || git fetch --tags
     LATEST_TAG=$(git tag | grep "^BABL_0_1" | sort -V | tail -1)
     git checkout $LATEST_TAG
     rm -rf build
     meson setup build --prefix=/usr/local -Denable-gir=true
-    ninja -C build
-    sudo ninja -C build install
+    
+    if ! meson configure build | grep -q "enable-gir.*true"; then
+        echo "ERROR: BABL GObject introspection NOT enabled!"
+        exit 1
+    fi
+    
+    ninja -C build 2>&1 | grep -v "WARNING: Glycin running without sandbox" | cat
+    sudo ninja -C build install 2>&1 | grep -v "WARNING: Glycin running without sandbox" | cat
     sudo ldconfig
+    
+    BABL_VERSION=$(pkg-config --modversion babl-0.1)
+    echo "Installed babl version: $BABL_VERSION"
+    
+    if [ ! -f "/usr/local/lib64/girepository-1.0/Babl-0.1.typelib" ] && [ ! -f "/usr/local/lib/girepository-1.0/Babl-0.1.typelib" ]; then
+        echo "ERROR: Babl-0.1.typelib NOT found!"
+        exit 1
+    fi
     cd ..
 fi
 
-if [[ "$REBUILD_GEGL" == true ]] || [[ "$REBUILD_BABL" == true ]] || needs_build "gegl" "gegl-0.4"; then
+GEGL_INSTALLED_VERSION=""
+if pkg-config --exists gegl-0.4 2>/dev/null; then
+    GEGL_INSTALLED_VERSION=$(pkg-config --modversion gegl-0.4)
+fi
+
+if [[ "$REBUILD_GEGL" == true ]] || [[ "$BUILD_BABL" == true ]] || [[ -z "$GEGL_INSTALLED_VERSION" ]]; then
+    BUILD_GEGL=true
+elif [[ ! -d gegl ]]; then
+    BUILD_GEGL=true
+else
+    if check_version_update "gegl" "$GEGL_INSTALLED_VERSION"; then
+        echo "GEGL update available: $GEGL_INSTALLED_VERSION -> $LATEST_VERSION"
+        BUILD_GEGL=true
+    else
+        echo "GEGL $GEGL_INSTALLED_VERSION is up to date"
+        BUILD_GEGL=false
+    fi
+fi
+
+if [[ "$BUILD_GEGL" == true ]]; then
     echo "Building GEGL..."
     if [[ ! -d gegl ]]; then
         git clone --depth 1 https://gitlab.gnome.org/GNOME/gegl.git
@@ -80,11 +156,22 @@ if [[ "$REBUILD_GEGL" == true ]] || [[ "$REBUILD_BABL" == true ]] || needs_build
     git pull
     rm -rf build
     meson setup build --prefix=/usr/local -Dintrospection=true
-    ninja -C build
-    sudo ninja -C build install
+    
+    if ! meson configure build | grep -q "introspection.*true"; then
+        echo "ERROR: GEGL GObject introspection NOT enabled!"
+        exit 1
+    fi
+    
+    ninja -C build 2>&1 | grep -v "WARNING: Glycin running without sandbox" | cat
+    sudo ninja -C build install 2>&1 | grep -v "WARNING: Glycin running without sandbox" | cat
     echo "/usr/local/lib64" | sudo tee /etc/ld.so.conf.d/usr-local.conf > /dev/null
     echo "/usr/local/lib" | sudo tee -a /etc/ld.so.conf.d/usr-local.conf > /dev/null
     sudo ldconfig
+    
+    if [ ! -f "/usr/local/lib64/girepository-1.0/Gegl-0.4.typelib" ] && [ ! -f "/usr/local/lib/girepository-1.0/Gegl-0.4.typelib" ]; then
+        echo "ERROR: Gegl-0.4.typelib NOT found!"
+        exit 1
+    fi
     cd ..
 fi
 
@@ -105,19 +192,19 @@ cd ../gimp
 git config submodule.gimp-data.update none 2>/dev/null || true
 rm -rf gimp-data
 
+BEFORE=$(git rev-parse HEAD 2>/dev/null || echo "none")
 git pull
+AFTER=$(git rev-parse HEAD)
+
 ln -sf ../gimp-data gimp-data
 
-if [[ "$REBUILD_GIMP" == true ]] || [[ ! -f build/build.ninja ]]; then
+if [[ "$REBUILD_GIMP" == true ]] || [[ "$BUILD_BABL" == true ]] || [[ "$BUILD_GEGL" == true ]] || [[ "$BEFORE" != "$AFTER" ]] || [[ ! -f build/build.ninja ]]; then
     rm -rf build
-fi
-
-if [[ ! -f build/build.ninja ]]; then
     meson setup build --prefix=/usr/local
 fi
 
-ninja -C build
-sudo ninja -C build install
+ninja -C build 2>&1 | grep -v "WARNING: Glycin running without sandbox" | cat
+sudo ninja -C build install 2>&1 | grep -v "WARNING: Glycin running without sandbox" | cat
 
 GIMP_BINARY=$(find /usr/local/bin -name "gimp-[0-9]*" -not -name "gimp-console*" -not -name "gimp-script*" -not -name "gimp-test*" -not -name "gimptool*" | head -1)
 if [ -n "$GIMP_BINARY" ]; then
@@ -125,9 +212,10 @@ if [ -n "$GIMP_BINARY" ]; then
     sudo tee /usr/local/bin/gimp-git << 'EOF' > /dev/null
 #!/bin/bash
 export LD_LIBRARY_PATH="/usr/local/lib64:/usr/local/lib:$LD_LIBRARY_PATH"
-export PKG_CONFIG_PATH="/usr/lib64/pkgconfig:/usr/local/lib64/pkgconfig:/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"
+export PKG_CONFIG_PATH="/usr/local/lib64/pkgconfig:/usr/local/lib/pkgconfig:/usr/lib64/pkgconfig:/usr/lib/pkgconfig:$PKG_CONFIG_PATH"
 export GI_TYPELIB_PATH="/usr/local/lib64/girepository-1.0:/usr/local/lib/girepository-1.0:$GI_TYPELIB_PATH"
-exec /usr/local/bin/gimp-git-bin "$@"
+export PATH="/usr/bin:$PATH"
+exec /usr/local/bin/gimp-git-bin "$@" 2>&1 | grep -v "WARNING: Glycin running without sandbox"
 EOF
     sudo chmod +x /usr/local/bin/gimp-git
 fi

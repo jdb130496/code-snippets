@@ -1,0 +1,2135 @@
+New chat
+Chats
+Projects
+Artifacts
+Code
+Recents
+Extracting full artifact content from browser console
+Waybar battery alert threshold off by one percent
+Rclone sync deleted files instead of moving them
+Script modification to check babl dependency
+Fastparquet installation failure on Python 3.14
+OneDrive Upload on Linux
+Girnari 5G WiFi Detection Issue
+95th Percentile Market Cap Calculation Review
+Rustup Installation on Windows
+xlwings COM Integration Error
+Script Difference Calculation Reversal
+Untitled
+Excel SQL Table Debugging Script
+AMD Random Number Generation Issue
+RDSEED Random Number Generation in C++
+PulseAudio Volume Control Malfunction
+Manually Setting Default Kernel in Fedora
+Excel Date Month Filtering Techniques
+Pandas Duplicate Removal Discrepancy
+Duplicate Removal in Data Scripts
+Group Performance Compounding Analysis
+Percentile Calculation Script Correction
+Data Filtering Row Count Mismatch
+DataFrame Calculation Step Modification
+Financial Script Data Modifications
+Financial Script Debugging Notes
+Python Regex Error in Stock Data Script
+Please guide based on scripts ...
+Company Ranking Script Discrepancy
+Infosys Ranking Debugging Anomaly
+All chats
+AR
+Asha Rindani
+Free plan
+Extracting full artifact content from browser console
+AR
+
+This is the script which enables me in developer tools console inside browser to copy all chat session with artifacts.
+
+// Function to extract all content including full artifacts
+function extractFullContent() {
+    let fullContent = '';
+
+    // Look for artifact containers - they might be in iframes or shadow DOM
+    const artifacts = [];
+
+    // Check for iframes (artifacts are often rendered in iframes)
+    document.querySelectorAll('iframe').forEach(iframe => {
+        try {
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            const artifactContent = iframeDoc.body.innerText || iframeDoc.body.textContent;
+            if (artifactContent.trim()) {
+                artifacts.push('\n--- ARTIFACT ---\n' + artifactContent);
+            }
+        } catch(e) {
+            console.log('Could not access iframe:', e);
+        }
+    });
+
+    // Get main conversation text
+    const mainText = document.querySelector('body > div.root').innerText;
+
+    // Combine everything
+    fullContent = mainText + '\n\n' + artifacts.join('\n\n');
+
+    return fullContent;
+}
+// Extract and copy
+const fullChatContent = extractFullContent();
+copy(fullChatContent);
+console.log('✓ Copied ' + fullChatContent.length + ' characters');
+
+Issue is that artifacts are not completely copied but only the starting part. I have identified that java script path to artifact is:
+
+document.querySelector("body > div.root > div > div.w-full.relative.min-w-0 > div > div.max-md\\:absolute.top-0.right-0.bottom-0.left-0.z-20.md\\:flex-grow-0.md\\:flex-shrink-0.md\\:basis-0.overflow-hidden.h-full.max-md\\:flex-1 > div > div.flex-1.overflow-hidden.h-full.bg-bg-100 > div > div > div.ease-out.duration-200.relative.flex.w-full.flex-1.overflow-x-auto.overflow-y-scroll > div > div > div")
+
+There are several artifacts and all have this same path. Contents of artifacts are within the tags <span>
+
+From this information, can you modify the above script to capture entire contents of session chat with  artifacts embedded inside them?
+
+Show less
+Enhanced Chat + Artifacts Extractor
+Code 
+// Function to extract all content including full artifacts
+function extractFullContent() {
+    let fullContent = '';
+    const artifacts = [];
+    
+    // Method 1: Try to get artifacts from iframes
+    document.querySelectorAll('iframe').forEach((i
+
+I've created an enhanced version of your script that uses multiple methods to capture artifact content:
+
+Key improvements:
+
+Multiple extraction methods:
+Still checks iframes
+Uses your identified path to find artifact containers
+Extracts text from all <span> elements within those containers
+Also gets direct innerText from containers (in case spans don't capture everything)
+Looks for <pre> and <code> blocks as a fallback
+Better organization: Artifacts are labeled with their source and index so you can see where they came from
+More robust: Tries multiple approaches to ensure nothing is missed
+Debugging info: Logs what was found to help troubleshoot
+
+To use it:
+
+Open Developer Tools (F12)
+Go to the Console tab
+Paste the entire script
+Press Enter
+Content will be copied to your clipboard
+
+If artifacts are still incomplete, check the console output - it will show how many artifacts were found and from which sources. This will help us debug further if needed. You might also want to inspect one of those artifact containers in DevTools to see exactly how the content is structured (HTML structure, shadow DOM, etc.).
+
+Retry
+AR
+
+But I can see several methods in artifacts on right. should I copy entire artifact or a preferred method?
+
+You should copy the entire artifact - it's a single, complete script that uses multiple methods internally to ensure it captures all the content.
+
+Here's what to do:
+
+Click on the artifact on the right (the code block)
+Look for a copy button (usually in the top-right corner of the artifact)
+Click it to copy the entire script
+Paste it into your browser's Developer Tools Console
+Press Enter
+
+The script will automatically try all the different extraction methods (iframes, the path you identified, span elements, etc.) and combine all the results. You don't need to choose between methods - the script handles that for you.
+
+Why multiple methods? I included multiple extraction approaches because different parts of the chat might be stored differently:
+
+Main conversation text might be in one location
+Artifacts might be in iframes
+Or artifacts might be in that specific DOM path you found
+Content might be split across multiple <span> elements
+
+The script tries all these approaches and combines everything it finds, so you get the most complete export possible.
+
+Just copy and run the whole thing as one script! 🙂
+
+Retry
+AR
+
+Still did not capture full artifact but just like simple copy paste of chats, it captured only partial artifact like this:
+
+Arch Linux I/O Optimization Script
+Code 
+#!/bin/bash
+#
+# Arch Linux I/O Optimization Script
+# Prevents system hangs during package updates on slow storage
+# Optimized for external HDD / slow storage devices
+#
+# Usage: sudo ./optimize-arch-io.sh
+#
+ 
+set -e
+ 
+# Colors for output
+RED='\033[0;31m
+ 
+Now let me create the Fedora version:
+ 
+Fedora Linux I/O Optimization Script
+Code 
+#!/bin/bash
+#
+
+after RED= ... archlinux script was not fully captured and started Fedora directly. What could be the reason. I have indicated that within span flags, artifacts contents are there. 
+
+Can we apply another trick - capturing all tags to see where span is under the tree of tags? Or there can be another method more robust?
+
+Show more
+
+You're right - we need a more robust approach. Let me create a script that will help us first inspect the structure to understand exactly how artifacts are stored, and then extract them properly.
+
+Artifact Structure Inspector & Extractor
+Code 
+// Step 1: Inspect artifact structure
+function inspectArtifactStructure() {
+    console.log('=== INSPECTING ARTIFACT STRUCTURE ===\n');
+    
+    const artifactSelector = "body > div.root > div > div.w-full.relative.min-w-0 > div > div.max-md\\:absolu
+
+I've created a two-stage script that will:
+
+Stage 1: INSPECT - Shows you exactly how artifacts are structured:
+
+Number of containers found
+Whether they have iframes
+Whether they have Shadow DOM
+The element hierarchy
+Child element structure
+
+Stage 2: EXTRACT - Uses multiple aggressive methods:
+
+Extracts from iframes with multiple fallback methods
+Uses TreeWalker to get ALL text nodes (this bypasses display issues)
+Tries innerText AND textContent
+Looks for code/pre elements
+Sorts results by length to show the most complete versions first
+
+Run this script and:
+
+First, look at the console output - it will show the structure
+Then check your clipboard - the content is automatically copied
+Share with me what the inspection output shows (especially the "Child structure" part and whether it finds iframes or Shadow DOM)
+
+This will help us understand if:
+
+Artifacts are in iframes (most likely)
+They use Shadow DOM
+The content is hidden in a specific element type
+There's lazy loading happening
+
+The TreeWalker approach should capture everything, even if it's split across multiple elements!
+
+Retry
+AR
+
+I tried this here but see:
+
+There are several artifacts and all have this same path. Contents of artifacts are within the tags <span>
+ 
+From this information, can you modify the above script to capture entire contents of session chat with  artifacts embedded inside them?
+ 
+Show more
+Enhanced Chat + Artifacts Extractor
+Code 
+// Function to extract all content including full artifacts
+function extractFullContent() {
+    let fullContent = '';
+    const artifacts = [];
+   
+    // Method 1: Try to get artifacts from iframes
+    document.querySelectorAll('iframe').forEach((i
+ 
+I've created an enhanced version of your script that uses multiple methods to capture artifact content:
+ 
+
+Compare with your above responses. 
+
+As you can see after code, only partial code is extracted from artifact. Actually, artifact is a button kind of thing on this page and on inspection I found that it has tagged like:
+
+<div class="leading-tight text-sm line-clamp-1">Enhanced Chat + Artifacts Extractor</div>
+
+So can we modify script to capture all span tags within all such tags - There are two-three artifacts here:
+
+Show more
+
+Ah, I understand now! The artifacts in this current conversation are being displayed as buttons/cards, and when you try to copy them, you're only getting the visible preview text, not the full code inside them.
+
+Let me create a script specifically designed to extract artifacts from Claude.ai chat interface:
+
+Claude Chat & Artifact Extractor
+Code 
+// Claude.ai Chat & Artifact Extractor
+// Extracts full conversation including complete artifact code
+
+function extractClaudeChat() {
+    console.log('=== Extracting Claude Chat with Artifacts ===\n');
+    
+    let fullContent = '';
+    const message
+
+This new script is specifically designed for Claude.ai's interface and:
+
+Finds all messages in the conversation using Claude's data attributes
+Identifies artifact buttons by looking for elements with line-clamp class (like you found)
+Extracts full artifact code from iframes where the actual code is rendered
+Organizes everything - messages first, then all artifact contents at the end
+
+Try this script and let me know:
+
+How many messages it found
+How many artifacts (iframes) it extracted
+Whether the artifact contents are now complete
+
+If artifacts are still incomplete, we might need to:
+
+Click on each artifact first to make sure they're loaded
+Check if they're in Shadow DOM
+Look for a different storage mechanism
+
+Run it and share what the console output shows! 📋
+
+Retry
+AR
+
+No that was failure. Totally. Even chat messages above were not captured.
+
+Can you follow my prompt above and capture all text of artifacts within span tags embedded with other chat messages?
+
+You're absolutely right. Let me follow your exact instructions - capture all <span> tags within the artifact containers you identified, and embed them with the chat messages.
+
+Span-Based Artifact Extractor
+Code 
+// Extract chat with artifacts by capturing all span tags
+function extractChatWithSpans() {
+    console.log('=== Starting extraction ===\n');
+    
+    let fullContent = '';
+    
+    // Step 1: Get the main chat conversation area
+    const mainChatAre
+
+This script now does exactly what you asked:
+
+Finds the artifact containers using your exact path
+Gets ALL <span> tags within those containers
+Extracts the text from every span
+Combines with the main chat messages
+
+Run this and tell me:
+
+How many artifact containers it found
+How many spans in each
+How many characters extracted from spans
+Whether the artifact content is now complete
+
+If it's still not getting the full artifact code, please share what the console shows - especially the "Found X span tags" numbers. That will tell us if the spans contain the full code or if we need to look elsewhere.
+
+Retry
+AR
+
+I see console messages in developer tools like:
+
+=== Starting extraction ===
+52291-5e2b272606f58824.js:14 Found 1 artifact containers
+52291-5e2b272606f58824.js:14 Processing artifact container 1...
+52291-5e2b272606f58824.js:14   Found 687 span tags
+52291-5e2b272606f58824.js:14   Extracted 6686 characters from 687 spans
+52291-5e2b272606f58824.js:14 
+Main conversation: 15680 characters
+52291-5e2b272606f58824.js:14 
+=== SUMMARY ===
+52291-5e2b272606f58824.js:14 Total characters extracted: 22765
+52291-5e2b272606f58824.js:14 Artifacts found: 1
+52291-5e2b272606f58824.js:14 
+✓ Content copied to clipboard!
+
+There is only 1 artifact copied to clipboard although there more than 1 as you can see above.
+
+Also see your response as extracted by the script:
+
+"Let me create a script specifically designed to extract artifacts from Claude.ai chat interface:
+ 
+Claude Chat & Artifact Extractor
+Code 
+// Claude.ai Chat & Artifact Extractor
+// Extracts full conversation including complete artifact code
+ 
+function extractClaudeChat() {
+    console.log('=== Extracting Claude Chat with Artifacts ===\n');
+   
+    let fullContent = '';
+    const message
+ 
+This new script is specifically designed for Claude.ai's interface and:"
+
+As you can see, after Code only partial script has been extracted.
+
+After the extract of chat content I again see some artifact at the end. 
+
+So it seems all messed up instead of chats and within that artifacts where artifact button like links have been mentioned. Do you get it?
+
+Show more
+
+Yes, I get it now! The problem is:
+
+Artifact buttons/links are in the LEFT chat panel (where conversation flows)
+Artifact CONTENT is in the RIGHT panel (the artifact viewer you identified)
+The script is only finding 1 artifact container on the right, but there are MULTIPLE artifacts in this conversation
+We need to capture the RIGHT panel content EACH TIME you have an artifact button in the left chat
+
+The issue is that the right panel probably only shows the currently active/visible artifact. We need a different approach.
+
+Let me create a script that:
+
+Finds all artifact buttons in the chat
+For each button, tries to get its associated content
+Embeds the full artifact code right where the button appears in the chat
+Chat + Artifact Button Mapper
+Code 
+// Extract chat with artifacts by finding buttons and their content
+function extractChatWithArtifactMapping() {
+    console.log('=== Extracting Chat with Artifact Mapping ===\n');
+    
+    // Find the main conversation container (LEFT side)
+    const
+
+Now I understand the problem! The right panel only shows ONE artifact at a time - whichever one is currently selected/visible.
+
+This script will:
+
+Find all artifact buttons in the chat
+Mark where each artifact should be embedded
+Extract the currently visible artifact from the right panel
+Give you instructions on how to capture ALL artifacts
+
+To get ALL artifacts, you'll need to:
+
+Run this script first (captures current state)
+Click the next artifact button
+Run the script again
+Repeat for each artifact
+Combine the outputs
+
+OR - Would you like me to create an automated script that:
+
+Finds all artifact buttons
+Clicks each one with a delay
+Captures the content after each click
+Combines everything into one export?
+
+Let me know which approach you prefer!
+
+Retry
+AR
+
+See  I want this option:
+
+Combines everything into one export?
+
+But I suggest one method in java script which other languages use - Serial processing. 
+
+Go from top to bottom on the webpage and start collecting content. 
+
+In between where you find the artifact button com clickable link, scan through all span flags and collect contents therein.
+
+once they are captured go down.
+
+So on ... This will capture contents in order.
+
+Excellent idea! Serial processing from top to bottom - that's exactly what we need. Let me create a script that walks through the page sequentially and captures everything in order.
+
+Serial Top-to-Bottom Extractor
+Code 
+// Serial extraction: Top to bottom, capturing artifacts inline
+async function serialExtractChatWithArtifacts() {
+    console.log('=== Serial Extraction Started ===\n');
+    console.log('Processing page from top to bottom...\n');
+    
+    let fullCon
+
+Perfect! This script does exactly what you described:
+
+Serial Processing (Top to Bottom):
+
+Scans the page from top to bottom
+Identifies all artifact buttons in order
+Clicks each button one by one (with 500ms delay for loading)
+Captures the artifact content from the right panel after each click
+Embeds the full artifact content exactly where the button appears
+Continues down the page
+Combines everything in proper order
+
+The script will:
+
+Show progress in console as it clicks each artifact
+Tell you how many characters extracted from each
+Automatically copy the final combined output to clipboard
+
+Run it and watch the console - you'll see it clicking through each artifact automatically. If 500ms delay is too short (content not loading), we can increase it.
+
+Try it now! 🚀
+
+Retry
+AR
+
+Unfortunately this error in console:
+
+__52291-5e2b272606f58824.js:14__ Error during extraction: TypeError: element.className.includes is not a function     at <anonymous>:28:31     at NodeList.forEach (<anonymous>)     at serialExtractChatWithArtifacts (<anonymous>:25:17)     at <anonymous>:140:1
+1. Promise {<fulfilled>: undefined}
+Another suggestion: Don't include console messages and comments in the script to shorten it.
+
+Serial Top-to-Bottom Extractor
+Code ∙ Version 2 
+    allElements.forEach((element, idx) => {
+        if ((element.classList && element.classList.contains('line-clamp-1')) || 
+            (element.className && typeof element.className === 'string' && element.className.includes('line-clamp'))) {
+    
+
+Fixed the error. Now let me create a cleaner version without console messages and comments:
+
+Serial Extractor (Clean)
+Code 
+async function serialExtractChatWithArtifacts() {
+    let fullContent = '';
+    const chatContainer = document.querySelector('body > div.root');
+    if (!chatContainer) return 'Error: Could not find chat';
+    
+    const allElements = chatContainer.q
+
+Created a clean version without comments and minimal console output. The error is also fixed - it now checks if className is a string before calling .includes().
+
+Try the clean version now!
+
+Retry
+AR
+
+Errors GET:
+
+52291-5e2b272606f58824.js:14  GET https://claude.ai/api/organizations/918edaa3-2f56-492e-8c71-3c895288d043/artifacts/artifact_version/4c74904f-6b70-4a66-bce8-63b7125e9fcc/tools 404 (Not Found)
+
+That 404 error is from Claude trying to load artifact tools - it's not from our script. It's a background request that happens when artifacts are clicked.
+
+Ignore that error - it won't affect the extraction. The script should still work.
+
+Try running the script again and check:
+
+Does it finish execution?
+Does it say "✓ Copied X characters" at the end?
+Did content get copied to your clipboard?
+
+The 404 errors will appear as artifacts are clicked, but the extraction should still complete successfully. If you're getting other errors or it's not copying, let me know what happens after the script finishes.
+
+Retry
+AR
+
+Nothing capture - Nothing on clipboard:
+
+__52291-5e2b272606f58824.js:14__ Error: ReferenceError: copy is not defined     at <anonymous>:71:5
+__52291-5e2b272606f58824.js:14__  GET __https://claude.ai/api/organizations/918edaa3-2f56-492e-8c71-3c895288d043/artifacts/artifact_version/4c74904f-6b70-4a66-bce8-63b7125e9fcc/tools__ 404 (Not Found)
+
+The copy() function isn't available in your browser. Let me fix that:
+
+Serial Extractor (Clean)
+Code ∙ Version 2 
+serialExtractChatWithArtifacts().then(result => {
+    navigator.clipboard.writeText(result).then(() => {
+        console.log('✓ Copied ' + result.length + ' characters');
+    }).catch(err => {
+        console.log('Manual copy needed - printing below:
+
+Fixed! Now it uses navigator.clipboard.writeText() instead of copy(). Try the updated script now.
+
+Retry
+
+async function serialExtractChatWithArtifacts() { let fullContent = ''; const chatContainer = document.querySelector('body > div.root'); if (!chatContainer) return 'Error: Could not find chat'; const allElements = chatContainer.querySelectorAll('*'); const artifactButt
+
+PASTED
+
+AR
+
+I see the problem! The script clicked through artifacts but the output got cut off. Looking at your console output, the script IS working - it's clicking artifacts (see all those 404 errors for different artifact versions) and extracting content.
+
+The issue is the final output got truncated when printed to console. Let me create a simpler, more direct approach:
+
+Simple Manual Extraction Script
+Code 
+const sel = "body > div.root > div > div.w-full.relative.min-w-0 > div > div.max-md\\:absolute.top-0.right-0.bottom-0.left-0.z-20.md\\:flex-grow-0.md\\:flex-shrink-0.md\\:basis-0.overflow-hidden.h-full.max-md\\:flex-1 > div > div.flex-1.overflow-hidd
+
+This ultra-simple script:
+
+Gets main chat text
+Finds artifact buttons
+Clicks each one (800ms delay)
+Extracts span content from right panel
+Downloads as file instead of clipboard (avoids size limits)
+
+Run it - it will automatically download chat-export.txt with everything!
+
+Retry
+AR
+
+I opened that chat-export.txt file but the same issue still persists:
+
+Show more
+Enhanced Chat + Artifacts Extractor
+Code 
+// Function to extract all content including full artifacts
+function extractFullContent() {
+    let fullContent = '';
+    const artifacts = [];
+
+    // Method 1: Try to get artifacts from iframes
+    document.querySelectorAll('iframe').forEach((i
+I've created an enhanced version of your script that uses multiple methods to capture artifact content
+
+Even If I copy paste directly only partial artifacts are copied. The same result here in your script. See above. After Code, only 4-5 lines extracted and then your dialogue: I've created .....
+
+Show more
+
+I see the fundamental issue now! The artifact content is being displayed in the chat as a PREVIEW, not the full code. When you copy from the chat, you only get the preview.
+
+The actual full code is in the RIGHT PANEL when you click the artifact button. But we need to extract it BEFORE it gets inserted into the chat text.
+
+Let me try a completely different approach - extract directly from the DOM as we traverse, WITHOUT relying on .innerText:
+
+Direct DOM Walker
+Code 
+const artSel = "body > div.root > div > div.w-full.relative.min-w-0 > div > div.max-md\\:absolute.top-0.right-0.bottom-0.left-0.z-20.md\\:flex-grow-0.md\\:flex-shrink-0.md\\:basis-0.overflow-hidden.h-full.max-md\\:flex-1 > div > div.flex-1.overflow-h
+
+This script:
+
+First phase: Clicks ALL artifact buttons and extracts their FULL content using TreeWalker (gets every text node)
+Stores each artifact in a Map
+Second phase: Walks through the chat DOM tree
+When it finds an artifact button, it replaces it with the full stored content
+Downloads the result
+
+The key difference: It uses TreeWalker to get ALL text nodes from the artifact panel, not just innerText which might be truncated.
+
+Try this one!
+
+Retry
+AR
+
+I think best way is to instruct you in the beginning of the chat to NEVER USE ARTIFACT in the session. Will that work as a simplicity initiative. Is there any setting which disables artifact?
+
+Yes, absolutely! That's actually the simplest solution.
+
+Two ways to disable artifacts:
+
+Tell me at the start of conversation: Just say "Please don't use artifacts in this chat" or "Respond with all code inline, no artifacts" - I'll follow that instruction for the entire conversation.
+In your Custom Instructions (if you have Claude Pro):
+Go to your profile settings
+Add to Custom Instructions: "Never create artifacts. Always provide code inline in code blocks within the conversation."
+Per-message: You can also say "give me the code inline, not as an artifact" for any specific request.
+
+For THIS conversation though, the artifacts are already created. But for your current use case (copying/exporting chat sessions), you're right - disabling artifacts from the start would make everything much simpler since:
+
+All code would be inline in the chat
+Simple copy-paste or document.querySelector('body > div.root').innerText would work perfectly
+No need for complex extraction scripts
+
+Would you like to start a fresh chat with that instruction, or should we try to salvage this one with one more extraction attempt?
+
+Retry
+AR
+
+Direct DOM Walker seems to work but you copy to clipboard not to text file.
+
+You're right - let me check the script. Actually, the Direct DOM Walker DOES download to a file (full-chat.txt), not clipboard. Look at these lines in the script:
+
+javascript
+const blob = new Blob([final], {type: 'text/plain'});
+const url = URL.createObjectURL(blob);
+const a = document.createElement('a');
+a.href = url;
+a.download = 'full-chat.txt';
+a.click();
+
+This creates a download.
+
+Check your browser's download folder - the file should be there as full-chat.txt.
+
+If you're not seeing the download:
+
+Check if your browser blocked the download (look for a download icon in the address bar)
+Check your Downloads folder
+Look at the browser's download manager (Ctrl+J in most browsers)
+
+Did you find the file, or is the download not triggering at all?
+
+Retry
+AR
+
+I want you to change the script to copy to clipbaord and do not generate text file.
+
+Direct DOM Walker
+Code ∙ Version 2 
+    const final = output.join('');
+    navigator.clipboard.writeText(final).then(() => {
+        console.log('✓ Copied to clipboard:', final.length, 'chars');
+    }).catch(err => {
+        console.error('Clipboard failed:', err);
+    });
+
+Done! Now it copies to clipboard instead of downloading a file.
+
+Retry
+AR
+
+52291-5e2b272606f58824.js:14 Clipboard failed: NotAllowedError: Failed to execute 'writeText' on 'Clipboard': Document is not focused.
+    at fullExtract (<anonymous>:55:25)
+
+Problem is once you copy to clipboard then when another artifact is copied, first one would be overwritten.
+
+You're absolutely right on both points:
+
+Clipboard error: The document loses focus when clicking artifacts, so clipboard access fails
+Overwriting problem: Even if clipboard worked, each artifact click would overwrite the previous content
+
+The file download approach was actually correct for this use case because:
+
+It captures everything AFTER clicking all artifacts
+Writes once at the end
+Doesn't need document focus
+
+Let me revert to file download - it's the only reliable method here:
+
+Direct DOM Walker
+Code ∙ Version 3 
+    const final = output.join('');
+    const blob = new Blob([final], {type: 'text/plain'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'full-chat.txt';
+    a.click();
+    
+
+Back to file download. Check your Downloads folder for full-chat.txt - that's where your complete chat with all artifacts will be saved.
+
+For future chats, just tell me at the start: "Don't use artifacts, keep all code inline" and then simple copy-paste will work perfectly!
+
+Retry
+AR
+
+Can you insert DOM Walker code in this simple script which has better visuals in text file generated:
+
+const sel = "body > div.root > div > div.w-full.relative.min-w-0 > div > div.max-md\\:absolute.top-0.right-0.bottom-0.left-0.z-20.md\\:flex-grow-0.md\\:flex-shrink-0.md\\:basis-0.overflow-hidden.h-full.max-md\\:flex-1 > div > div.flex-1.overflow-hidden.h-full.bg-bg-100 > div > div > div.ease-out.duration-200.relative.flex.w-full.flex-1.overflow-x-auto.overflow-y-scroll > div > div > div";
+async function extract() {
+    let out = document.querySelector('body > div.root').innerText + '\n\n';
+    const btns = document.querySelectorAll('.line-clamp-1');
+
+    for (let i = 0; i < btns.length; i++) {
+        const title = btns[i].textContent.trim();
+        if (title.length > 5 && title.length < 200) {
+            btns[i].click();
+            await new Promise(r => setTimeout(r, 800));
+
+            const panel = document.querySelector(sel);
+            if (panel) {
+                const spans = panel.querySelectorAll('span');
+                let code = '';
+                spans.forEach(s => code += s.textContent);
+
+                out += '\n' + '='.repeat(80) + '\n';
+                out += 'ARTIFACT: ' + title + '\n';
+                out += '='.repeat(80) + '\n\n';
+                out += code + '\n\n';
+            }
+        }
+    }
+
+    const blob = new Blob([out], {type: 'text/plain'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'chat-export.txt';
+    a.click();
+    console.log('Downloaded ' + out.length + ' chars');
+}
+extract();
+
+Show more
+Simple Script with DOM Walker
+Code 
+const sel = "body > div.root > div > div.w-full.relative.min-w-0 > div > div.max-md\\:absolute.top-0.right-0.bottom-0.left-0.z-20.md\\:flex-grow-0.md\\:flex-shrink-0.md\\:basis-0.overflow-hidden.h-full.max-md\\:flex-1 > div > div.flex-1.overflow-hidd
+
+Done! I replaced the querySelectorAll('span') approach with TreeWalker which:
+
+Walks through ALL text nodes in the artifact panel
+Captures everything, even text not in <span> tags
+More robust and complete extraction
+
+The formatting stays the same with nice separators. Try it now!
+
+Retry
+AR
+
+Dom Walker did not work on the simple script. Again only highlight of the code (first few lines) instead of entire code is  extracted from artifact.
+
+Why it worked on previous script?
+
+Good catch! The issue is that the previous DOM Walker script did something crucial that the simple script doesn't:
+
+Previous script's key difference:
+
+First clicked ALL artifacts and stored their full content in a Map
+THEN walked through the chat and replaced artifact buttons with stored content
+
+Simple script's problem:
+
+It clicks artifact → extracts → adds to chat text
+But document.querySelector('body > div.root').innerText at the START already has the partial/preview content
+So artifacts are being added to text that already contains their truncated previews
+
+The solution: We need to either:
+
+Extract artifacts FIRST, store them, THEN get chat text and do replacements
+OR get chat text but SKIP artifact preview sections
+
+Let me fix it properly:
+
+Simple Script with DOM Walker
+Code ∙ Version 2 
+const sel = "body > div.root > div > div.w-full.relative.min-w-0 > div > div.max-md\\:absolute.top-0.right-0.bottom-0.left-0.z-20.md\\:flex-grow-0.md\\:flex-shrink-0.md\\:basis-0.overflow-hidden.h-full.max-md\\:flex-1 > div > div.flex-1.overflow-hidd
+
+Now it works like the DOM Walker script:
+
+Phase 1: Click all artifacts, extract full content with TreeWalker, store in Map
+Phase 2: Get chat text, then append all full artifacts at the end
+
+This way the full artifacts are added separately, not mixed with the truncated previews in the chat!
+
+Retry
+AR
+
+Again only first few lines got extracted for each artifact.
+
+I think I finally understand the real problem!
+
+When artifacts are clicked and displayed in the right panel, the content might be virtualized or lazy-loaded - meaning not all the code is actually in the DOM at once, only what's visible on screen.
+
+Let me ask you to do a manual test:
+
+Click on one of the artifact buttons manually
+In the right panel, scroll all the way down through the code
+Then run this in console:
+javascript
+const panel = document.querySelector("body > div.root > div > div.w-full.relative.min-w-0 > div > div.max-md\\:absolute.top-0.right-0.bottom-0.left-0.z-20.md\\:flex-grow-0.md\\:flex-shrink-0.md\\:basis-0.overflow-hidden.h-full.max-md\\:flex-1 > div > div.flex-1.overflow-hidden.h-full.bg-bg-100 > div > div > div.ease-out.duration-200.relative.flex.w-full.flex-1.overflow-x-auto.overflow-y-scroll > div > div > div");
+console.log(panel.innerText.length);
+
+Does scrolling first give you more characters? If yes, then the content IS virtualized and we need to add scrolling to the script before extracting.
+
+Retry
+AR
+
+const panel = document.querySelector("body > div.root > div > div.w-full.relative.min-w-0 > div > div.max-md\\:absolute.top-0.right-0.bottom-0.left-0.z-20.md\\:flex-grow-0.md\\:flex-shrink-0.md\\:basis-0.overflow-hidden.h-full.max-md\\:flex-1 > div > div.flex-1.overflow-hidden.h-full.bg-bg-100 > div > div > div.ease-out.duration-200.relative.flex.w-full.flex-1.overflow-x-auto.overflow-y-scroll > div > div > div");
+console.log(panel.innerText.length);
+52291-5e2b272606f58824.js:14 1798
+
+Now manually scroll all the way to the bottom of that artifact in the right panel, then run the same command again:
+
+javascript
+console.log(panel.innerText.length);
+
+Did the number increase after scrolling?
+
+Retry
+AR
+
+It shows like this:
+
+Perfect! So it's 1563 characters - the same before and after scrolling. This means the content is NOT virtualized.
+
+But wait - 1563 characters seems short for a full script. Let me ask: Which artifact do you currently have open in the right panel? Is it one of the longer code scripts or a shorter one?
+
+Can you click on one of the LONG artifacts (like "Enhanced Chat + Artifacts Extractor" or "Serial Extractor") and check if panel.innerText.length gives you the full length of that script?
+
+This will tell us if the selector is wrong or if something else is happening.
+
+Retry
+AR
+
+I clicked on second artifact from top and scrolled down. I can see like this:
+
+Excellent! 8401 characters - that's much better and likely the full artifact.
+
+Now I understand the issue: The script was only waiting 800ms after clicking, which might not be enough time for the artifact to fully load in the panel.
+
+Let me update the script with:
+
+Longer delay (1500ms instead of 800ms)
+Scroll the panel to ensure everything is loaded
+Better extraction
+Simple Script with DOM Walker
+Code ∙ Version 3 
+const sel = "body > div.root > div > div.w-full.relative.min-w-0 > div > div.max-md\\:absolute.top-0.right-0.bottom-0.left-0.z-20.md\\:flex-grow-0.md\\:flex-shrink-0.md\\:basis-0.overflow-hidden.h-full.max-md\\:flex-1 > div > div.flex-1.overflow-hidd
+
+Changes:
+
+1500ms delay after clicking (instead of 800ms)
+Scrolls panel to bottom and waits 500ms more
+Uses panel.innerText directly (simpler than TreeWalker)
+Logs each extraction so you can see what's happening
+
+Try it now and watch the console - it should show you the character count for each artifact as it extracts them!
+
+Retry
+Claude can make mistakes. Please double-check responses.
+
+
+
+
+Sonnet 4.5
+v3
+∙
+Latest
+Copy
+Publish
+const sel = "body > div.root > div > div.w-full.relative.min-w-0 > div > div.max-md\\:absolute.top-0.right-0.bottom-0.left-0.z-20.md\\:flex-grow-0.md\\:flex-shrink-0.md\\:basis-0.overflow-hidden.h-full.max-md\\:flex-1 > div > div.flex-1.overflow-hidden.h-full.bg-bg-100 > div > div > div.ease-out.duration-200.relative.flex.w-full.flex-1.overflow-x-auto.overflow-y-scroll > div > div > div";
+
+async function extract() {
+    const btns = document.querySelectorAll('.line-clamp-1');
+    const artifacts = new Map();
+    
+    for (let i = 0; i < btns.length; i++) {
+        const title = btns[i].textContent.trim();
+        if (title.length > 5 && title.length < 200) {
+            btns[i].click();
+            await new Promise(r => setTimeout(r, 1500));
+            
+            const panel = document.querySelector(sel);
+            if (panel) {
+                panel.scrollTop = panel.scrollHeight;
+                await new Promise(r => setTimeout(r, 500));
+                
+                const code = panel.innerText;
+                artifacts.set(title, code);
+                console.log('Extracted:', title, '-', code.length, 'chars');
+            }
+        }
+    }
+    
+    let out = document.querySelector('body > div.root').innerText + '\n\n';
+    
+    artifacts.forEach((code, title) => {
+        out += '\n' + '='.repeat(80) + '\n';
+        out += 'ARTIFACT: ' + title + '\n';
+        out += '='.repeat(80) + '\n\n';
+        out += code + '\n\n';
+    });
+    
+    const blob = new Blob([out], {type: 'text/plain'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'chat-export.txt';
+    a.click();
+    console.log('✓ Downloaded ' + out.length + ' chars total');
+}
+
+extract();
+
+
+================================================================================
+ARTIFACT: Enhanced Chat + Artifacts Extractor
+================================================================================
+
+// Function to extract all content including full artifacts
+function extractFullContent() {
+    let fullContent = '';
+    const artifacts = [];
+    
+    // Method 1: Try to get artifacts from iframes
+    document.querySelectorAll('iframe').forEach((iframe, index) => {
+        try {
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            const artifactContent = iframeDoc.body.innerText || iframeDoc.body.textContent;
+            if (artifactContent.trim()) {
+                artifacts.push({
+                    index: index,
+                    source: 'iframe',
+                    content: artifactContent
+                });
+            }
+        } catch(e) {
+            console.log('Could not access iframe ' + index + ':', e.message);
+        }
+    });
+    
+    // Method 2: Get artifacts from the specific path you identified
+    const artifactSelector = "body > div.root > div > div.w-full.relative.min-w-0 > div > div.max-md\\:absolute.top-0.right-0.bottom-0.left-0.z-20.md\\:flex-grow-0.md\\:flex-shrink-0.md\\:basis-0.overflow-hidden.h-full.max-md\\:flex-1 > div > div.flex-1.overflow-hidden.h-full.bg-bg-100 > div > div > div.ease-out.duration-200.relative.flex.w-full.flex-1.overflow-x-auto.overflow-y-scroll > div > div > div";
+    
+    const artifactContainers = document.querySelectorAll(artifactSelector);
+    
+    artifactContainers.forEach((container, index) => {
+        // Get all text content from spans within this container
+        const spans = container.querySelectorAll('span');
+        let artifactText = '';
+        
+        spans.forEach(span => {
+            const text = span.innerText || span.textContent;
+            if (text && text.trim()) {
+                artifactText += text + '\n';
+            }
+        });
+        
+        // If we got content, add it
+        if (artifactText.trim()) {
+            artifacts.push({
+                index: index,
+                source: 'path',
+                content: artifactText
+            });
+        }
+        
+        // Also try getting all inner text from the container directly
+        const directText = container.innerText || container.textContent;
+        if (directText && directText.trim() && directText.length > artifactText.length) {
+            artifacts.push({
+                index: index,
+                source: 'path-direct',
+                content: directText
+            });
+        }
+    });
+    
+    // Method 3: Look for any pre or code elements that might contain artifacts
+    document.querySelectorAll('pre, code').forEach((elem, index) => {
+        const content = elem.innerText || elem.textContent;
+        if (content && content.trim().length > 100) {
+            artifacts.push({
+                index: index,
+                source: 'code-block',
+                content: content
+            });
+        }
+    });
+    
+    // Get main conversation text
+    const mainText = document.querySelector('body > div.root')?.innerText || 'Could not extract main content';
+    
+    // Combine everything
+    fullContent = '=== MAIN CONVERSATION ===\n\n' + mainText + '\n\n';
+    
+    if (artifacts.length > 0) {
+        fullContent += '\n\n=== ARTIFACTS (' + artifacts.length + ' found) ===\n\n';
+        
+        artifacts.forEach((artifact, idx) => {
+            fullContent += `\n--- ARTIFACT ${idx + 1} (source: ${artifact.source}, index: ${artifact.index}) ---\n`;
+            fullContent += artifact.content;
+            fullContent += '\n--- END ARTIFACT ${idx + 1} ---\n';
+        });
+    } else {
+        fullContent += '\n\n=== NO ARTIFACTS FOUND ===\n';
+    }
+    
+    return fullContent;
+}
+
+// Extract and copy
+const fullChatContent = extractFullContent();
+copy(fullChatContent);
+console.log('✓ Copied ' + fullChatContent.length + ' characters');
+console.log('✓ Check the console output above to see what was found');
+
+
+================================================================================
+ARTIFACT: Artifact Structure Inspector & Extractor
+================================================================================
+
+// Step 1: Inspect artifact structure
+function inspectArtifactStructure() {
+    console.log('=== INSPECTING ARTIFACT STRUCTURE ===\n');
+    
+    const artifactSelector = "body > div.root > div > div.w-full.relative.min-w-0 > div > div.max-md\\:absolute.top-0.right-0.bottom-0.left-0.z-20.md\\:flex-grow-0.md\\:flex-shrink-0.md\\:basis-0.overflow-hidden.h-full.max-md\\:flex-1 > div > div.flex-1.overflow-hidden.h-full.bg-bg-100 > div > div > div.ease-out.duration-200.relative.flex.w-full.flex-1.overflow-x-auto.overflow-y-scroll > div > div > div";
+    
+    const containers = document.querySelectorAll(artifactSelector);
+    
+    console.log(`Found ${containers.length} artifact containers\n`);
+    
+    containers.forEach((container, idx) => {
+        console.log(`\n--- CONTAINER ${idx + 1} ---`);
+        console.log('Tag name:', container.tagName);
+        console.log('Classes:', container.className);
+        console.log('Child elements:', container.children.length);
+        console.log('Direct text length:', (container.innerText || '').length);
+        
+        // Show structure
+        console.log('\nChild structure:');
+        Array.from(container.children).forEach((child, i) => {
+            console.log(`  ${i}: <${child.tagName}> class="${child.className}" children=${child.children.length}`);
+        });
+        
+        // Look for iframes within
+        const iframes = container.querySelectorAll('iframe');
+        console.log('\nIframes found:', iframes.length);
+        
+        // Look for shadow roots
+        const elementsWithShadow = container.querySelectorAll('*');
+        let shadowCount = 0;
+        elementsWithShadow.forEach(el => {
+            if (el.shadowRoot) {
+                shadowCount++;
+                console.log('Shadow DOM found on:', el.tagName, el.className);
+            }
+        });
+        console.log('Shadow DOMs found:', shadowCount);
+        
+        console.log('\n' + '='.repeat(50));
+    });
+}
+
+// Step 2: Extract with multiple robust methods
+function extractFullContentRobust() {
+    let fullContent = '';
+    const artifacts = [];
+    
+    // Get main conversation (everything except artifact panel)
+    const conversationPanel = document.querySelector('body > div.root > div > div.w-full.relative.min-w-0 > div > div.flex.flex-col.flex-1.overflow-hidden.h-full');
+    const mainText = conversationPanel ? conversationPanel.innerText : document.querySelector('body > div.root')?.innerText || '';
+    
+    // Method 1: Try iframes with more aggressive extraction
+    document.querySelectorAll('iframe').forEach((iframe, index) => {
+        try {
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            
+            // Try multiple extraction methods from iframe
+            let content = '';
+            
+            // Try body innerText
+            if (iframeDoc.body) {
+                content = iframeDoc.body.innerText || iframeDoc.body.textContent || '';
+            }
+            
+            // Try all text nodes
+            if (!content) {
+                const walker = iframeDoc.createTreeWalker(
+                    iframeDoc.body || iframeDoc,
+                    NodeFilter.SHOW_TEXT,
+                    null,
+                    false
+                );
+                let textNodes = [];
+                let node;
+                while (node = walker.nextNode()) {
+                    if (node.textContent.trim()) {
+                        textNodes.push(node.textContent);
+                    }
+                }
+                content = textNodes.join('\n');
+            }
+            
+            // Try pre and code elements
+            if (!content) {
+                const codeElements = iframeDoc.querySelectorAll('pre, code, .code, [class*="code"]');
+                content = Array.from(codeElements)
+                    .map(el => el.innerText || el.textContent)
+                    .join('\n\n');
+            }
+            
+            if (content && content.trim().length > 20) {
+                artifacts.push({
+                    index: artifacts.length,
+                    source: 'iframe-' + index,
+                    content: content,
+                    length: content.length
+                });
+            }
+        } catch(e) {
+            console.log('Could not access iframe ' + index + ':', e.message);
+        }
+    });
+    
+    // Method 2: Extract from identified path - use text nodes
+    const artifactSelector = "body > div.root > div > div.w-full.relative.min-w-0 > div > div.max-md\\:absolute.top-0.right-0.bottom-0.left-0.z-20.md\\:flex-grow-0.md\\:flex-shrink-0.md\\:basis-0.overflow-hidden.h-full.max-md\\:flex-1 > div > div.flex-1.overflow-hidden.h-full.bg-bg-100 > div > div > div.ease-out.duration-200.relative.flex.w-full.flex-1.overflow-x-auto.overflow-y-scroll > div > div > div";
+    
+    const artifactContainers = document.querySelectorAll(artifactSelector);
+    
+    artifactContainers.forEach((container, index) => {
+        // Method A: Get ALL text nodes recursively
+        const walker = document.createTreeWalker(
+            container,
+            NodeFilter.SHOW_TEXT,
+            null,
+            false
+        );
+        
+        let textNodes = [];
+        let node;
+        while (node = walker.nextNode()) {
+            if (node.textContent.trim()) {
+                textNodes.push(node.textContent);
+            }
+        }
+        const textNodeContent = textNodes.join('');
+        
+        if (textNodeContent.trim().length > 20) {
+            artifacts.push({
+                index: artifacts.length,
+                source: 'path-textnodes-' + index,
+                content: textNodeContent,
+                length: textNodeContent.length
+            });
+        }
+        
+        // Method B: Get innerText from container
+        const innerTextContent = container.innerText || container.textContent || '';
+        if (innerTextContent.trim().length > 20 && innerTextContent.length > textNodeContent.length) {
+            artifacts.push({
+                index: artifacts.length,
+                source: 'path-innertext-' + index,
+                content: innerTextContent,
+                length: innerTextContent.length
+            });
+        }
+        
+        // Method C: Look for any element that might contain code
+        const codeElements = container.querySelectorAll('pre, code, div[class*="code"], span[class*="code"], div[class*="content"]');
+        codeElements.forEach((elem, elemIdx) => {
+            const content = elem.innerText || elem.textContent || '';
+            if (content.trim().length > 100) {
+                artifacts.push({
+                    index: artifacts.length,
+                    source: `path-code-${index}-${elemIdx}`,
+                    content: content,
+                    length: content.length
+                });
+            }
+        });
+    });
+    
+    // Build final content
+    fullContent = '=== MAIN CONVERSATION ===\n\n' + mainText + '\n\n';
+    
+    if (artifacts.length > 0) {
+        // Sort by length descending to get the most complete versions first
+        artifacts.sort((a, b) => b.length - a.length);
+        
+        fullContent += `\n\n=== ARTIFACTS (${artifacts.length} found) ===\n\n`;
+        
+        artifacts.forEach((artifact, idx) => {
+            fullContent += `\n${'='.repeat(70)}\n`;
+            fullContent += `ARTIFACT ${idx + 1} | Source: ${artifact.source} | Length: ${artifact.length} chars\n`;
+            fullContent += `${'='.repeat(70)}\n\n`;
+            fullContent += artifact.content;
+            fullContent += '\n\n';
+        });
+    } else {
+        fullContent += '\n\n=== NO ARTIFACTS FOUND ===\n';
+    }
+    
+    return fullContent;
+}
+
+// Run inspector first
+console.log('Running structure inspector...\n');
+inspectArtifactStructure();
+
+console.log('\n\n' + '='.repeat(70));
+console.log('INSPECTION COMPLETE - Check output above');
+console.log('='.repeat(70) + '\n\n');
+
+// Then extract
+console.log('Now extracting content...\n');
+const fullChatContent = extractFullContentRobust();
+copy(fullChatContent);
+console.log('\n✓ Copied ' + fullChatContent.length + ' characters to clipboard');
+console.log('✓ Content extracted with multiple methods');
+console.log('\nIf artifacts are still incomplete, check the inspection output above');
+console.log('and share what you see for the artifact containers.');
+
+
+================================================================================
+ARTIFACT: Claude Chat & Artifact Extractor
+================================================================================
+
+// Claude.ai Chat & Artifact Extractor
+// Extracts full conversation including complete artifact code
+
+function extractClaudeChat() {
+    console.log('=== Extracting Claude Chat with Artifacts ===\n');
+    
+    let fullContent = '';
+    const messages = [];
+    
+    // Find all message containers in the conversation
+    const messageContainers = document.querySelectorAll('[data-test-render-count]');
+    
+    console.log(`Found ${messageContainers.length} message containers\n`);
+    
+    messageContainers.forEach((container, idx) => {
+        const message = {
+            index: idx,
+            type: '',
+            content: '',
+            artifacts: []
+        };
+        
+        // Determine if it's user or assistant message
+        const isUser = container.querySelector('[data-testid="user-message"]');
+        const isAssistant = container.querySelector('[data-testid="assistant-message"]');
+        
+        message.type = isUser ? 'USER' : isAssistant ? 'ASSISTANT' : 'UNKNOWN';
+        
+        // Get main text content
+        const textContent = container.querySelector('.font-claude-message, .font-user-message, [class*="message"]');
+        if (textContent) {
+            message.content = textContent.innerText || textContent.textContent || '';
+        }
+        
+        // Look for artifact buttons/cards
+        const artifactButtons = container.querySelectorAll('[class*="line-clamp"], .leading-tight');
+        
+        artifactButtons.forEach((button, btnIdx) => {
+            const artifactTitle = button.innerText || button.textContent || '';
+            
+            // Find the parent that might contain artifact data
+            let artifactContainer = button.closest('[class*="artifact"], [data-artifact-id]');
+            
+            if (!artifactContainer) {
+                // Try to find nearby iframe or code container
+                artifactContainer = button.closest('div').querySelector('iframe, pre, code');
+            }
+            
+            if (artifactTitle && artifactTitle.trim()) {
+                message.artifacts.push({
+                    title: artifactTitle,
+                    container: artifactContainer
+                });
+            }
+        });
+        
+        messages.push(message);
+    });
+    
+    // Now look for actual artifact content in iframes
+    const artifactIframes = document.querySelectorAll('iframe');
+    const artifactContents = [];
+    
+    console.log(`Found ${artifactIframes.length} iframes (potential artifacts)\n`);
+    
+    artifactIframes.forEach((iframe, idx) => {
+        try {
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            
+            // Extract all text from iframe
+            let content = '';
+            
+            // Try to get pre/code elements first (most likely for code artifacts)
+            const codeElements = iframeDoc.querySelectorAll('pre, code');
+            if (codeElements.length > 0) {
+                content = Array.from(codeElements)
+                    .map(el => el.innerText || el.textContent)
+                    .join('\n\n');
+            }
+            
+            // If no code elements, get all text
+            if (!content || content.trim().length < 50) {
+                content = iframeDoc.body ? (iframeDoc.body.innerText || iframeDoc.body.textContent) : '';
+            }
+            
+            // Try getting all text nodes as fallback
+            if (!content || content.trim().length < 50) {
+                const walker = iframeDoc.createTreeWalker(
+                    iframeDoc.body || iframeDoc.documentElement,
+                    NodeFilter.SHOW_TEXT,
+                    null,
+                    false
+                );
+                const textNodes = [];
+                let node;
+                while (node = walker.nextNode()) {
+                    if (node.textContent.trim()) {
+                        textNodes.push(node.textContent);
+                    }
+                }
+                content = textNodes.join('\n');
+            }
+            
+            if (content && content.trim().length > 20) {
+                artifactContents.push({
+                    index: idx,
+                    content: content,
+                    length: content.length
+                });
+                console.log(`  Iframe ${idx}: Extracted ${content.length} characters`);
+            }
+        } catch (e) {
+            console.log(`  Iframe ${idx}: Could not access - ${e.message}`);
+        }
+    });
+    
+    // Build the final output
+    fullContent += '=' .repeat(80) + '\n';
+    fullContent += 'CLAUDE CHAT EXPORT\n';
+    fullContent += '='.repeat(80) + '\n\n';
+    
+    messages.forEach((msg, idx) => {
+        fullContent += `\n${'─'.repeat(80)}\n`;
+        fullContent += `${msg.type} MESSAGE ${idx + 1}\n`;
+        fullContent += `${'─'.repeat(80)}\n\n`;
+        
+        if (msg.content) {
+            fullContent += msg.content + '\n';
+        }
+        
+        // Add artifact information
+        if (msg.artifacts.length > 0) {
+            fullContent += `\n[${msg.artifacts.length} artifact(s) in this message]\n`;
+            msg.artifacts.forEach((art, artIdx) => {
+                fullContent += `  - ${art.title}\n`;
+            });
+        }
+        
+        fullContent += '\n';
+    });
+    
+    // Add all extracted artifact contents at the end
+    if (artifactContents.length > 0) {
+        fullContent += '\n\n' + '='.repeat(80) + '\n';
+        fullContent += `ARTIFACT CONTENTS (${artifactContents.length} found)\n`;
+        fullContent += '='.repeat(80) + '\n\n';
+        
+        artifactContents.forEach((artifact, idx) => {
+            fullContent += `\n${'━'.repeat(80)}\n`;
+            fullContent += `ARTIFACT ${idx + 1} (${artifact.length} characters)\n`;
+            fullContent += `${'━'.repeat(80)}\n\n`;
+            fullContent += artifact.content;
+            fullContent += '\n\n';
+        });
+    }
+    
+    // Summary
+    console.log('\n=== EXTRACTION SUMMARY ===');
+    console.log(`Messages: ${messages.length}`);
+    console.log(`Artifacts extracted: ${artifactContents.length}`);
+    console.log(`Total characters: ${fullContent.length}`);
+    
+    return fullContent;
+}
+
+// Execute extraction
+console.log('Starting extraction...\n');
+const exportedContent = extractClaudeChat();
+copy(exportedContent);
+console.log('\n✓ Content copied to clipboard!');
+console.log('✓ Paste it into a text editor to review');
+
+
+================================================================================
+ARTIFACT: Span-Based Artifact Extractor
+================================================================================
+
+// Extract chat with artifacts by capturing all span tags
+function extractChatWithSpans() {
+    console.log('=== Starting extraction ===\n');
+    
+    let fullContent = '';
+    
+    // Step 1: Get the main chat conversation area
+    const mainChatArea = document.querySelector('body > div.root');
+    if (!mainChatArea) {
+        console.error('Could not find main chat area');
+        return 'Error: Could not find chat area';
+    }
+    
+    // Step 2: Get all span elements from the artifact containers you identified
+    const artifactSelector = "body > div.root > div > div.w-full.relative.min-w-0 > div > div.max-md\\:absolute.top-0.right-0.bottom-0.left-0.z-20.md\\:flex-grow-0.md\\:flex-shrink-0.md\\:basis-0.overflow-hidden.h-full.max-md\\:flex-1 > div > div.flex-1.overflow-hidden.h-full.bg-bg-100 > div > div > div.ease-out.duration-200.relative.flex.w-full.flex-1.overflow-x-auto.overflow-y-scroll > div > div > div";
+    
+    const artifactContainers = document.querySelectorAll(artifactSelector);
+    console.log(`Found ${artifactContainers.length} artifact containers\n`);
+    
+    // Step 3: Extract all span text from each artifact container
+    const artifacts = [];
+    
+    artifactContainers.forEach((container, index) => {
+        console.log(`Processing artifact container ${index + 1}...`);
+        
+        // Get ALL span elements within this container
+        const spans = container.querySelectorAll('span');
+        console.log(`  Found ${spans.length} span tags`);
+        
+        // Collect all text from spans
+        let artifactText = '';
+        spans.forEach(span => {
+            const text = span.textContent || span.innerText || '';
+            if (text) {
+                artifactText += text;
+            }
+        });
+        
+        if (artifactText.trim().length > 0) {
+            artifacts.push({
+                index: index + 1,
+                text: artifactText,
+                spanCount: spans.length,
+                length: artifactText.length
+            });
+            console.log(`  Extracted ${artifactText.length} characters from ${spans.length} spans`);
+        }
+    });
+    
+    // Step 4: Get the main conversation text
+    const conversationText = mainChatArea.innerText || mainChatArea.textContent || '';
+    console.log(`\nMain conversation: ${conversationText.length} characters`);
+    
+    // Step 5: Build final output - main conversation with artifacts embedded
+    fullContent = conversationText;
+    
+    // Add artifacts at the end if they weren't included in the main text
+    if (artifacts.length > 0) {
+        fullContent += '\n\n' + '='.repeat(80) + '\n';
+        fullContent += 'ARTIFACTS EXTRACTED FROM SPAN TAGS\n';
+        fullContent += '='.repeat(80) + '\n';
+        
+        artifacts.forEach(artifact => {
+            fullContent += `\n\n${'─'.repeat(80)}\n`;
+            fullContent += `ARTIFACT ${artifact.index} (${artifact.spanCount} spans, ${artifact.length} chars)\n`;
+            fullContent += `${'─'.repeat(80)}\n\n`;
+            fullContent += artifact.text;
+        });
+    }
+    
+    console.log('\n=== SUMMARY ===');
+    console.log(`Total characters extracted: ${fullContent.length}`);
+    console.log(`Artifacts found: ${artifacts.length}`);
+    
+    return fullContent;
+}
+
+// Execute
+const result = extractChatWithSpans();
+copy(result);
+console.log('\n✓ Content copied to clipboard!');
+
+
+================================================================================
+ARTIFACT: Chat + Artifact Button Mapper
+================================================================================
+
+// Extract chat with artifacts by finding buttons and their content
+function extractChatWithArtifactMapping() {
+    console.log('=== Extracting Chat with Artifact Mapping ===\n');
+    
+    // Find the main conversation container (LEFT side)
+    const chatContainer = document.querySelector('body > div.root');
+    if (!chatContainer) {
+        console.error('Could not find chat container');
+        return 'Error: Could not find chat';
+    }
+    
+    // Find all artifact buttons/links in the chat
+    // These are the "Enhanced Chat + Artifacts Extractor" type buttons
+    const artifactButtons = document.querySelectorAll('.line-clamp-1, [class*="line-clamp"]');
+    console.log(`Found ${artifactButtons.length} potential artifact buttons\n`);
+    
+    // Store artifact button info with their positions
+    const artifactPositions = [];
+    artifactButtons.forEach((button, idx) => {
+        const title = button.textContent || button.innerText || '';
+        if (title.trim().length > 5) { // Filter out noise
+            artifactPositions.push({
+                element: button,
+                title: title.trim(),
+                index: idx
+            });
+            console.log(`  Artifact button ${idx + 1}: "${title.trim()}"`);
+        }
+    });
+    
+    console.log(`\nFiltered to ${artifactPositions.length} actual artifact buttons\n`);
+    
+    // Get the artifact panel (RIGHT side) content
+    const artifactSelector = "body > div.root > div > div.w-full.relative.min-w-0 > div > div.max-md\\:absolute.top-0.right-0.bottom-0.left-0.z-20.md\\:flex-grow-0.md\\:flex-shrink-0.md\\:basis-0.overflow-hidden.h-full.max-md\\:flex-1 > div > div.flex-1.overflow-hidden.h-full.bg-bg-100 > div > div > div.ease-out.duration-200.relative.flex.w-full.flex-1.overflow-x-auto.overflow-y-scroll > div > div > div";
+    
+    const artifactContainer = document.querySelector(artifactSelector);
+    let currentArtifactContent = '';
+    
+    if (artifactContainer) {
+        const spans = artifactContainer.querySelectorAll('span');
+        console.log(`Current artifact panel has ${spans.length} spans`);
+        
+        spans.forEach(span => {
+            const text = span.textContent || span.innerText || '';
+            if (text) {
+                currentArtifactContent += text;
+            }
+        });
+        console.log(`Extracted ${currentArtifactContent.length} characters from current artifact\n`);
+    }
+    
+    // Clone the chat container to manipulate it
+    const chatClone = chatContainer.cloneNode(true);
+    
+    // Find artifact buttons in the clone and replace with full content
+    const cloneButtons = chatClone.querySelectorAll('.line-clamp-1, [class*="line-clamp"]');
+    let replacementCount = 0;
+    
+    cloneButtons.forEach((button, idx) => {
+        const title = button.textContent || button.innerText || '';
+        if (title.trim().length > 5) {
+            // Create a text node with artifact marker
+            const marker = document.createTextNode(
+                `\n\n${'='.repeat(80)}\n` +
+                `ARTIFACT: ${title.trim()}\n` +
+                `${'='.repeat(80)}\n` +
+                `[Note: Currently visible artifact content will be appended at the end]\n` +
+                `${'='.repeat(80)}\n\n`
+            );
+            
+            // Replace the button with the marker
+            button.parentNode.replaceChild(marker, button);
+            replacementCount++;
+        }
+    });
+    
+    console.log(`Replaced ${replacementCount} artifact buttons with markers\n`);
+    
+    // Get the modified chat text
+    let finalContent = chatClone.innerText || chatClone.textContent || '';
+    
+    // Append the currently visible artifact content
+    if (currentArtifactContent.trim().length > 0) {
+        finalContent += '\n\n' + '='.repeat(80) + '\n';
+        finalContent += 'CURRENTLY VISIBLE ARTIFACT CONTENT\n';
+        finalContent += '(Right panel - only shows one artifact at a time)\n';
+        finalContent += '='.repeat(80) + '\n\n';
+        finalContent += currentArtifactContent;
+    }
+    
+    // Add instructions
+    finalContent += '\n\n' + '='.repeat(80) + '\n';
+    finalContent += 'EXTRACTION NOTES\n';
+    finalContent += '='.repeat(80) + '\n';
+    finalContent += `Found ${artifactPositions.length} artifacts in this conversation.\n`;
+    finalContent += 'Only the currently visible artifact content was captured.\n';
+    finalContent += '\nTo capture ALL artifacts:\n';
+    finalContent += '1. Click on each artifact button one by one\n';
+    finalContent += '2. Run this script after each click\n';
+    finalContent += '3. Save each output separately\n';
+    
+    console.log('=== SUMMARY ===');
+    console.log(`Artifact buttons found: ${artifactPositions.length}`);
+    console.log(`Currently visible artifact: ${currentArtifactContent.length} characters`);
+    console.log(`Total output: ${finalContent.length} characters`);
+    
+    return finalContent;
+}
+
+// Execute
+const result = extractChatWithArtifactMapping();
+copy(result);
+console.log('\n✓ Content copied to clipboard!');
+console.log('\nIMPORTANT: Only the currently visible artifact was captured.');
+console.log('Click each artifact button and run this script again to get all artifacts.');
+
+
+================================================================================
+ARTIFACT: Serial Top-to-Bottom Extractor
+================================================================================
+
+// Serial extraction: Top to bottom, capturing artifacts inline
+async function serialExtractChatWithArtifacts() {
+    console.log('=== Serial Extraction Started ===\n');
+    console.log('Processing page from top to bottom...\n');
+    
+    let fullContent = '';
+    let artifactCount = 0;
+    
+    // Find the main chat area
+    const chatContainer = document.querySelector('body > div.root');
+    if (!chatContainer) {
+        console.error('Could not find chat container');
+        return 'Error: Could not find chat';
+    }
+    
+    // Get all child elements in the chat - we'll process them serially
+    const allElements = chatContainer.querySelectorAll('*');
+    console.log(`Found ${allElements.length} total elements to scan\n`);
+    
+    // Find artifact buttons and artifact panel selector
+    const artifactButtons = [];
+    const artifactPanelSelector = "body > div.root > div > div.w-full.relative.min-w-0 > div > div.max-md\\:absolute.top-0.right-0.bottom-0.left-0.z-20.md\\:flex-grow-0.md\\:flex-shrink-0.md\\:basis-0.overflow-hidden.h-full.max-md\\:flex-1 > div > div.flex-1.overflow-hidden.h-full.bg-bg-100 > div > div > div.ease-out.duration-200.relative.flex.w-full.flex-1.overflow-x-auto.overflow-y-scroll > div > div > div";
+    
+    // First pass: identify all artifact buttons in order
+    allElements.forEach((element, idx) => {
+        if ((element.classList && element.classList.contains('line-clamp-1')) || 
+            (element.className && typeof element.className === 'string' && element.className.includes('line-clamp'))) {
+            const title = element.textContent || element.innerText || '';
+            if (title.trim().length > 5 && title.trim().length < 200) {
+                artifactButtons.push({
+                    element: element,
+                    title: title.trim(),
+                    position: idx
+                });
+            }
+        }
+    });
+    
+    console.log(`Found ${artifactButtons.length} artifact buttons\n`);
+    artifactButtons.forEach((btn, idx) => {
+        console.log(`  ${idx + 1}. "${btn.title}"`);
+    });
+    console.log('');
+    
+    // Function to extract artifact content from right panel
+    function extractArtifactContent() {
+        const artifactPanel = document.querySelector(artifactPanelSelector);
+        if (!artifactPanel) {
+            return '[Could not access artifact panel]';
+        }
+        
+        const spans = artifactPanel.querySelectorAll('span');
+        let content = '';
+        spans.forEach(span => {
+            const text = span.textContent || span.innerText || '';
+            if (text) {
+                content += text;
+            }
+        });
+        
+        return content;
+    }
+    
+    // Now process each artifact button serially
+    for (let i = 0; i < artifactButtons.length; i++) {
+        const button = artifactButtons[i];
+        
+        console.log(`Processing artifact ${i + 1}/${artifactButtons.length}: "${button.title}"`);
+        
+        // Click the artifact button to load it in the right panel
+        try {
+            button.element.scrollIntoView({ behavior: 'instant', block: 'center' });
+            button.element.click();
+            
+            // Wait for content to load (adjust delay if needed)
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Extract the artifact content
+            const artifactContent = extractArtifactContent();
+            
+            console.log(`  Extracted ${artifactContent.length} characters`);
+            
+            // Store it with a marker
+            button.extractedContent = artifactContent;
+            artifactCount++;
+            
+        } catch (error) {
+            console.error(`  Error clicking artifact ${i + 1}:`, error);
+            button.extractedContent = '[Error: Could not extract artifact content]';
+        }
+    }
+    
+    console.log(`\nAll ${artifactCount} artifacts extracted. Building final output...\n`);
+    
+    // Now do a second pass: build the content serially from top to bottom
+    let processedElements = new Set();
+    
+    function processNode(node) {
+        // Skip if already processed
+        if (processedElements.has(node)) return;
+        processedElements.add(node);
+        
+        // Check if this node is an artifact button
+        const isArtifactButton = artifactButtons.find(btn => btn.element === node);
+        
+        if (isArtifactButton) {
+            // Insert the artifact content here
+            fullContent += '\n\n' + '='.repeat(80) + '\n';
+            fullContent += `ARTIFACT: ${isArtifactButton.title}\n`;
+            fullContent += '='.repeat(80) + '\n\n';
+            fullContent += isArtifactButton.extractedContent || '[No content]';
+            fullContent += '\n\n' + '='.repeat(80) + '\n\n';
+        } else if (node.nodeType === Node.TEXT_NODE) {
+            // Add text nodes
+            const text = node.textContent || '';
+            if (text.trim()) {
+                fullContent += text;
+            }
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+            // Process child nodes recursively
+            node.childNodes.forEach(child => processNode(child));
+        }
+    }
+    
+    // Start processing from the chat container
+    chatContainer.childNodes.forEach(child => processNode(child));
+    
+    console.log('=== EXTRACTION COMPLETE ===');
+    console.log(`Total artifacts: ${artifactCount}`);
+    console.log(`Total characters: ${fullContent.length}`);
+    
+    return fullContent;
+}
+
+// Execute the serial extraction
+console.log('Starting serial extraction...');
+console.log('This will click each artifact button automatically.\n');
+
+serialExtractChatWithArtifacts().then(result => {
+    copy(result);
+    console.log('\n✓ Content copied to clipboard!');
+    console.log('✓ All artifacts have been embedded in order');
+}).catch(error => {
+    console.error('Error during extraction:', error);
+});
+
+
+================================================================================
+ARTIFACT: Code ∙ Version 2
+================================================================================
+
+const sel = "body > div.root > div > div.w-full.relative.min-w-0 > div > div.max-md\\:absolute.top-0.right-0.bottom-0.left-0.z-20.md\\:flex-grow-0.md\\:flex-shrink-0.md\\:basis-0.overflow-hidden.h-full.max-md\\:flex-1 > div > div.flex-1.overflow-hidden.h-full.bg-bg-100 > div > div > div.ease-out.duration-200.relative.flex.w-full.flex-1.overflow-x-auto.overflow-y-scroll > div > div > div";
+
+async function extract() {
+    const btns = document.querySelectorAll('.line-clamp-1');
+    const artifacts = new Map();
+    
+    for (let i = 0; i < btns.length; i++) {
+        const title = btns[i].textContent.trim();
+        if (title.length > 5 && title.length < 200) {
+            btns[i].click();
+            await new Promise(r => setTimeout(r, 800));
+            
+            const panel = document.querySelector(sel);
+            if (panel) {
+                const walker = document.createTreeWalker(
+                    panel,
+                    NodeFilter.SHOW_TEXT,
+                    null,
+                    false
+                );
+                
+                let code = '';
+                let node;
+                while (node = walker.nextNode()) {
+                    code += node.textContent;
+                }
+                
+                artifacts.set(title, code);
+            }
+        }
+    }
+    
+    let out = document.querySelector('body > div.root').innerText + '\n\n';
+    
+    artifacts.forEach((code, title) => {
+        out += '\n' + '='.repeat(80) + '\n';
+        out += 'ARTIFACT: ' + title + '\n';
+        out += '='.repeat(80) + '\n\n';
+        out += code + '\n\n';
+    });
+    
+    const blob = new Blob([out], {type: 'text/plain'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'chat-export.txt';
+    a.click();
+    console.log('Downloaded ' + out.length + ' chars');
+}
+
+extract();
+
+
+================================================================================
+ARTIFACT: Serial Extractor (Clean)
+================================================================================
+
+async function serialExtractChatWithArtifacts() {
+    let fullContent = '';
+    const chatContainer = document.querySelector('body > div.root');
+    if (!chatContainer) return 'Error: Could not find chat';
+    
+    const allElements = chatContainer.querySelectorAll('*');
+    const artifactButtons = [];
+    const artifactPanelSelector = "body > div.root > div > div.w-full.relative.min-w-0 > div > div.max-md\\:absolute.top-0.right-0.bottom-0.left-0.z-20.md\\:flex-grow-0.md\\:flex-shrink-0.md\\:basis-0.overflow-hidden.h-full.max-md\\:flex-1 > div > div.flex-1.overflow-hidden.h-full.bg-bg-100 > div > div > div.ease-out.duration-200.relative.flex.w-full.flex-1.overflow-x-auto.overflow-y-scroll > div > div > div";
+    
+    allElements.forEach((element, idx) => {
+        if ((element.classList && element.classList.contains('line-clamp-1')) || 
+            (element.className && typeof element.className === 'string' && element.className.includes('line-clamp'))) {
+            const title = element.textContent || element.innerText || '';
+            if (title.trim().length > 5 && title.trim().length < 200) {
+                artifactButtons.push({element: element, title: title.trim(), position: idx});
+            }
+        }
+    });
+    
+    function extractArtifactContent() {
+        const artifactPanel = document.querySelector(artifactPanelSelector);
+        if (!artifactPanel) return '[Could not access artifact panel]';
+        const spans = artifactPanel.querySelectorAll('span');
+        let content = '';
+        spans.forEach(span => {
+            const text = span.textContent || span.innerText || '';
+            if (text) content += text;
+        });
+        return content;
+    }
+    
+    for (let i = 0; i < artifactButtons.length; i++) {
+        const button = artifactButtons[i];
+        try {
+            button.element.scrollIntoView({ behavior: 'instant', block: 'center' });
+            button.element.click();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            button.extractedContent = extractArtifactContent();
+        } catch (error) {
+            button.extractedContent = '[Error extracting artifact]';
+        }
+    }
+    
+    let processedElements = new Set();
+    
+    function processNode(node) {
+        if (processedElements.has(node)) return;
+        processedElements.add(node);
+        
+        const isArtifactButton = artifactButtons.find(btn => btn.element === node);
+        
+        if (isArtifactButton) {
+            fullContent += '\n\n' + '='.repeat(80) + '\n';
+            fullContent += `ARTIFACT: ${isArtifactButton.title}\n`;
+            fullContent += '='.repeat(80) + '\n\n';
+            fullContent += isArtifactButton.extractedContent || '[No content]';
+            fullContent += '\n\n' + '='.repeat(80) + '\n\n';
+        } else if (node.nodeType === Node.TEXT_NODE) {
+            const text = node.textContent || '';
+            if (text.trim()) fullContent += text;
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+            node.childNodes.forEach(child => processNode(child));
+        }
+    }
+    
+    chatContainer.childNodes.forEach(child => processNode(child));
+    return fullContent;
+}
+
+serialExtractChatWithArtifacts().then(result => {
+    navigator.clipboard.writeText(result).then(() => {
+        console.log('✓ Copied ' + result.length + ' characters');
+    }).catch(err => {
+        console.log('Manual copy needed - printing below:');
+        console.log(result);
+    });
+}).catch(error => {
+    console.error('Error:', error);
+});
+
+
+================================================================================
+ARTIFACT: Simple Manual Extraction Script
+================================================================================
+
+const sel = "body > div.root > div > div.w-full.relative.min-w-0 > div > div.max-md\\:absolute.top-0.right-0.bottom-0.left-0.z-20.md\\:flex-grow-0.md\\:flex-shrink-0.md\\:basis-0.overflow-hidden.h-full.max-md\\:flex-1 > div > div.flex-1.overflow-hidden.h-full.bg-bg-100 > div > div > div.ease-out.duration-200.relative.flex.w-full.flex-1.overflow-x-auto.overflow-y-scroll > div > div > div";
+
+async function extract() {
+    let out = document.querySelector('body > div.root').innerText + '\n\n';
+    const btns = document.querySelectorAll('.line-clamp-1');
+    
+    for (let i = 0; i < btns.length; i++) {
+        const title = btns[i].textContent.trim();
+        if (title.length > 5 && title.length < 200) {
+            btns[i].click();
+            await new Promise(r => setTimeout(r, 800));
+            
+            const panel = document.querySelector(sel);
+            if (panel) {
+                const spans = panel.querySelectorAll('span');
+                let code = '';
+                spans.forEach(s => code += s.textContent);
+                
+                out += '\n' + '='.repeat(80) + '\n';
+                out += 'ARTIFACT: ' + title + '\n';
+                out += '='.repeat(80) + '\n\n';
+                out += code + '\n\n';
+            }
+        }
+    }
+    
+    const blob = new Blob([out], {type: 'text/plain'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'chat-export.txt';
+    a.click();
+    console.log('Downloaded ' + out.length + ' chars');
+}
+
+extract();
+
+
+================================================================================
+ARTIFACT: Direct DOM Walker
+================================================================================
+
+const artSel = "body > div.root > div > div.w-full.relative.min-w-0 > div > div.max-md\\:absolute.top-0.right-0.bottom-0.left-0.z-20.md\\:flex-grow-0.md\\:flex-shrink-0.md\\:basis-0.overflow-hidden.h-full.max-md\\:flex-1 > div > div.flex-1.overflow-hidden.h-full.bg-bg-100 > div > div > div.ease-out.duration-200.relative.flex.w-full.flex-1.overflow-x-auto.overflow-y-scroll > div > div > div";
+
+async function fullExtract() {
+    const output = [];
+    const chat = document.querySelector('body > div.root');
+    const buttons = Array.from(document.querySelectorAll('.line-clamp-1')).filter(b => {
+        const t = b.textContent.trim();
+        return t.length > 5 && t.length < 200;
+    });
+    
+    const artMap = new Map();
+    
+    for (let i = 0; i < buttons.length; i++) {
+        buttons[i].click();
+        await new Promise(r => setTimeout(r, 1000));
+        
+        const panel = document.querySelector(artSel);
+        if (panel) {
+            const walker = document.createTreeWalker(panel, NodeFilter.SHOW_TEXT);
+            let txt = '';
+            let node;
+            while (node = walker.nextNode()) {
+                txt += node.textContent;
+            }
+            artMap.set(buttons[i].textContent.trim(), txt);
+        }
+    }
+    
+    function walk(node, depth = 0) {
+        if (node.nodeType === Node.TEXT_NODE) {
+            const t = node.textContent.trim();
+            if (t) output.push(t);
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+            if (node.classList && node.classList.contains('line-clamp-1')) {
+                const title = node.textContent.trim();
+                if (artMap.has(title)) {
+                    output.push('\n\n' + '='.repeat(80));
+                    output.push('\nARTIFACT: ' + title);
+                    output.push('\n' + '='.repeat(80) + '\n\n');
+                    output.push(artMap.get(title));
+                    output.push('\n\n' + '='.repeat(80) + '\n\n');
+                    return;
+                }
+            }
+            
+            for (let child of node.childNodes) {
+                walk(child, depth + 1);
+            }
+        }
+    }
+    
+    walk(chat);
+    
+    const final = output.join('');
+    const blob = new Blob([final], {type: 'text/plain'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'full-chat.txt';
+    a.click();
+    console.log('✓ Downloaded file:', final.length, 'chars');
+}
+
+fullExtract();
+
+
+================================================================================
+ARTIFACT: Code ∙ Version 3
+================================================================================
+
+const sel = "body > div.root > div > div.w-full.relative.min-w-0 > div > div.max-md\\:absolute.top-0.right-0.bottom-0.left-0.z-20.md\\:flex-grow-0.md\\:flex-shrink-0.md\\:basis-0.overflow-hidden.h-full.max-md\\:flex-1 > div > div.flex-1.overflow-hidden.h-full.bg-bg-100 > div > div > div.ease-out.duration-200.relative.flex.w-full.flex-1.overflow-x-auto.overflow-y-scroll > div > div > div";
+
+async function extract() {
+    const btns = document.querySelectorAll('.line-clamp-1');
+    const artifacts = new Map();
+    
+    for (let i = 0; i < btns.length; i++) {
+        const title = btns[i].textContent.trim();
+        if (title.length > 5 && title.length < 200) {
+            btns[i].click();
+            await new Promise(r => setTimeout(r, 1500));
+            
+            const panel = document.querySelector(sel);
+            if (panel) {
+                panel.scrollTop = panel.scrollHeight;
+                await new Promise(r => setTimeout(r, 500));
+                
+                const code = panel.innerText;
+                artifacts.set(title, code);
+                console.log('Extracted:', title, '-', code.length, 'chars');
+            }
+        }
+    }
+    
+    let out = document.querySelector('body > div.root').innerText + '\n\n';
+    
+    artifacts.forEach((code, title) => {
+        out += '\n' + '='.repeat(80) + '\n';
+        out += 'ARTIFACT: ' + title + '\n';
+        out += '='.repeat(80) + '\n\n';
+        out += code + '\n\n';
+    });
+    
+    const blob = new Blob([out], {type: 'text/plain'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'chat-export.txt';
+    a.click();
+    console.log('✓ Downloaded ' + out.length + ' chars total');
+}
+
+extract();
+
+
+================================================================================
+ARTIFACT: Simple Script with DOM Walker
+================================================================================
+
+const sel = "body > div.root > div > div.w-full.relative.min-w-0 > div > div.max-md\\:absolute.top-0.right-0.bottom-0.left-0.z-20.md\\:flex-grow-0.md\\:flex-shrink-0.md\\:basis-0.overflow-hidden.h-full.max-md\\:flex-1 > div > div.flex-1.overflow-hidden.h-full.bg-bg-100 > div > div > div.ease-out.duration-200.relative.flex.w-full.flex-1.overflow-x-auto.overflow-y-scroll > div > div > div";
+
+async function extract() {
+    const btns = document.querySelectorAll('.line-clamp-1');
+    const artifacts = new Map();
+    
+    for (let i = 0; i < btns.length; i++) {
+        const title = btns[i].textContent.trim();
+        if (title.length > 5 && title.length < 200) {
+            btns[i].click();
+            await new Promise(r => setTimeout(r, 1500));
+            
+            const panel = document.querySelector(sel);
+            if (panel) {
+                panel.scrollTop = panel.scrollHeight;
+                await new Promise(r => setTimeout(r, 500));
+                
+                const code = panel.innerText;
+                artifacts.set(title, code);
+                console.log('Extracted:', title, '-', code.length, 'chars');
+            }
+        }
+    }
+    
+    let out = document.querySelector('body > div.root').innerText + '\n\n';
+    
+    artifacts.forEach((code, title) => {
+        out += '\n' + '='.repeat(80) + '\n';
+        out += 'ARTIFACT: ' + title + '\n';
+        out += '='.repeat(80) + '\n\n';
+        out += code + '\n\n';
+    });
+    
+    const blob = new Blob([out], {type: 'text/plain'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'chat-export.txt';
+    a.click();
+    console.log('✓ Downloaded ' + out.length + ' chars total');
+}
+
+extract();
+
