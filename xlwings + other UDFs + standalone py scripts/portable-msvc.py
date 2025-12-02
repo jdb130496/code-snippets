@@ -26,8 +26,15 @@ ALL_HOSTS    = "x64 x86 arm64".split()
 DEFAULT_TARGET = "x64"
 ALL_TARGETS    = "x64 x86 arm arm64".split()
 
-MANIFEST_URL = "https://aka.ms/vs/17/release/channel"
-MANIFEST_PREVIEW_URL = "https://aka.ms/vs/17/pre/channel"
+DEFAULT_VERSION = "latest"
+ALL_VERSIONS    = "2019 2022 2026 latest".split()
+
+MANIFEST_URLS = {
+  "latest": ["https://aka.ms/vs/stable/channel",     "https://aka.ms/vs/insiders/channel"   ],
+  "2026":   ["https://aka.ms/vs/18/stable/channel",  "https://aka.ms/vs/18/insiders/channel"],
+  "2022":   ["https://aka.ms/vs/17/release/channel", "https://aka.ms/vs/17/pre/channel"     ],
+  "2019":   ["https://aka.ms/vs/16/release/channel", "https://aka.ms/vs/16/pre/channel"     ],
+}
 
 ssl_context = None
 
@@ -64,7 +71,7 @@ def download_progress(url, check, filename):
     data = data.getvalue()
     digest = hashlib.sha256(data).hexdigest()
     if check.lower() != digest:
-      exit(f"Hash mismatch for f{pkg}")
+      sys.exit(f"Hash mismatch for f{pkg}")
     total_download += len(data)
     return data
 
@@ -79,7 +86,7 @@ def get_msi_cabs(msi):
 
 def first(items, cond = lambda x: True):
   return next((item for item in items if cond(item)), None)
-  
+
 
 ### parse command-line arguments
 
@@ -88,7 +95,8 @@ ap.add_argument("--show-versions", action="store_true", help="Show available MSV
 ap.add_argument("--accept-license", action="store_true", help="Automatically accept license")
 ap.add_argument("--msvc-version", help="Get specific MSVC version")
 ap.add_argument("--sdk-version", help="Get specific Windows SDK version")
-ap.add_argument("--preview", action="store_true", help="Use preview channel for Preview versions")
+ap.add_argument("--vs", default=DEFAULT_VERSION, help=f"Visual Studio version to use for installation", choices=ALL_VERSIONS)
+ap.add_argument("--insiders", "--preview", action="store_true", help="Use insiders/preview versions")
 ap.add_argument("--target", default=DEFAULT_TARGET, help=f"Target architectures, comma separated ({','.join(ALL_TARGETS)})")
 ap.add_argument("--host", default=DEFAULT_HOST, help=f"Host architecture", choices=ALL_HOSTS)
 args = ap.parse_args()
@@ -97,12 +105,12 @@ host = args.host
 targets = args.target.split(',')
 for target in targets:
   if target not in ALL_TARGETS:
-    exit(f"Unknown {target} target architecture!")
+    sys.exit(f"Unknown {target} target architecture!")
 
 
 ### get main manifest
 
-URL = MANIFEST_PREVIEW_URL if args.preview else MANIFEST_URL
+URL = MANIFEST_URLS[args.vs][args.insiders]
 
 try:
   manifest = json.loads(download(URL))
@@ -116,7 +124,7 @@ except urllib.error.URLError as err:
     except ModuleNotFoundError:
       print("ERROR: please install 'certifi' package to use Mozilla certificates")
       print("ERROR: or update your Windows certs, see instructions here: https://woshub.com/updating-trusted-root-certificates-in-windows-10/#h2_3")
-      exit()
+      sys.exit()
     print("NOTE: retrying with certifi certificates")
     ssl_context = ssl.create_default_context(cafile=certifi.where())
     manifest = json.loads(download(URL))
@@ -125,7 +133,7 @@ except urllib.error.URLError as err:
 
 ### download VS manifest
 
-ITEM_NAME = "Microsoft.VisualStudio.Manifests.VisualStudioPreview" if args.preview else "Microsoft.VisualStudio.Manifests.VisualStudio"
+ITEM_NAME = "Microsoft.VisualStudio.Manifests.VisualStudioPreview" if args.insiders else "Microsoft.VisualStudio.Manifests.VisualStudio"
 
 vs = first(manifest["channelItems"], lambda x: x["id"] == ITEM_NAME)
 payload = vs["payloads"][0]["url"]
@@ -143,8 +151,8 @@ msvc = {}
 sdk = {}
 
 for pid,p in packages.items():
-  if pid.startswith("Microsoft.VisualStudio.Component.VC.".lower()) and pid.endswith(".x86.x64".lower()):
-    pver = ".".join(pid.split(".")[4:6])
+  if pid.startswith("Microsoft.VC.".lower()) and pid.endswith(".Tools.HostX64.TargetX64.base".lower()):
+    pver = ".".join(pid.split(".")[2:4])
     if pver[0].isnumeric():
       msvc[pver] = pid
   elif pid.startswith("Microsoft.VisualStudio.Component.Windows10SDK.".lower()) or \
@@ -156,21 +164,21 @@ for pid,p in packages.items():
 if args.show_versions:
   print("MSVC versions:", " ".join(sorted(msvc.keys())))
   print("Windows SDK versions:", " ".join(sorted(sdk.keys())))
-  exit(0)
+  sys.exit(0)
 
 msvc_ver = args.msvc_version or max(sorted(msvc.keys()))
 sdk_ver = args.sdk_version or max(sorted(sdk.keys()))
 
 if msvc_ver in msvc:
   msvc_pid = msvc[msvc_ver]
-  msvc_ver = ".".join(msvc_pid.split(".")[4:-2])
+  msvc_ver = ".".join(msvc_pid.split(".")[2:6])
 else:
-  exit(f"Unknown MSVC version: f{args.msvc_version}")
+  sys.exit(f"Unknown MSVC version: f{args.msvc_version}")
 
 if sdk_ver in sdk:
   sdk_pid = sdk[sdk_ver]
 else:
-  exit(f"Unknown Windows SDK version: f{args.sdk_version}")
+  sys.exit(f"Unknown Windows SDK version: f{args.sdk_version}")
 
 print(f"Downloading MSVC v{msvc_ver} and Windows SDK v{sdk_ver}")
 
@@ -184,7 +192,7 @@ license = resource["license"]
 if not args.accept_license:
   accept = input(f"Do you accept Visual Studio license at {license} [Y/N] ? ")
   if not accept or accept[0].lower() != "y":
-    exit(0)
+    sys.exit(0)
 
 OUTPUT.mkdir(exist_ok=True)
 DOWNLOADS.mkdir(exist_ok=True)
@@ -198,6 +206,7 @@ msvc_packages = [
   f"microsoft.vc.{msvc_ver}.crt.source.base",
   f"microsoft.vc.{msvc_ver}.asan.headers.base",
   f"microsoft.vc.{msvc_ver}.pgo.headers.base",
+  f"microsoft.vc.{msvc_ver}.llvm.{target}.base",
 ]
 
 for target in targets:
@@ -243,10 +252,14 @@ sdk_packages = [
   f"Windows SDK for Windows Store Apps Headers-x86_en-us.msi",
   f"Windows SDK for Windows Store Apps Headers OnecoreUap-x86_en-us.msi",
   f"Windows SDK for Windows Store Apps Libs-x86_en-us.msi",
-  f"Windows SDK OnecoreUap Headers x86-x86_en-us.msi",
-  f"Windows SDK Desktop Headers x86-x86_en-us.msi",
   f"Universal CRT Headers Libraries and Sources-x86_en-us.msi",
 ]
+
+for target in ALL_TARGETS:
+  sdk_packages += [
+    f"Windows SDK Desktop Headers {target}-x86_en-us.msi",
+    f"Windows SDK OnecoreUap Headers {target}-x86_en-us.msi",
+  ]
 
 for target in targets:
   sdk_packages += [f"Windows SDK Desktop Libs {target}-x86_en-us.msi"]
@@ -278,7 +291,7 @@ with tempfile.TemporaryDirectory(dir=DOWNLOADS) as d:
 
   # run msi installers
   for m in msi:
-    subprocess.check_call(["msiexec.exe", "/a", m, "/quiet", "/qn", f"TARGETDIR={OUTPUT.resolve()}"])
+    subprocess.check_call(f'msiexec.exe /a "{m}" /quiet /qn TARGETDIR="{OUTPUT.resolve()}"')
     (OUTPUT / m.name).unlink()
 
 
@@ -345,21 +358,23 @@ for target in targets:
   (OUTPUT / "VC/Tools/MSVC" / msvcv / f"bin/Host{host}/{target}/vctip.exe").unlink(missing_ok=True)
 
 
+# extra files for nvcc
+build = OUTPUT / "VC/Auxiliary/Build"
+build.mkdir(parents=True, exist_ok=True)
+(build / "vcvarsall.bat").write_text("rem both bat files are here only for nvcc, do not call them manually")
+(build / "vcvars64.bat").touch()
+
 ### setup.bat
 
 for target in targets:
 
   SETUP = fr"""@echo off
-
 set VSCMD_ARG_HOST_ARCH={host}
 set VSCMD_ARG_TGT_ARCH={target}
-
 set VCToolsVersion={msvcv}
 set WindowsSDKVersion={sdkv}\
-
 set VCToolsInstallDir=%~dp0VC\Tools\MSVC\{msvcv}\
 set WindowsSdkBinPath=%~dp0Windows Kits\10\bin\
-
 set PATH=%~dp0VC\Tools\MSVC\{msvcv}\bin\Host{host}\{target};%~dp0Windows Kits\10\bin\{sdkv}\{host};%~dp0Windows Kits\10\bin\{sdkv}\{host}\ucrt;%PATH%
 set INCLUDE=%~dp0VC\Tools\MSVC\{msvcv}\include;%~dp0Windows Kits\10\Include\{sdkv}\ucrt;%~dp0Windows Kits\10\Include\{sdkv}\shared;%~dp0Windows Kits\10\Include\{sdkv}\um;%~dp0Windows Kits\10\Include\{sdkv}\winrt;%~dp0Windows Kits\10\Include\{sdkv}\cppwinrt
 set LIB=%~dp0VC\Tools\MSVC\{msvcv}\lib\{target};%~dp0Windows Kits\10\Lib\{sdkv}\ucrt\{target};%~dp0Windows Kits\10\Lib\{sdkv}\um\{target}

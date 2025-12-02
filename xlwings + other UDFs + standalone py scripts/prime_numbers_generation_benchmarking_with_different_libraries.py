@@ -1,72 +1,67 @@
-#%%Cell 1
 import numpy as np
 import time
 
-# ============ METHOD 1: Pure NumPy with Minimal Loop ============
 def primes_numpy_optimized(n):
-    """
-    Optimized NumPy sieve - minimal loop, fully vectorized marking
-    Works on any Python version
-    """
     if n < 2:
         return np.array([])
-    
-    # Only store odd numbers to save 50% memory
-    # Array index i represents number 2*i + 3
     n_odds = (n - 1) // 2
     sieve = np.ones(n_odds, dtype=bool)
-    
     sqrt_n = int(np.sqrt(n))
-    
-    # Minimal loop - only up to sqrt(n)
-    # Inner operation is FULLY vectorized
     for i in range((sqrt_n - 1) // 2):
         if sieve[i]:
             p = 2 * i + 3
-            # Pure vectorized array operation - marks ALL multiples at once
             sieve[(p * p - 3) // 2::p] = False
-    
-    # Return [2] + all odd primes
     return np.concatenate([[2], 2 * np.flatnonzero(sieve) + 3])
 
+try:
+    from numba import jit
+    
+    @jit(nopython=True)
+    def primes_numba(n):
+        if n < 2:
+            return np.empty(0, dtype=np.int64)
+        n_odds = (n - 1) // 2
+        sieve = np.ones(n_odds, dtype=np.bool_)
+        sqrt_n = int(np.sqrt(n))
+        for i in range((sqrt_n - 1) // 2):
+            if sieve[i]:
+                p = 2 * i + 3
+                start = (p * p - 3) // 2
+                for j in range(start, n_odds, p):
+                    sieve[j] = False
+        primes = np.empty(np.sum(sieve) + 1, dtype=np.int64)
+        primes[0] = 2
+        idx = 1
+        for i in range(n_odds):
+            if sieve[i]:
+                primes[idx] = 2 * i + 3
+                idx += 1
+        return primes
+    
+    has_numba = True
+except ImportError:
+    has_numba = False
 
-# ============ METHOD 2: Using SymPy (pure Python, well optimized) ============
 try:
     from sympy import sieve as sympy_sieve
-    
     def primes_sympy(n):
-        """SymPy has highly optimized prime sieve in pure Python"""
         sympy_sieve.extend_to_no(n)
         return np.array(list(sympy_sieve.primerange(2, n + 1)))
-    
     has_sympy = True
 except ImportError:
     has_sympy = False
-    print("SymPy not installed. Install with: pip install sympy")
 
-
-# ============ METHOD 3: Using primesieve (C++ library) ============
 try:
     import primesieve
-    
     def primes_primesieve(n):
-        """Primesieve - fastest library, uses C++ backend"""
         return np.array(primesieve.primes(n))
-    
     has_primesieve = True
 except ImportError:
     has_primesieve = False
-    print("Primesieve not installed. Install with: pip install primesieve")
 
-
-# ============ METHOD 4: List Comprehension (Pythonic but slow) ============
 def primes_list_comp(n):
-    """Pure list comprehension - no explicit loops but slow"""
     return np.array([x for x in range(2, n+1) 
                      if all(x % i != 0 for i in range(2, int(x**0.5) + 1))])
-
-
-# ============ PERFORMANCE COMPARISON ============
 
 def run_comparison(n):
     print("=" * 75)
@@ -75,7 +70,6 @@ def run_comparison(n):
     
     results = []
     
-    # Method 1: NumPy optimized
     print(f"\n[1] NumPy Optimized Sieve:")
     t_start = time.time()
     p1 = primes_numpy_optimized(n)
@@ -83,34 +77,39 @@ def run_comparison(n):
     print(f"    Time: {t1:.4f}s | Primes found: {len(p1):,}")
     results.append(("NumPy", t1, len(p1)))
     
-    # Method 2: SymPy
-    if has_sympy:
-        print(f"\n[2] SymPy (pure Python optimized):")
+    if has_numba:
+        primes_numba(100)
+        print(f"\n[2] Numba JIT:")
         t_start = time.time()
-        p2 = primes_sympy(n)
+        p2 = primes_numba(n)
         t2 = time.time() - t_start
         print(f"    Time: {t2:.4f}s | Primes found: {len(p2):,}")
-        results.append(("SymPy", t2, len(p2)))
+        results.append(("Numba", t2, len(p2)))
     
-    # Method 3: Primesieve
-    if has_primesieve:
-        print(f"\n[3] Primesieve (C++ backend - FASTEST):")
+    if has_sympy:
+        print(f"\n[3] SymPy:")
         t_start = time.time()
-        p3 = primes_primesieve(n)
+        p3 = primes_sympy(n)
         t3 = time.time() - t_start
         print(f"    Time: {t3:.4f}s | Primes found: {len(p3):,}")
-        results.append(("Primesieve", t3, len(p3)))
+        results.append(("SymPy", t3, len(p3)))
     
-    # Method 4: List comprehension (only for small n)
-    if n <= 10000:
-        print(f"\n[4] List Comprehension:")
+    if has_primesieve:
+        print(f"\n[4] Primesieve:")
         t_start = time.time()
-        p4 = primes_list_comp(n)
+        p4 = primes_primesieve(n)
         t4 = time.time() - t_start
         print(f"    Time: {t4:.4f}s | Primes found: {len(p4):,}")
-        results.append(("List Comp", t4, len(p4)))
+        results.append(("Primesieve", t4, len(p4)))
     
-    # Find fastest
+    if n <= 10000:
+        print(f"\n[5] List Comprehension:")
+        t_start = time.time()
+        p5 = primes_list_comp(n)
+        t5 = time.time() - t_start
+        print(f"    Time: {t5:.4f}s | Primes found: {len(p5):,}")
+        results.append(("List Comp", t5, len(p5)))
+    
     print("\n" + "=" * 75)
     print("RANKINGS (fastest to slowest):")
     print("=" * 75)
@@ -123,12 +122,9 @@ def run_comparison(n):
         else:
             speedup = time_taken / baseline_time
             print(f"{i}. {method:15s}: {time_taken:.4f}s ({speedup:.1f}x slower)")
-    
-    print("\n" + "=" * 75)
-    print("RECOMMENDATIONS:")
     print("=" * 75)
-    print("• FASTEST: primesieve (pip install primesieve) - C++ backend")
-    print("• GOOD: NumPy optimized - no dependencies, good performance")
-    print("• ALTERNATIVE: SymPy - pure Python, well optimized")
-    print(f"• Current Python version: 3.14 (Numba not supported)")
-    print("=" * 75)
+
+run_comparison(10000)
+run_comparison(100000)
+run_comparison(1000000)
+run_comparison(10000000)
