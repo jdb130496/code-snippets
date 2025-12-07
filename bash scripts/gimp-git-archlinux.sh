@@ -16,6 +16,8 @@ done
 
 if [[ "$CLEAN" == true ]]; then
     rm -rf ~/gimp-build
+    sudo umount /tmp/gimp-build 2>/dev/null || true
+    sudo rm -rf /tmp/gimp-build
     sudo rm -rf /usr/local/bin/gimp* /usr/local/lib*/gimp* /usr/local/lib*/libgimp* /usr/local/share/gimp* /usr/local/share/applications/gimp* 2>/dev/null || true
     sudo ldconfig
 fi
@@ -40,13 +42,24 @@ fi
 
 rm -f ~/.local/bin/ninja 2>/dev/null || true
 
-mkdir -p ~/gimp-build
-cd ~/gimp-build
+# Create tmpfs build directory for speed
+echo "Setting up tmpfs build directory..."
+if ! mountpoint -q /tmp/gimp-build 2>/dev/null; then
+    sudo mkdir -p /tmp/gimp-build
+    sudo mount -t tmpfs -o size=6G tmpfs /tmp/gimp-build
+    sudo chown $USER:$USER /tmp/gimp-build
+    echo "✓ Mounted 6GB tmpfs at /tmp/gimp-build"
+else
+    echo "✓ tmpfs already mounted at /tmp/gimp-build"
+fi
+
+cd /tmp/gimp-build
 
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 export PKG_CONFIG_PATH="/usr/local/lib64/pkgconfig:/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"
 export LD_LIBRARY_PATH="/usr/local/lib64:/usr/local/lib:$LD_LIBRARY_PATH"
+export TMPDIR=/tmp
 
 echo "Building LCMS2..."
 if [[ ! -d Little-CMS ]]; then
@@ -171,7 +184,7 @@ git pull
 
 echo "Initializing gimp-data submodule (shallow clone)..."
 git submodule sync
-GIT_TRACE=1 GIT_CURL_VERBOSE=1 GIT_PROGRESS_DELAY=0 git submodule update --init --depth 1 --progress gimp-data
+git submodule update --init --depth 1 --progress gimp-data
 echo "✓ gimp-data submodule initialized"
 
 echo "Checking for glycin support..."
@@ -243,6 +256,16 @@ EOF
 sudo update-desktop-database /usr/local/share/applications/ 2>/dev/null || true
 sudo gtk-update-icon-cache -t /usr/local/share/icons/hicolor/ 2>/dev/null || true
 
+# Backup build to permanent location (optional)
+echo ""
+echo "Backing up build artifacts to ~/gimp-build-backup..."
+mkdir -p ~/gimp-build-backup
+rsync -av --delete /tmp/gimp-build/ ~/gimp-build-backup/ 2>&1 | tail -5
+
+echo ""
 echo "GIMP-git installed successfully!"
 echo "Run: /usr/local/bin/gimp-git"
 echo "Desktop: GIMP (Git) in applications menu"
+echo ""
+echo "Note: Build directory is in tmpfs at /tmp/gimp-build (will be cleared on reboot)"
+echo "Backup saved to ~/gimp-build-backup"
