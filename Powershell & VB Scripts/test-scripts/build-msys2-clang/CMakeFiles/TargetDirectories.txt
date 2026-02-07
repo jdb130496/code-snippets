@@ -1,0 +1,3 @@
+D:/Programs/test-scripts/build-msys2-clang/CMakeFiles/test_build.dir
+D:/Programs/test-scripts/build-msys2-clang/CMakeFiles/edit_cache.dir
+D:/Programs/test-scripts/build-msys2-clang/CMakeFiles/rebuild_cache.dir

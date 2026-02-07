@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"D:/Programs/test-scripts/build-windows-msvc/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

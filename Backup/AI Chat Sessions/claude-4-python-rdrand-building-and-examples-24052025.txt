@@ -1,0 +1,666 @@
+Explain me this C code as I am not conversant with C:
+static PyObject *
+get_bits(PyObject *self, PyObject *args, uint64_t quad(void), void fill(uint64_t *, uint32_t))
+{
+    int num_bits, num_bytes;
+    int num_quads, num_chars;
+    unsigned char * data = NULL;
+    uint64_t rando;
+    unsigned char last_mask, lm_shift;
+    PyObject *result;
+    if ( !PyArg_ParseTuple(args, "i", &num_bits) )
+        return NULL;
+    if (num_bits <= 0)
+    {
+        PyErr_SetString(PyExc_ValueError, "number of bits must be greater than zero");
+        return NULL;
+    }
+    num_bytes   = num_bits / 8;
+    lm_shift    = num_bits % 8;
+    last_mask   = 0xff >> (8 - lm_shift);
+    if (lm_shift)
+        num_bytes++;
+    num_quads   = num_bytes / 8;
+    num_chars   = num_bytes % 8;
+    data        = (unsigned char *)PyMem_Malloc(num_bytes);
+    if (data == NULL)
+    {
+        PyErr_NoMemory();
+        return NULL;
+    }
+    fill((uint64_t )data, num_quads);
+    if(num_chars)
+    {
+        rando = quad();
+        //bcopy((char)&rando, &data[num_quads * 8], num_chars);
+        memcpy(&data[num_quads * 8], (char)&rando, num_chars);
+    }
+    if (lm_shift != 0)
+        data[num_bytes -1] &= last_mask;
+    / Probably hosing byte order. big deal it's hardware random, has no meaning til we assign it */
+    result = PyLongFromByteArray(data, num_bytes, 1, 0);
+    PyMem_Free(data);
+    return result;
+}
+static PyObject *
+rdrand_get_bits(PyObject *self, PyObject *args)
+{
+    return get_bits(self, args, get_bits_using_rdrand, fill_buf_using_rdrand);
+}
+static PyObject *
+rdseed_get_bits(PyObject *self, PyObject *args)
+{
+    return get_bits(self, args, get_bits_using_rdseed, fill_buf_using_rdseed);
+}
+static PyObject *
+get_bytes(PyObject *self, PyObject *args, void fill(uint64_t *, uint32_t))
+{
+    int num_bytes, num_quads, num_chars, nq;
+    unsigned char * data = NULL;
+    unsigned char * raw_data = NULL;
+    uint64_t * udata;
+    PyObject *result;
+    if ( !PyArg_ParseTuple(args, "i", &num_bytes) )
+        return NULL;
+    if (num_bytes <= 0)
+    {
+        PyErr_SetString(PyExc_ValueError, "number of bytes must be greater than zero");
+        return NULL;
+    }
+    num_quads   = num_bytes / 8;
+    num_chars   = num_bytes % 8;
+    nq          = num_quads;
+    if (num_chars != 0)
+        nq++;
+    raw_data  = (unsigned char *)PyMem_Malloc((nq+1) * 8);
+    // guarantee alignment
+    // we over allocate space, then move forward to the next
+    // 64 bit aligned address
+    data = (unsigned char *)(((uintptr_t)raw_data | 0x7) + 1);
+    udata = (uint64_t *)data;
+    if (data == NULL)
+    {
+        PyErr_NoMemory();
+        return NULL;
+    }
+    // Let python truncate it to the correct length
+    fill_buf_using_rdrand(udata, nq);EditThis C code is part of a Python extension module that generates random numbers using Intel's hardware random number generators (RDRAND and RDSEED instructions). Let me break it down for you:
+Overview
+The code provides functions to generate random bits or bytes using Intel CPU hardware random number generators and return them as Python objects.
+Main Functions
+get_bits() - The Core Function
+This function generates a specified number of random bits:
+Parameters:
+
+num_bits: How many random bits you want
+quad(): A function pointer that generates 64-bit random numbers
+fill(): A function pointer that fills a buffer with random data
+
+What it does:
+
+Input validation: Checks that num_bits is positive
+Memory calculation: Figures out how many bytes are needed to store the requested bits
+Bit masking setup: If the number of bits isn't a multiple of 8, it calculates a mask to zero out unused bits in the last byte
+Memory allocation: Allocates enough memory to hold the random data
+Random generation: Fills most of the buffer using the fill() function, then handles any remaining bytes with quad()
+Bit cleanup: Applies the mask to ensure only the requested number of bits are set
+Python conversion: Converts the raw bytes into a Python integer object
+
+rdrand_get_bits() and rdseed_get_bits()
+These are wrapper functions that call get_bits() with different hardware random number generators:
+
+rdrand_get_bits(): Uses Intel's RDRAND instruction
+rdseed_get_bits(): Uses Intel's RDSEED instruction
+
+get_bytes()
+This function is simpler - it generates a specified number of random bytes:
+What it does:
+
+Input validation: Checks that num_bytes is positive
+Memory alignment: Allocates extra memory and aligns it to 64-bit boundaries (for performance)
+Random generation: Fills the aligned buffer with random data
+Return: The comment suggests Python will truncate it to the correct length
+
+Key Concepts
+Memory Management: The code uses Python's memory allocation functions (PyMem_Malloc, PyMem_Free) to properly integrate with Python's memory management.
+Bit Manipulation: The masking logic (last_mask = 0xff >> (8 - lm_shift)) ensures that if you ask for, say, 10 bits, you get exactly 10 bits, not 16 (2 bytes).
+Hardware Integration: This code interfaces with Intel CPU instructions that generate true hardware random numbers, which are higher quality than software pseudo-random generators.
+Python C API: Functions like PyArg_ParseTuple and PyLong_FromByteArray are part of Python's C extension API for creating Python modules in C.
+The overall purpose is to provide Python programmers with access to high-quality hardware random number generation through a simple interface.RetryDOne developer has raised issue that this statement in the code:fill_buf_using_rdrand(udata, nq);should be replaced with:fill(udata, nq);Otherwise  no matter what instructions are given from Python, bytes will be returned from rdrand register of assembly instead of option choosing between rdrand and rdseed. Is that true?EditYes, the developer is absolutely correct! This is definitely a bug in the code.
+Looking at the get_bytes() function, it accepts a fill function pointer as a parameter:
+cstatic PyObject *
+get_bytes(PyObject *self, PyObject *args, void fill(uint64_t *, uint32_t))
+This fill parameter is meant to specify which hardware random number generator to use. However, inside the function, the code hardcodes:
+cfill_buf_using_rdrand(udata, nq);
+This means that no matter which function pointer is passed in, it will always use RDRAND.
+The Problem
+If you look at how get_bytes() would be called (though the calling functions aren't shown in your code snippet), there would likely be wrapper functions similar to the get_bits wrappers:
+c// Hypothetical wrapper functions that should exist
+static PyObject *
+rdrand_get_bytes(PyObject *self, PyObject *args)
+{
+    return get_bytes(self, args, fill_buf_using_rdrand);  // Should use RDRAND
+}
+
+static PyObject *
+rdseed_get_bytes(PyObject *self, PyObject *args)
+{
+    return get_bytes(self, args, fill_buf_using_rdseed);   // Should use RDSEED
+}
+The Fix
+The line should indeed be changed to:
+cfill(udata, nq);
+This way, the function will use whichever fill function was passed as a parameter, allowing the caller to choose between RDRAND and RDSEED instructions.
+Why This Matters
+
+RDRAND and RDSEED are different Intel instructions with different characteristics
+RDSEED is generally considered to provide higher entropy but is slower
+RDRAND is faster but may use a PRNG seeded by the entropy source
+Users should be able to choose which one they want based on their security vs. performance requirements
+
+So yes, the developer has identified a real bug that would prevent users from being able to choose the RDSEED instruction for byte generation.RetryClaude does not have the ability to run the code it generates yet.DDoes this help regarding what you said that how get_bytes() would be called - calling functions are not shown in my original code snippets. Suppliment to my original code:static PyObject *
+rdrand_get_bytes(PyObject *self, PyObject *args)
+{
+    return get_bytes(self, args, fill_buf_using_rdrand);
+}
+static PyObject *
+rdseed_get_bytes(PyObject *self, PyObject args)
+{
+    return get_bytes(self, args, fill_buf_using_rdseed);
+}
+static PyMethodDef rdrand_functions[] = {
+        {"rdrand_get_bits",       rdrand_get_bits,        METH_VARARGS, "rdrand_get_bits()"},
+        {"rdrand_get_bytes",      rdrand_get_bytes,       METH_VARARGS, "rdrand_get_bytes()"},
+        {"rdseed_get_bits",       rdseed_get_bits,        METH_VARARGS, "rdseed_get_bits()"},
+        {"rdseed_get_bytes",      rdseed_get_bytes,       METH_VARARGS, "rdseed_get_bytes()"},
+        {NULL, NULL, 0, NULL}   / Sentinel */
+};EditPerfect! This additional code confirms exactly what I suspected and makes the bug even more clear.
+The Bug is Confirmed
+Looking at the wrapper functions:
+cstatic PyObject *
+rdrand_get_bytes(PyObject *self, PyObject *args)
+{
+    return get_bytes(self, args, fill_buf_using_rdrand);  // Passes RDRAND fill function
+}
+
+static PyObject *
+rdseed_get_bytes(PyObject *self, PyObject *args)
+{
+    return get_bytes(self, args, fill_buf_using_rdseed);   // Passes RDSEED fill function
+}
+These functions correctly pass different fill function pointers to get_bytes():
+
+rdrand_get_bytes() passes fill_buf_using_rdrand
+rdseed_get_bytes() passes fill_buf_using_rdseed
+
+The Problem in Action
+But inside get_bytes(), the hardcoded line:
+cfill_buf_using_rdrand(udata, nq);
+means that both Python functions will behave identically - they'll both use RDRAND regardless of which one the user calls.
+Python User Impact
+From Python, a user would expect:
+pythonimport your_module
+
+# These should use different hardware instructions
+rdrand_bytes = your_module.rdrand_get_bytes(16)  # Should use RDRAND
+rdseed_bytes = your_module.rdseed_get_bytes(16)  # Should use RDSEED
+But currently, both calls would use RDRAND, making the rdseed_get_bytes() function essentially broken/misleading.
+The Method Table
+The PyMethodDef table shows that both functions are properly exposed to Python:
+
+"rdrand_get_bytes" → rdrand_get_bytes
+"rdseed_get_bytes" → rdseed_get_bytes
+
+So Python users can call both functions, but they won't get the behavior they expect.
+Conclusion
+Yes, the developer is 100% correct. The line should be:
+cfill(udata, nq);
+This would make the get_bytes() function respect the fill parameter that's passed to it, allowing users to actually choose between RDRAND and RDSEED for byte generation, just like they can for bit generation (which works correctly).RetryClaude does not have the ability to run the code it generates yet.DI have been advised to change this part of C code as well:void
+cpuid(unsigned int op, unsigned int subfunc, unsigned int reg[4])
+{
+#if USING_GCC && IS64BIT
+    __cpuid(reg, op, subfunc);
+#else
+    asm volatile("pushl %%ebx      \n\t" /* save %ebx /
+                 "cpuid            \n\t"
+                 "movl %%ebx, %1   \n\t" / save what cpuid just put in %ebx /
+                 "popl %%ebx       \n\t" / restore the old %ebx */
+                 : "=a"(reg[0]), "=r"(reg[1]), "=c"(reg[2]), "=d"(reg[3])
+                 : "a"(op), "c"(subfunc)
+                 : "cc");
+#endif
+}Since I am compiling using gcc in Msys2.What is the problem here? Any bug?EditYes, there's a problem with this code when compiling with GCC in MSYS2. The issue is with the __cpuid function call.
+The Problem
+The code has two paths:
+
+GCC 64-bit path: Uses __cpuid(reg, op, subfunc)
+Fallback path: Uses inline assembly
+
+The Bug
+The __cpuid intrinsic function has different signatures depending on the compiler:
+Microsoft Visual C++ (MSVC):
+cvoid __cpuid(int cpuInfo[4], int function_id);
+GCC:
+cvoid __cpuid(unsigned int level, unsigned int *eax, unsigned int *ebx, 
+             unsigned int *ecx, unsigned int *edx);
+The Issue in Your Code
+Your code is calling:
+c__cpuid(reg, op, subfunc);
+This matches the MSVC signature (array first, then function_id), but you're compiling with GCC, which expects individual pointers for each register.
+The Fix
+For GCC, you should use:
+c__cpuid(op, &reg[0], &reg[1], &reg[2], &reg[3]);
+Or, more commonly with GCC, you'd use:
+c__cpuid_count(op, subfunc, reg[0], reg[1], reg[2], reg[3]);
+Recommended Solution
+Here's how you could fix it:
+cvoid
+cpuid(unsigned int op, unsigned int subfunc, unsigned int reg[4])
+{
+#if defined(__GNUC__) && defined(__x86_64__)
+    __cpuid_count(op, subfunc, reg[0], reg[1], reg[2], reg[3]);
+#elif defined(_MSC_VER) && defined(_M_X64)
+    __cpuidex((int*)reg, (int)op, (int)subfunc);
+#else
+    asm volatile("pushl %%ebx      \n\t" /* save %ebx */
+                 "cpuid            \n\t"
+                 "movl %%ebx, %1   \n\t" /* save what cpuid just put in %ebx */
+                 "popl %%ebx       \n\t" /* restore the old %ebx */
+                 : "=a"(reg[0]), "=r"(reg[1]), "=c"(reg[2]), "=d"(reg[3])
+                 : "a"(op), "c"(subfunc)
+                 : "cc");
+#endif
+}
+Why This Matters
+
+Compilation errors: The current GCC path likely won't compile or will produce incorrect results
+CPUID functionality: This function is probably used to detect CPU features like RDRAND/RDSEED support
+Wrong feature detection: If CPUID doesn't work correctly, the code might think hardware random number generators aren't available when they are
+
+So yes, this is definitely a bug when compiling with GCC, and it needs to be fixed for the code to work properly in your MSYS2/GCC environment.RetryClaude does not have the ability to run the code it generates yet.DNo! that is not the change I have been suggested. The change suggested is as follows:cpuid(unsigned int op, unsigned int subfunc, unsigned int reg[4])
+{
+
+#if USING_GCC && IS64BIT
+    __cpuid(reg, op, subfunc);
+#elif USING_GCC
+    asm volatile("push %%rbx      \n\t" /* save %ebx */
+                 "cpuid            \n\t"
+                 "movl %%ebx, %1   \n\t" /* save what cpuid just put in %ebx */
+                 "pop %%rbx       \n\t" /* restore the old %ebx */
+                 : "=a"(reg[0]), "=r"(reg[1]), "=c"(reg[2]), "=d"(reg[3])
+                 : "a"(op), "c"(subfunc)
+                 : "cc");
+#else
+    asm volatile("pushl %%ebx      \n\t" /* save %ebx */
+                 "cpuid            \n\t"
+                 "movl %%ebx, %1   \n\t" /* save what cpuid just put in %ebx */
+                 "popl %%ebx       \n\t" /* restore the old %ebx */
+                 : "=a"(reg[0]), "=r"(reg[1]), "=c"(reg[2]), "=d"(reg[3])
+                 : "a"(op), "c"(subfunc)
+                 : "cc");
+#endif
+}Why? You failed to recognize this error?EditYou're absolutely right, and I apologize for missing the actual issue!
+The Real Problem
+The issue is with the register size mismatch in the inline assembly when compiling for 64-bit with GCC.
+Looking at the original code's fallback assembly:
+casm volatile("pushl %%ebx      \n\t" /* save %ebx */
+             "popl %%ebx       \n\t" /* restore the old %ebx */
+The Bug
+
+pushl and popl are 32-bit instructions (the 'l' suffix means "long" = 32-bit)
+On 64-bit systems, you should use 64-bit instructions: push and pop (or pushq/popq)
+Using 32-bit instructions on 64-bit registers can cause stack corruption or other undefined behavior
+
+The Fix Explained
+The suggested change adds a separate path for 64-bit GCC:
+c#elif USING_GCC
+    asm volatile("push %%rbx      \n\t" /* save %rbx (64-bit) */
+                 "pop %%rbx       \n\t" /* restore the old %rbx (64-bit) */
+Key differences:
+
+push %%rbx instead of pushl %%ebx (64-bit vs 32-bit)
+pop %%rbx instead of popl %%ebx (64-bit vs 32-bit)
+Uses %rbx (64-bit register name) instead of %ebx (32-bit register name)
+
+Why This Matters
+On 64-bit systems:
+
+The stack pointer is 64-bit
+Using 32-bit push/pop operations can corrupt the stack
+This could lead to crashes, undefined behavior, or security issues
+
+My Mistake
+I completely missed this architecture-specific assembly issue and focused on the wrong problem entirely. The suggested fix correctly addresses the 32-bit vs 64-bit instruction mismatch when using GCC on 64-bit systems.
+Thank you for the correction - this is indeed a critical fix for proper 64-bit compilation!RetryClaude does not have the ability to run the code it generates yet.DDoes this library rdrand which has both rdseed and rdrand has any python function to generate random numbers between a range of numbers, say 100 to 1000?EditLooking at the code you've shown, this library only provides low-level functions that generate raw random bits or bytes:
+
+rdrand_get_bits(num_bits) - Returns random bits as a Python integer
+rdrand_get_bytes(num_bytes) - Returns random bytes
+rdseed_get_bits(num_bits) - Returns random bits as a Python integer
+rdseed_get_bytes(num_bytes) - Returns random bytes
+
+No Built-in Range Function
+The library does not appear to have any built-in function to generate random numbers within a specific range like 100 to 1000.
+How You Would Implement Range Generation
+You'd need to implement this yourself using the raw functions. Here's how you could do it in Python:
+pythonimport rdrand  # assuming this is the module name
+
+def random_range_rdrand(min_val, max_val):
+    """Generate random number between min_val and max_val using RDRAND"""
+    range_size = max_val - min_val + 1
+    
+    # Calculate how many bits we need
+    bits_needed = range_size.bit_length()
+    
+    while True:
+        # Get random bits
+        random_int = rdrand.rdrand_get_bits(bits_needed)
+        
+        # Check if it's within our range
+        if random_int < range_size:
+            return min_val + random_int
+
+def random_range_rdseed(min_val, max_val):
+    """Generate random number between min_val and max_val using RDSEED"""
+    range_size = max_val - min_val + 1
+    bits_needed = range_size.bit_length()
+    
+    while True:
+        random_int = rdrand.rdseed_get_bits(bits_needed)
+        if random_int < range_size:
+            return min_val + random_int
+
+# Usage
+random_num = random_range_rdrand(100, 1000)
+Why No Built-in Range Function?
+This library appears to be a low-level hardware interface that provides direct access to Intel's hardware random number generators. It's designed to give you raw random data, leaving higher-level operations (like range generation, distributions, etc.) to be implemented by the user or other libraries.
+This is actually a good design choice because:
+
+It keeps the C extension simple and focused
+Different applications might need different approaches to range generation
+Users can implement bias-free algorithms as needed
+
+So to answer your question: No, there's no built-in range function - you'll need to build that functionality on top of the provided raw bit/byte generation functions.RetryClaude does not have the ability to run the code it generates yet.DThis is the python file which calls rdrand and rdseed:
+from random import Random as StdRandom
+from _rdrand import *
+if HAS_RAND == 0:
+    print( "This module requires a cpu which supports the" +\
+          " RdRand instruction")
+    raise SystemError
+if HAS_SEED == 0:
+    rdseed_get_bits = None
+    rdseed_get_bytes = None
+class BaseRandom(StdRandom):
+    """Base class for alternate random number generator using
+     Intel's RdRand or RdSeed instructions to access the
+     hardware random number generator. Not available on all
+     systems (see os.urandom() for details).
+    """
+    get_bits = None
+    get_bytes = None
+    def random(self):
+        """Get the next random number in the range [0.0, 1.0).
+           52 is the number of bits
+        """
+        return (1.0 * self.get_bits(52)) / (2  52)
+    def getrandbytes(self, k):
+        if k <= 0:
+            raise ValueError('number of bytes must be greater than zero')
+        if k != int(k):
+            raise TypeError('number of bytes should be an integer')
+        return self.get_bytes(k)
+    def getrandbits(self, k):
+        """getrandbits(k) -> x.  Generates a long int with k random bits."""
+        if k <= 0:
+            raise ValueError('number of bits must be greater than zero')
+        if k != int(k):
+            raise TypeError('number of bits should be an integer')
+        return self.get_bits(k)
+    def _stub(self, *args, kwds):
+        "Stub method.  Not used for a system random number generator."
+        return None
+    seed = jumpahead = _stub
+    def _notimplemented(self, *args, **kwds):
+        "Method should not be called for a system random number generator."
+        raise NotImplementedError('System entropy source does not have state.')
+    getstate = setstate = _notimplemented
+if HAS_RAND == 1:
+    class RdRandom(BaseRandom):
+        get_bits = rdrand_get_bits
+        get_bytes = rdrand_get_bytes
+if HAS_SEED == 1:
+    class RdSeedom(BaseRandom):
+        get_bits = rdseed_get_bits
+        get_bytes = rdseed_get_bytesBut I see s.randint() in the following xlwings code. but .randint is missing in above code:@xw.func
+def generate_random_numbers_rdseed(n):
+    s = RdSeedom()
+    random_numbers = []
+    n = int(n)
+    while len(random_numbers) < n:
+        # Generate a random integer with exactly 15 digits
+        num = s.randint(100000000000000, 999999999999999)
+        # Append the number as a list to create a list of lists
+        random_numbers.append([num])
+    return random_numbers
+    return output_listEditYou've found an important inconsistency! The issue is that the BaseRandom class inherits from Python's standard Random class but doesn't provide the range-based methods that Random normally has.
+The Problem
+The BaseRandom class only overrides these methods:
+
+random() - returns float between 0.0 and 1.0
+getrandbytes() - returns random bytes
+getrandbits() - returns random bits
+
+But it doesn't override randint(), which means it's inheriting the default implementation from Python's StdRandom (standard Random class).
+What's Happening
+When you call s.randint(100000000000000, 999999999999999), it's actually using:
+
+Python's standard randint() method from the Random class
+Which internally calls random() to get a float between 0.0 and 1.0
+Your overridden random() method does use the hardware RNG (RDSEED)
+So it's still using hardware randomness, just indirectly
+
+The Code Flow
+pythons.randint(100000000000000, 999999999999999)
+    ↓ (calls inherited Random.randint)
+Random.randint() 
+    ↓ (internally calls)
+s.random()  
+    ↓ (your overridden method)
+return (1.0 * self.get_bits(52)) / (2 ** 52)
+    ↓ (uses hardware RNG)
+rdseed_get_bits(52)
+Why It Works
+The xlwings code works because:
+
+RdSeedom inherits from BaseRandom
+BaseRandom inherits from StdRandom (Python's Random class)
+Python's Random.randint() uses the random() method internally
+Your BaseRandom.random() method is overridden to use hardware RNG
+
+The Missing Implementation
+If you wanted to add a direct randint() method for efficiency, you could add this to BaseRandom:
+pythondef randint(self, a, b):
+    """Return random integer in range [a, b], including both end points."""
+    if a > b:
+        raise ValueError("empty range for randint()")
+    
+    range_size = b - a + 1
+    bits_needed = range_size.bit_length()
+    
+    while True:
+        random_int = self.get_bits(bits_needed)
+        if random_int < range_size:
+            return a + random_int
+But it's not necessary since the inherited version works fine by calling your random() method.
+Conclusion
+The randint() method is available - it's inherited from Python's standard Random class, and it uses your hardware RNG through the overridden random() method. The xlwings code works correctly and is using RDSEED as expected.RetryClaude does not have the ability to run the code it generates yet.DOh! I see but modify this python code to use rdseed from rdrand library and get range based rdseed random numbersEditLooking at your code, I can see that RdSeedom class already uses RDSEED, but it relies on the inherited randint() method which is inefficient. Here's the modified Python code with a direct, efficient randint() implementation:Enhanced rdrand Python module with efficient range-based random numbersCode from random import Random as StdRandom
+from _rdrand import *
+
+if HAS_RAND == 0:
+    print("This module requires a cpu which supports the" +
+          " RdRand instruction")
+    raise SystemError
+
+if HAS_SEED == 0:
+    rdseed_get_bits = None
+    rdseeNow your xlwings code can use the enhanced RdSeedom class more efficiently:
+python@xw.func
+def generate_random_numbers_rdseed(n):
+    s = RdSeedom()
+    random_numbers = []
+    n = int(n)
+    while len(random_numbers) < n:
+        # This now uses direct RDSEED hardware calls with rejection sampling
+        num = s.randint(100000000000000, 999999999999999)
+        random_numbers.append([num])
+    return random_numbers
+
+# Alternative using the convenience function
+@xw.func
+def generate_random_numbers_rdseed_alt(n):
+    random_numbers = []
+    n = int(n)
+    while len(random_numbers) < n:
+        # Direct function call
+        num = hardware_randint_rdseed(100000000000000, 999999999999999)
+        random_numbers.append([num])
+    return random_numbers
+Key Improvements:
+
+Efficient randint(): Uses rejection sampling directly with get_bits() instead of going through random() and floating-point conversion
+Additional methods: Added randrange(), choice(), shuffle(), sample(), and uniform() methods that all use hardware RNG
+Convenience functions: Added standalone functions like hardware_randint_rdseed() for direct usage
+Proper bias elimination: Uses rejection sampling to ensure uniform distribution across the range
+Better error handling: Improved error messages and type checking
+
+The new randint() method is much more efficient because it:
+
+Directly uses the hardware RNG bits
+Avoids floating-point conversion
+Uses rejection sampling to eliminate bias
+Calculates the minimum number of bits needed for the range
+
+This will be significantly faster for generating range-based random numbers using RDSEED!RetryClaude does not have the ability to run the code it generates yet.DSee I want you to stick to deafult python rdrand.py code as under and provide me xlwings which can use this python library to generate random numbers between range as above:from random import Random as StdRandom
+from _rdrand import *
+if HAS_RAND == 0:
+    print( "This module requires a cpu which supports the" +\
+          " RdRand instruction")
+    raise SystemError
+if HAS_SEED == 0:
+    rdseed_get_bits = None
+    rdseed_get_bytes = None
+class BaseRandom(StdRandom):
+    """Base class for alternate random number generator using
+     Intel's RdRand or RdSeed instructions to access the
+     hardware random number generator. Not available on all
+     systems (see os.urandom() for details).
+    """
+    get_bits = None
+    get_bytes = None
+    def random(self):
+        """Get the next random number in the range [0.0, 1.0).
+           52 is the number of bits
+        """
+        return (1.0 * self.get_bits(52)) / (2  52)
+    def getrandbytes(self, k):
+        if k <= 0:
+            raise ValueError('number of bytes must be greater than zero')
+        if k != int(k):
+            raise TypeError('number of bytes should be an integer')
+        return self.get_bytes(k)
+    def getrandbits(self, k):
+        """getrandbits(k) -> x.  Generates a long int with k random bits."""
+        if k <= 0:
+            raise ValueError('number of bits must be greater than zero')
+        if k != int(k):
+            raise TypeError('number of bits should be an integer')
+        return self.get_bits(k)
+    def _stub(self, *args, kwds):
+        "Stub method.  Not used for a system random number generator."
+        return None
+    seed = jumpahead = _stub
+    def _notimplemented(self, *args, **kwds):
+        "Method should not be called for a system random number generator."
+        raise NotImplementedError('System entropy source does not have state.')
+    getstate = setstate = _notimplemented
+if HAS_RAND == 1:
+    class RdRandom(BaseRandom):
+        get_bits = rdrand_get_bits
+        get_bytes = rdrand_get_bytes
+if HAS_SEED == 1:
+    class RdSeedom(BaseRandom):
+        get_bits = rdseed_get_bits
+        get_bytes = rdseed_get_bytesEditHere's an xlwings function that uses your existing rdrand.py code to generate random numbers in a range using RDSEED:xlwings functions using rdrand library for range-based random numbersCode import xlwings as xw
+from rdrand import RdSeedom, RdRandom
+
+@xw.func
+def generate_random_numbers_rdseed(n):
+    """Generate n random 15-digit numbers using Intel RDSEED instruction."""
+    s = RdSeedom()
+    random_numbers = []
+    n = int(n)
+    
+  This xlwings code uses your existing rdrand.py library exactly as-is. Here's how it works:
+Key Points:
+
+Uses inherited randint(): Your RdSeedom class inherits randint() from Python's Random class, which internally calls your overridden random() method that uses RDSEED hardware.
+No modifications needed: Your rdrand.py stays exactly the same - no changes required.
+Multiple function options: I've provided various xlwings functions for different use cases.
+
+Usage in Excel:
+=generate_random_numbers_rdseed(10)           # 10 random 15-digit numbers
+=generate_custom_range_rdseed(5, 100, 1000)   # 5 numbers between 100-1000
+=generate_float_range_rdseed(3, 0.5, 99.5)    # 3 floats between 0.5-99.5
+=generate_multiple_columns_rdseed(5, 3, 1, 100) # 5×3 matrix of numbers 1-100
+=random_choice_rdseed("Apple,Orange,Banana", 5) # Pick 5 random fruits
+=dice_roll_rdseed(3, 6)                       # Roll 3 six-sided dice
+=coin_flip_rdseed(10)                         # Flip 10 coins
+How It Works:
+
+s = RdSeedom() creates an instance using RDSEED
+s.randint(min, max) calls Python's inherited randint() method
+Python's randint() internally calls s.random()
+Your random() method uses self.get_bits(52)
+self.get_bits points to rdseed_get_bits from your C extension
+This calls the RDSEED hardware instruction
+
+So you get true hardware random numbers in any range you want, using your existing rdrand.py code without any modifications!RetryClaude does not have the ability to run the code it generates yet.DYour codes hang my excel they are memory guzzlers, Try something like this for all codes so that they ensure speedy execution:import rdrand
+import xlwings as xw
+@xw.func
+def RDSEED_EXCEL(min_val, max_val, count):
+    count=int(count)
+    random_numbersrdseed = []
+    for  in range(count):
+        random_number_rdseed = rdrand.RdSeedom().get_bits(64) % (max_val - min_val + 1) + min_val
+        random_numbers_rdseed.append(random_number_rdseed)
+    return [[random_number_rdseed_1] for random_number_rdseed_1 in random_numbers_rdseed]EditYou're absolutely right! Creating new instances in loops is very inefficient. Here's the optimized version that creates the RNG instance once and uses direct bit manipulation like your example:Optimized xlwings functions using rdrand libraryCode ∙ Version 2 import xlwings as xw
+import rdrand
+
+@xw.func
+def RDSEED_EXCEL(min_val, max_val, count):
+    """Generate random numbers in range [min_val, max_val] using RDSEED."""
+    count = int(count)
+    min_val = int(min_val)
+    max_val = int(max_val)
+    
+    Now all functions are optimized for speed by:
+
+Creating RNG instance once outside the loop instead of inside
+Using direct get_bits() instead of randint() to avoid overhead
+Using modulo operation for range conversion like your example
+Minimizing function calls and object creation
+
+Usage in Excel:
+=RDSEED_EXCEL(100, 1000, 10)        # 10 numbers between 100-1000
+=RDRAND_EXCEL(1, 6, 5)              # 5 dice rolls (1-6)
+=RDSEED_MATRIX(5, 3, 0, 100)        # 5×3 matrix of numbers 0-100
+=RDSEED_FLOAT(0.5, 99.5, 10)        # 10 floats between 0.5-99.5
+=RDSEED_DICE(3, 6)                  # Roll 3 six-sided dice
+=RDSEED_COIN(10)                    # Flip 10 coins
+=RDSEED_BYTES(16)                   # Generate 16 random bytes
+These functions should execute much faster and not hang Excel since they:
+
+Create the RNG object only once per function call
+Use the most direct hardware access possible
+Minimize memory allocations and function overhead
+
+The core pattern follows your optimized example: create instance once, use get_bits() directly, apply modulo for range conversion.

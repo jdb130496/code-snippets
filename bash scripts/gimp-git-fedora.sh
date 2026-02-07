@@ -21,7 +21,7 @@ if [[ "$CLEAN" == true ]]; then
 fi
 
 if [[ "$SKIP_DEPS" == false ]]; then
-    sudo dnf install -y gcc-c++ meson ninja-build pkgconfig gtk3-devel glib2-devel cairo-devel gdk-pixbuf2-devel bubblewrap git json-glib-devel glycin-devel glycin-loaders gobject-introspection-devel python3-gobject vala
+    sudo dnf install -y gcc-c++ meson ninja-build pkgconfig gtk3-devel glib2-devel cairo-devel gdk-pixbuf2-devel bubblewrap git json-glib-devel glycin-devel glycin-loaders gobject-introspection-devel python3-gobject vala exiv2 exiv2-devel libgexiv2 libgexiv2-devel ghostscript mypaint-brushes mypaint-brushes-devel mypaint2-brushes mypaint2-brushes-devel python3-gobject-devel appstream appstream-devel openexr openexr-libs openexr-devel aalib-libs aalib-devel lua libexif libexif-devel jasper jasper-devel gi-docgen.noarch libmng libmng-devel libjxl libjxl-devel libheif libheif-devel libwebp libwebp-devel librsvg2 librsvg2-devel libarchive libarchive-devel iso-codes iso-codes-devel libtiff libtiff-devel lua-devel libwmf libwmf-devel libmypaint libmypaint-devel
     # Remove system babl/gegl packages that conflict with our custom build
     sudo dnf remove -y babl gegl 2>/dev/null || true
 fi

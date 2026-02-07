@@ -1,0 +1,3 @@
+D:/Programs/test-scripts/build-windows-msvc/CMakeFiles/test_build.dir
+D:/Programs/test-scripts/build-windows-msvc/CMakeFiles/edit_cache.dir
+D:/Programs/test-scripts/build-windows-msvc/CMakeFiles/rebuild_cache.dir

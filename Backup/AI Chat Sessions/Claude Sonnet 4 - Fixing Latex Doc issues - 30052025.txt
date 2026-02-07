@@ -1,0 +1,217 @@
+In this latex code:
+\newcommand{\resumeSubheading}[4]{
+    \vspace{0.5mm}\item[]
+    \begin{tabular}{0.98\textwidth}[t]{l@{\extracolsep{\fill}}r}
+        \begin{minipage}[t]{0.60\textwidth}
+            \textbf{#1}
+        \end{minipage} & 
+        \begin{minipage}[t]{0.24\textwidth}
+            \footnotesize{\textbf{#4}}
+        \end{minipage}\\
+%        \textbf{\footnotesize{#4}} \\
+        \textit{\footnotesize{#3}} &  \footnotesize{#2}\\
+    \end{tabular}
+    \vspace{-2.4mm}
+}
+it is preamble:
+
+Content:
+
+\resumeSubheading{\Large
+      {Academician \& Consultant, Vadodara}\vspace{1.50mm}}{}{\large
+      {\textbf{Services: Freelance Tutoring, Bookkeeping, Accounting, Internal Audits, MIS}}}{\hspace{-15mm}\large{Aug 2023 -- Current}}
+
+Due to many characters in text Services, Can I not increase size of #3 in preamble?
+
+Edit
+Yes, you can increase the size allocated to parameter #3 in your preamble. Looking at your current code, the issue is that #3 (which contains your long "Services" text) is placed in the second row of the table and only gets the remaining space after #2.
+
+Here are a few solutions:
+
+Option 1: Increase the left column width and decrease the right column width
+
+latex
+\newcommand{\resumeSubheading}[4]{
+	\vspace{0.5mm}\item[]
+	\begin{tabular*}{0.98\textwidth}[t]{l@{\extracolsep{\fill}}r}
+		\begin{minipage}[t]{0.70\textwidth}  % Increased from 0.60
+			\textbf{#1}
+		\end{minipage} & 
+		\begin{minipage}[t]{0.20\textwidth}  % Decreased from 0.24
+			\footnotesize{\textbf{#4}}
+		\end{minipage}\\
+		\textit{\footnotesize{#3}} &  \footnotesize{#2}\\
+	\end{tabular*}
+	\vspace{-2.4mm}
+}
+Option 2: Make #3 span the full width by restructuring the table
+
+latex
+\newcommand{\resumeSubheading}[4]{
+	\vspace{0.5mm}\item[]
+	\begin{tabular*}{0.98\textwidth}[t]{l@{\extracolsep{\fill}}r}
+		\begin{minipage}[t]{0.60\textwidth}
+			\textbf{#1}
+		\end{minipage} & 
+		\begin{minipage}[t]{0.24\textwidth}
+			\footnotesize{\textbf{#4}}
+		\end{minipage}\\
+	\end{tabular*}
+	\begin{tabular*}{0.98\textwidth}[t]{l@{\extracolsep{\fill}}r}
+		\textit{\footnotesize{#3}} &  \footnotesize{#2}\\
+	\end{tabular*}
+	\vspace{-2.4mm}
+}
+Option 3: Use a single column for #3 to give it full width
+
+latex
+\newcommand{\resumeSubheading}[4]{
+	\vspace{0.5mm}\item[]
+	\begin{tabular*}{0.98\textwidth}[t]{l@{\extracolsep{\fill}}r}
+		\begin{minipage}[t]{0.60\textwidth}
+			\textbf{#1}
+		\end{minipage} & 
+		\begin{minipage}[t]{0.24\textwidth}
+			\footnotesize{\textbf{#4}}
+		\end{minipage}\\
+	\end{tabular*}
+	\textit{\footnotesize{#3}} \hfill \footnotesize{#2}
+	\vspace{-2.4mm}
+}
+I'd recommend Option 1 as the simplest fix - just adjust the minipage widths to give more space to the left side where your long #3 text will appear.
+
+
+
+
+image.png
+But my previous error remains:
+Overfull \hbox (29.83308pt too wide) in alignment at lines 213--213
+Even after I adopted your 1 option. Besides, similar content down below in CV gets disturbed like this image: As you can see the period at the end splits to next row
+
+Edit
+The issue is that you're trying to fit too much content in a rigid tabular structure. Here are better solutions:
+
+Option 1: Use a more flexible layout with minipages
+
+latex
+\newcommand{\resumeSubheading}[4]{
+    \vspace{0.5mm}\item[]
+    \begin{minipage}[t]{0.75\textwidth}
+        \textbf{#1}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.23\textwidth}
+        \raggedleft\footnotesize{\textbf{#4}}
+    \end{minipage}
+    
+    \begin{minipage}[t]{0.75\textwidth}
+        \textit{\footnotesize{#3}}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.23\textwidth}
+        \raggedleft\footnotesize{#2}
+    \end{minipage}
+    \vspace{-2.4mm}
+}
+Option 2: Stack the long content (#3) on its own line
+
+latex
+\newcommand{\resumeSubheading}[4]{
+    \vspace{0.5mm}\item[]
+    \begin{tabular*}{0.98\textwidth}[t]{l@{\extracolsep{\fill}}r}
+        \textbf{#1} & \footnotesize{\textbf{#4}}\\
+        \multicolumn{1}{l}{\textit{\footnotesize{#3}}} & \footnotesize{#2}\\
+    \end{tabular*}
+    \vspace{-2.4mm}
+}
+Option 3: Break your long services text into multiple lines In your content, instead of:
+
+latex
+{\textbf{Services: Freelance Tutoring, Bookkeeping, Accounting, Internal Audits, MIS}}
+Use:
+
+latex
+{\textbf{Services: Freelance Tutoring, Bookkeeping,\\
+\phantom{Services: }Accounting, Internal Audits, MIS}}
+Option 4: Most flexible - completely restructure
+
+latex
+\newcommand{\resumeSubheading}[4]{
+    \vspace{0.5mm}\item[]
+    \noindent\textbf{#1} \hfill \footnotesize{\textbf{#4}}\\
+    \textit{\footnotesize{#3}} \hfill \footnotesize{#2}
+    \vspace{-2.4mm}
+}
+I'd recommend Option 1 or Option 4 as they give you the most flexibility and will prevent the overfull hbox errors you're experiencing. The tabular environment is too rigid for your long content.
+
+
+
+
+image.png
+With your option 1 everything seem to work only problem is - See the image: Between Dudhsagar Dairy, Mehsana, Gujarat and Dy. Manager - Accounts there is extra space. This is for all company experiences. Can you change the preamble?
+
+Edit
+Yes, the extra space is likely due to the separate minipage blocks creating additional vertical spacing. Here's the modified preamble to reduce that gap:
+
+Option 1: Reduce spacing between minipage rows
+
+latex
+\newcommand{\resumeSubheading}[4]{
+    \vspace{0.5mm}\item[]
+    \begin{minipage}[t]{0.75\textwidth}
+        \textbf{#1}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.23\textwidth}
+        \raggedleft\footnotesize{\textbf{#4}}
+    \end{minipage}\\[-2mm]  % Reduce space between rows
+    
+    \begin{minipage}[t]{0.75\textwidth}
+        \textit{\footnotesize{#3}}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.23\textwidth}
+        \raggedleft\footnotesize{#2}
+    \end{minipage}
+    \vspace{-2.4mm}
+}
+Option 2: Use a single minipage container (recommended)
+
+latex
+\newcommand{\resumeSubheading}[4]{
+    \vspace{0.5mm}\item[]
+    \noindent
+    \begin{minipage}[t]{\textwidth}
+        \begin{minipage}[t]{0.75\textwidth}
+            \textbf{#1}
+        \end{minipage}
+        \hfill
+        \begin{minipage}[t]{0.23\textwidth}
+            \raggedleft\footnotesize{\textbf{#4}}
+        \end{minipage}\\[1mm]  % Control exact spacing
+        
+        \begin{minipage}[t]{0.75\textwidth}
+            \textit{\footnotesize{#3}}
+        \end{minipage}
+        \hfill
+        \begin{minipage}[t]{0.23\textwidth}
+            \raggedleft\footnotesize{#2}
+        \end{minipage}
+    \end{minipage}
+    \vspace{-2.4mm}
+}
+Option 3: Simplest approach
+
+latex
+\newcommand{\resumeSubheading}[4]{
+    \vspace{0.5mm}\item[]
+    \noindent\textbf{#1} \hfill \footnotesize{\textbf{#4}}\\[1mm]
+    \noindent\textit{\footnotesize{#3}} \hfill \footnotesize{#2}
+    \vspace{-2.4mm}
+}
+Try Option 3 first as it's the cleanest. You can adjust the [1mm] spacing to [0.5mm] or [0mm] if you want even tighter spacing between the company name and position lines.
+
+
+
+
+

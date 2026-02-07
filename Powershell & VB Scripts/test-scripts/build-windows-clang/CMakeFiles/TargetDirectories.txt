@@ -1,0 +1,3 @@
+D:/Programs/test-scripts/build-windows-clang/CMakeFiles/test_build.dir
+D:/Programs/test-scripts/build-windows-clang/CMakeFiles/edit_cache.dir
+D:/Programs/test-scripts/build-windows-clang/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"D:/Programs/test-scripts/build-msys2-gcc/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

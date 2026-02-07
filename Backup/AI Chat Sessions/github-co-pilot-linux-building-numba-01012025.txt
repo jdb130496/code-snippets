@@ -1,0 +1,940 @@
+jdb130496: I am trying to build llvmlite on fedora. cloned github repository. But following is the error when trying pip install .
+
+Processing /home/admin/Downloads/llvmlite
+  Preparing metadata (setup.py) ... done
+Building wheels for collected packages: llvmlite
+  Building wheel for llvmlite (setup.py) ... error
+  error: subprocess-exited-with-error
+  
+  × python setup.py bdist_wheel did not run successfully.
+  │ exit code: 1
+  ╰─> [15 lines of output]
+      /home/admin/.venv/lib64/python3.13/site-packages/setuptools/dist.py:330: InformationOnly: Normalizing '0.45.0dev0+10.g69b8c1b' to '0.45.0.dev0+10.g69b8c1b'
+        self.metadata.version = self._normalize_version(self.metadata.version)
+      running bdist_wheel
+      /home/admin/.venv/bin/python /home/admin/Downloads/llvmlite/ffi/build.py
+      LLVM version... Traceback (most recent call last):
+        File "/home/admin/Downloads/llvmlite/ffi/build.py", line 258, in <module>
+          main()
+          ~~~~^^
+        File "/home/admin/Downloads/llvmlite/ffi/build.py", line 246, in main
+          main_posix('linux', '.so')
+          ~~~~~~~~~~^^^^^^^^^^^^^^^^
+        File "/home/admin/Downloads/llvmlite/ffi/build.py", line 163, in main_posix
+          raise RuntimeError(msg) from None
+      RuntimeError: Could not find a `llvm-config` binary. There are a number of reasons this could occur, please see: https://llvmlite.readthedocs.io/en/latest/admin-guide/install.html#using-pip for help.
+
+VS Code: The error message indicates that the `llvm-config` binary is not found. You need to install LLVM development tools on your Fedora system. Follow these steps to resolve the issue:
+
+1. Install LLVM development tools:
+
+```bash
+sudo dnf install llvm-devel
+```
+2. Verify that `llvm-config` is available:
+
+```bash
+llvm-config --version
+```
+3. Try installing `llvmlite` again:
+
+```bash
+pip install /home/admin/Downloads/llvmlite
+```
+These steps should help you resolve the issue and successfully build `llvmlite`.
+
+jdb130496: llvmlite requires llvm 15 but I have on Fedora - llvm 19.1.5 Which package to install and how to access it because it will be side by side with my existing llvm 19.1.5
+
+GitHub Copilot: To install LLVM 15 alongside your existing LLVM 19.1.5 on Fedora, you can use the `llvm-toolset` package from the Fedora Modular repository. Follow these steps:
+
+1. Enable the Fedora Modular repository:
+
+```bash
+sudo dnf install dnf-plugins-core
+sudo dnf config-manager --set-enabled fedora-modular
+```
+
+2. Install LLVM 15 from the modular repository:
+
+```bash
+sudo dnf module install llvm-toolset-15
+```
+
+3. Verify the installation of LLVM 15:
+
+```bash
+/opt/rh/llvm-toolset-15/root/usr/bin/llvm-config --version
+```
+
+4. Set the `LLVM_CONFIG` environment variable to point to the LLVM 15 `llvm-config` binary:
+
+```bash
+export LLVM_CONFIG=/opt/rh/llvm-toolset-15/root/usr/bin/llvm-config
+```
+
+5. Try installing `llvmlite` again:
+
+```bash
+pip install /home/admin/Downloads/llvmlite
+```
+
+These steps should help you install LLVM 15 alongside LLVM 19.1.5 and build `llvmlite` using the correct version of LLVM.
+
+jdb130496: I did not follow above path to install llvm15 but found on web and installed it:
+
+Repositories loaded.
+Package                                                   Arch          Version                                                   Repository                          Size
+Installing:
+ llvm15                                                   x86_64        15.0.7-11.fc42                                            rawhide                         39.2 MiB
+
+Transaction Summary:
+ Installing:         1 package
+
+Total size of inbound packages is 11 MiB. Need to download 11 MiB.
+After this operation, 39 MiB extra will be used (install 39 MiB, remove 0 B).
+[1/1] llvm15-0:15.0.7-11.fc42.x86_64                                                                                              100% |   1.9 MiB/s |  11.0 MiB |  00m06s
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[1/1] Total                                                                                                                       100% |   1.6 MiB/s |  11.0 MiB |  00m07s
+Running transaction
+[1/3] Verify package files                                                                                                        100% |  33.0   B/s |   1.0   B |  00m00s
+[2/3] Prepare transaction                                                                                                         100% |   1.0   B/s |   1.0   B |  00m01s
+[3/3] Installing llvm15-0:15.0.7-11.fc42.x86_64                                                                                   100% |  57.0 MiB/s |  39.2 MiB |  00m01s
+Complete!
+(.venv) [admin@fedora-rh-internal-nvme llvmlite]$ sudo dnf -y install llvm15*
+Updating and loading repositories:
+Repositories loaded.
+Package "llvm15-15.0.7-11.fc42.x86_64" is already installed.
+Package "llvm15-libs-15.0.7-11.fc42.x86_64" is already installed.
+
+Package                                                   Arch          Version                                                   Repository                          Size
+Installing:
+ llvm15-devel                                             x86_64        15.0.7-11.fc42                                            rawhide                         21.7 MiB
+ llvm15-doc                                               noarch        15.0.7-11.fc42                                            rawhide                         45.3 MiB
+ llvm15-static                                            x86_64        15.0.7-11.fc42                                            rawhide                        253.9 MiB
+
+Transaction Summary:
+ Installing:         3 packages
+
+Total size of inbound packages is 44 MiB. Need to download 44 MiB.
+After this operation, 321 MiB extra will be used (install 321 MiB, remove 0 B).
+[1/3] llvm15-devel-0:15.0.7-11.fc42.x86_64                                                                                        100% |   1.0 MiB/s |   3.6 MiB |  00m04s
+[2/3] llvm15-doc-0:15.0.7-11.fc42.noarch                                                                                          100% | 876.6 KiB/s |   7.0 MiB |  00m08s
+[3/3] llvm15-static-0:15.0.7-11.fc42.x86_64                                                                                       100% |   1.9 MiB/s |  33.3 MiB |  00m18s
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[3/3] Total                                                                                                                       100% |   2.3 MiB/s |  44.0 MiB |  00m19s
+Running transaction
+[1/5] Verify package files                                                                                                        100% |  25.0   B/s |   3.0   B |  00m00s
+[2/5] Prepare transaction                                                                                                         100% |   9.0   B/s |   3.0   B |  00m00s
+[3/5] Installing llvm15-static-0:15.0.7-11.fc42.x86_64                                                                            100% | 522.4 MiB/s | 253.9 MiB |  00m00s
+[4/5] Installing llvm15-devel-0:15.0.7-11.fc42.x86_64                                                                             100% |  63.6 MiB/s |  22.0 MiB |  00m00s
+[5/5] Installing llvm15-doc-0:15.0.7-11.fc42.noarch                                                                               100% |  49.3 MiB/s |  45.6 MiB |  00m01s
+Complete!
+
+But it is not at /opt path
+
+GitHub Copilot: Since you have installed LLVM 15 from the rawhide repository, it should be available in the standard system paths. You can find the `llvm-config` binary for LLVM 15 and set the `LLVM_CONFIG` environment variable accordingly.
+
+1. Locate the `llvm-config` binary for LLVM 15:
+
+```bash
+sudo find / -name llvm-config-15
+```
+
+2. Set the `LLVM_CONFIG` environment variable to point to the located `llvm-config-15` binary:
+
+```bash
+export LLVM_CONFIG=/path/to/llvm-config-15
+```
+
+Replace `/path/to/llvm-config-15` with the actual path found in the previous step.
+
+3. Verify that the `LLVM_CONFIG` environment variable is set correctly:
+
+```bash
+$LLVM_CONFIG --version
+```
+
+4. Try installing `llvmlite` again:
+
+```bash
+pip install /home/admin/Downloads/llvmlite
+```
+
+These steps should help you build `llvmlite` using LLVM 15.
+
+jdb130496: (.venv) [admin@fedora-rh-internal-nvme /]$ sudo find / -name llvm-config-15
+find: ‘/run/user/1000/doc’: Permission denied
+/etc/alternatives/llvm-config-15
+/var/lib/alternatives/llvm-config-15
+/usr/bin/llvm-config-15
+
+GitHub Copilot: Great, you found the `llvm-config-15` binary at 
+
+llvm-config-15
+
+. Now, set the `LLVM_CONFIG` environment variable to this path and try installing `llvmlite` again.
+
+1. Set the `LLVM_CONFIG` environment variable:
+
+```bash
+export LLVM_CONFIG=/usr/bin/llvm-config-15
+```
+
+2. Verify that the `LLVM_CONFIG` environment variable is set correctly:
+
+```bash
+$LLVM_CONFIG --version
+```
+
+3. Try installing `llvmlite` again:
+
+```bash
+pip install /home/admin/Downloads/llvmlite
+```
+
+These steps should help you build `llvmlite` using LLVM 15.
+
+jdb130496: Give me the further clues. See below:
+
+(.venv) [admin@fedora-rh-internal-nvme /]$ export LLVM_CONFIG=/usr/bin/llvm-config-15
+(.venv) [admin@fedora-rh-internal-nvme /]$ LLVM_CONFIG --version
+bash: LLVM_CONFIG: command not found
+(.venv) [admin@fedora-rh-internal-nvme /]$ llvm-config --version
+19.1.5
+(.venv) [admin@fedora-rh-internal-nvme /]$ llvm-config-15 --version
+15.0.7
+
+GitHub Copilot: It looks like the `LLVM_CONFIG` environment variable is not being recognized as a command. You should use the correct command to set the environment variable and then use it during the `pip install` process.
+
+1. Set the `LLVM_CONFIG` environment variable correctly:
+
+```bash
+export LLVM_CONFIG=/usr/bin/llvm-config-15
+```
+
+2. Verify that the `LLVM_CONFIG` environment variable is set correctly:
+
+```bash
+$LLVM_CONFIG --version
+```
+
+3. Install `llvmlite` using the `LLVM_CONFIG` environment variable:
+
+```bash
+LLVM_CONFIG=/usr/bin/llvm-config-15 pip install /home/admin/Downloads/llvmlite
+```
+
+This should ensure that `llvmlite` uses the correct version of `llvm-config` during the installation process.
+
+jdb130496: That was a success - particularly this one:
+
+LLVM_CONFIG=/usr/bin/llvm-config-15 pip install /home/admin/Downloads/llvmlite
+
+So after building llvmlite I went to build numba from github but different errors. see below:
+set build/lib.linux-x86_64-cpython-313/numba/_version.py to '0.62.0dev0+15.g8348b5d84'
+      running build_ext
+      building 'numba._dispatcher' extension
+      g++ -fno-strict-overflow -Wsign-compare -DDYNAMIC_ANNOTATIONS_ENABLED=1 -DNDEBUG -fexceptions -fcf-protection -fexceptions -fcf-protection -fexceptions -fcf-protection -O3 -fPIC -I/tmp/pip-build-env-ssj6j7ws/normal/lib64/python3.13/site-packages/numpy/_core/include -I/home/admin/.venv/include -I/usr/include/python3.13 -c numba/_dispatcher.cpp -o build/temp.linux-x86_64-cpython-313/numba/_dispatcher.o -std=c++11
+      In file included from /usr/include/python3.13/internal/pycore_pythread.h:11,
+                       from /usr/include/python3.13/internal/pycore_condvar.h:8,
+                       from /usr/include/python3.13/internal/pycore_gil.h:11,
+                       from /usr/include/python3.13/internal/pycore_ceval_state.h:12,
+                       from /usr/include/python3.13/internal/pycore_interp.h:15,
+                       from numba/_dispatcher.cpp:46:
+      /usr/include/python3.13/dynamic_annotations.h:472:3: error: template with C linkage
+        472 |   template <class T>
+            |   ^~~~~~~~
+      /usr/include/python3.13/internal/pycore_pythread.h:4:1: note: ‘extern "C"’ linkage started here
+          4 | extern "C" {
+            | ^~~~~~~~~~
+      error: command '/usr/lib64/ccache/g++' failed with exit code 1
+      [end of output]
+  
+
+GitHub Copilot: The error you're encountering is due to a conflict between C++ and C linkage in the Python headers. This is a known issue when building C++ extensions for Python 3.13. To work around this issue, you can modify the `numba/_dispatcher.cpp` file to include the necessary headers with `extern "C"` linkage.
+
+1. Open the `numba/_dispatcher.cpp` file in your editor.
+
+2. Add the following code at the top of the file, before any other includes:
+
+```cpp
+extern "C" {
+#include <Python.h>
+#include <dynamic_annotations.h>
+#include <pycore_pythread.h>
+#include <pycore_condvar.h>
+#include <pycore_gil.h>
+#include <pycore_ceval_state.h>
+#include <pycore_interp.h>
+}
+```
+
+3. Save the file and try building `numba` again:
+
+```bash
+python setup.py build_ext --inplace
+```
+
+If the issue persists, you may need to adjust the include paths or the order of includes to ensure that the C linkage is correctly applied.
+
+jdb130496: What if I am using pip install . instead of setup.py route to build?
+
+GitHub Copilot: If you are using `pip install .` to build `numba`, you can still apply the same workaround by modifying the `numba/_dispatcher.cpp` file. Here are the steps:
+
+1. Open the `numba/_dispatcher.cpp` file in your editor.
+
+2. Add the following code at the top of the file, before any other includes:
+
+```cpp
+extern "C" {
+#include <Python.h>
+#include <dynamic_annotations.h>
+#include <pycore_pythread.h>
+#include <pycore_condvar.h>
+#include <pycore_gil.h>
+#include <pycore_ceval_state.h>
+#include <pycore_interp.h>
+}
+```
+
+3. Save the file.
+
+4. Run the `pip install .` command again:
+
+```bash
+pip install .
+```
+
+This should allow the build process to proceed without encountering the C++ linkage error.
+
+jdb130496:  running build_ext
+      building 'numba._dispatcher' extension
+      g++ -fno-strict-overflow -Wsign-compare -DDYNAMIC_ANNOTATIONS_ENABLED=1 -DNDEBUG -fexceptions -fcf-protection -fexceptions -fcf-protection -fexceptions -fcf-protection -O3 -fPIC -I/home/admin/.venv/lib64/python3.13/site-packages/numpy/_core/include -I/home/admin/.venv/include -I/usr/include/python3.13 -c numba/_dispatcher.cpp -o build/temp.linux-x86_64-cpython-313/numba/_dispatcher.o -std=c++11
+      numba/_dispatcher.cpp:4:10: fatal error: pycore_pythread.h: No such file or directory
+          4 | #include <pycore_pythread.h>
+            |          ^~~~~~~~~~~~~~~~~~~
+
+GitHub Copilot: The error indicates that the `pycore_pythread.h` header file is not found. This header file is part of Python's internal headers, which might not be available in the standard include paths. 
+
+To resolve this, you can try to locate the internal headers and include them correctly. Here are the steps:
+
+1. Locate the internal Python headers:
+
+```bash
+sudo find /usr/include -name pycore_pythread.h
+```
+
+2. Once you have the path to the internal headers, you can add the include directory to the `CFLAGS` environment variable before running `pip install .`.
+
+For example, if the internal headers are located in 
+
+internal
+
+, you can set the `CFLAGS` environment variable as follows:
+
+```bash
+export CFLAGS="-I/usr/include/python3.13/internal"
+```
+
+3. Run the `pip install .` command again:
+
+```bash
+CFLAGS="-I/usr/include/python3.13/internal" pip install .
+```
+
+This should help the compiler find the internal headers and proceed with the build process.
+
+jdb130496: (.venv) [admin@fedora-rh-internal-nvme numba]$ sudo find /usr -name pycore_pythread.h
+/usr/include/python3.13/internal/pycore_pythread.h
+
+GitHub Copilot: Great, you found the internal headers at 
+
+internal
+
+. Now, you can set the `CFLAGS` environment variable to include this directory and run the `pip install .` command.
+
+1. Set the `CFLAGS` environment variable:
+
+```bash
+export CFLAGS="-I/usr/include/python3.13/internal"
+```
+
+2. Run the `pip install .` command:
+
+```bash
+CFLAGS="-I/usr/include/python3.13/internal" pip install .
+```
+
+This should help the compiler find the internal headers and proceed with the build process.
+
+jdb130496: Still don't understand. From error message, it is clear that the execution searches for the directory you have stated above. Why it still fails?
+
+g++ -fno-strict-overflow -Wsign-compare -DDYNAMIC_ANNOTATIONS_ENABLED=1 -DNDEBUG -fexceptions -fcf-protection -fexceptions -fcf-protection -fexceptions -fcf-protection -O3 -fPIC -I/home/admin/.venv/lib64/python3.13/site-packages/numpy/_core/include -I/home/admin/.venv/include -I/usr/include/python3.13 -c numba/_dispatcher.cpp -o build/temp.linux-x86_64-cpython-313/numba/_dispatcher.o -std=c++11
+      numba/_dispatcher.cpp:4:10: fatal error: pycore_pythread.h: No such file or directory
+          4 | #include <pycore_pythread.h>
+            |          ^~~~~~~~~~~~~~~~~~~
+      compilation terminated.
+
+GitHub Copilot: The issue is that the internal headers are not being included correctly. Let's modify the `numba/_dispatcher.cpp` file to include the internal headers with the correct path.
+
+1. Open the `numba/_dispatcher.cpp` file in your editor.
+
+2. Modify the includes to use the full path to the internal headers:
+
+```cpp
+extern "C" {
+#include <Python.h>
+#include "/usr/include/python3.13/internal/pycore_pythread.h"
+#include "/usr/include/python3.13/internal/pycore_condvar.h"
+#include "/usr/include/python3.13/internal/pycore_gil.h"
+#include "/usr/include/python3.13/internal/pycore_ceval_state.h"
+#include "/usr/include/python3.13/internal/pycore_interp.h"
+}
+```
+
+3. Save the file.
+
+4. Run the `pip install .` command again:
+
+```bash
+pip install .
+```
+
+This should ensure that the compiler finds the internal headers and proceeds with the build process.
+
+jdb130496: g++ -fno-strict-overflow -Wsign-compare -DDYNAMIC_ANNOTATIONS_ENABLED=1 -DNDEBUG -fexceptions -fcf-protection -fexceptions -fcf-protection -fexceptions -fcf-protection -O3 -fPIC -I/home/admin/.venv/lib64/python3.13/site-packages/numpy/_core/include -I/home/admin/.venv/include -I/usr/include/python3.13 -c numba/_dispatcher.cpp -o build/temp.linux-x86_64-cpython-313/numba/_dispatcher.o -std=c++11
+      In file included from numba/_dispatcher.cpp:4:
+      /usr/include/python3.13/internal/pycore_pythread.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_pythread.h:12:
+      /usr/include/python3.13/internal/pycore_llist.h:31:4: error: #error "Py_BUILD_CORE must be defined to include this header"
+         31 | #  error "Py_BUILD_CORE must be defined to include this header"
+            |    ^~~~~
+      In file included from numba/_dispatcher.cpp:5:
+      /usr/include/python3.13/internal/pycore_condvar.h:5:4: error: #error "this header requires Py_BUILD_CORE define"
+          5 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from numba/_dispatcher.cpp:6:
+      /usr/include/python3.13/internal/pycore_gil.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from numba/_dispatcher.cpp:7:
+      /usr/include/python3.13/internal/pycore_ceval_state.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_ceval_state.h:11:
+      /usr/include/python3.13/internal/pycore_lock.h:13:4: error: #error "this header requires Py_BUILD_CORE define"
+         13 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from numba/_dispatcher.cpp:8:
+      /usr/include/python3.13/internal/pycore_interp.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_interp.h:13:
+      /usr/include/python3.13/internal/pycore_ast_state.h:13:4: error: #error "this header requires Py_BUILD_CORE define"
+         13 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_interp.h:14:
+      /usr/include/python3.13/internal/pycore_atexit.h:11:4: error: #error "this header requires Py_BUILD_CORE define"
+         11 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_interp.h:16:
+      /usr/include/python3.13/internal/pycore_code.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_code.h:12:
+      /usr/include/python3.13/internal/pycore_backoff.h:9:4: error: #error "this header requires Py_BUILD_CORE define"
+          9 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_interp.h:17:
+      /usr/include/python3.13/internal/pycore_codecs.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_interp.h:18:
+      /usr/include/python3.13/internal/pycore_context.h:5:4: error: #error "this header requires Py_BUILD_CORE define"
+          5 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_context.h:8:
+      /usr/include/python3.13/internal/pycore_freelist.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_context.h:9:
+      /usr/include/python3.13/internal/pycore_hamt.h:5:4: error: #error "this header requires Py_BUILD_CORE define"
+          5 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_interp.h:19:
+      /usr/include/python3.13/internal/pycore_crossinterp.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_crossinterp.h:12:
+      /usr/include/python3.13/internal/pycore_pyerrors.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_interp.h:20:
+      /usr/include/python3.13/internal/pycore_dict_state.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_interp.h:21:
+      /usr/include/python3.13/internal/pycore_dtoa.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_dtoa.h:11:
+      /usr/include/python3.13/internal/pycore_pymath.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_interp.h:22:
+      /usr/include/python3.13/internal/pycore_exceptions.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_interp.h:23:
+      /usr/include/python3.13/internal/pycore_floatobject.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_floatobject.h:12:
+      /usr/include/python3.13/internal/pycore_unicodeobject.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_unicodeobject.h:12:
+      /usr/include/python3.13/internal/pycore_fileutils.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_unicodeobject.h:13:
+      /usr/include/python3.13/internal/pycore_identifier.h:10:4: error: #error "this header requires Py_BUILD_CORE define"
+         10 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_unicodeobject.h:14:
+      /usr/include/python3.13/internal/pycore_ucnhash.h:9:4: error: #error "this header requires Py_BUILD_CORE define"
+          9 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_unicodeobject.h:15:
+      /usr/include/python3.13/internal/pycore_global_objects.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_global_objects.h:12:
+      /usr/include/python3.13/internal/pycore_gc.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_global_objects.h:13:
+      /usr/include/python3.13/internal/pycore_global_strings.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_global_objects.h:15:
+      /usr/include/python3.13/internal/pycore_hashtable.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_global_objects.h:16:
+      /usr/include/python3.13/internal/pycore_typeobject.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_typeobject.h:11:
+      /usr/include/python3.13/internal/pycore_moduleobject.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_interp.h:24:
+      /usr/include/python3.13/internal/pycore_function.h:10:4: error: #error "this header requires Py_BUILD_CORE define"
+         10 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_interp.h:26:
+      /usr/include/python3.13/internal/pycore_genobject.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_interp.h:28:
+      /usr/include/python3.13/internal/pycore_import.h:9:4: error: #error "this header requires Py_BUILD_CORE define"
+          9 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_interp.h:29:
+      /usr/include/python3.13/internal/pycore_instruments.h:5:4: error: #error "this header requires Py_BUILD_CORE define"
+          5 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_instruments.h:8:
+      /usr/include/python3.13/internal/pycore_frame.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_interp.h:30:
+      /usr/include/python3.13/internal/pycore_list.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_interp.h:31:
+      /usr/include/python3.13/internal/pycore_mimalloc.h:5:4: error: #error "this header requires Py_BUILD_CORE define"
+          5 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_mimalloc.h:20:
+      /usr/include/python3.13/internal/pycore_pymem.h:12:4: error: #error "this header requires Py_BUILD_CORE define"
+         12 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_interp.h:32:
+      /usr/include/python3.13/internal/pycore_object_state.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_interp.h:33:
+      /usr/include/python3.13/internal/pycore_optimizer.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_interp.h:34:
+      /usr/include/python3.13/internal/pycore_obmalloc.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_interp.h:35:
+      /usr/include/python3.13/internal/pycore_qsbr.h:21:4: error: #error "this header requires Py_BUILD_CORE define"
+         21 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_interp.h:36:
+      /usr/include/python3.13/internal/pycore_tstate.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_brc.h:7,
+                       from /usr/include/python3.13/internal/pycore_tstate.h:11:
+      /usr/include/python3.13/internal/pycore_object_stack.h:11:4: error: #error "this header requires Py_BUILD_CORE define"
+         11 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      /usr/include/python3.13/internal/pycore_brc.h:14:4: error: #error "this header requires Py_BUILD_CORE define"
+         14 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_interp.h:37:
+      /usr/include/python3.13/internal/pycore_tuple.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_interp.h:40:
+      /usr/include/python3.13/internal/pycore_warnings.h:8:4: error: #error "this header requires Py_BUILD_CORE define"
+          8 | #  error "this header requires Py_BUILD_CORE define"
+            |    ^~~~~
+      In file included from /usr/include/python3.13/internal/pycore_pythread.h:11:
+      /usr/include/python3.13/dynamic_annotations.h:472:3: error: template with C linkage
+        472 |   template <class T>
+            |   ^~~~~~~~
+      /usr/include/python3.13/internal/pycore_pythread.h:4:1: note: ‘extern "C"’ linkage started here
+          4 | extern "C" {
+            | ^~~~~~~~~~
+      error: command '/usr/lib64/ccache/g++' failed with exit code 1
+      [end of output]
+  
+
+GitHub Copilot: The errors indicate that the internal Python headers require the `Py_BUILD_CORE` macro to be defined. This macro is typically used when building Python itself, and it is not recommended to use these internal headers directly in extension modules.
+
+Instead, you should avoid including these internal headers and find an alternative way to resolve the issue. One approach is to modify the `numba/_dispatcher.cpp` file to avoid including these internal headers.
+
+1. Open the `numba/_dispatcher.cpp` file in your editor.
+
+2. Remove the includes for the internal headers:
+
+```cpp
+extern "C" {
+#include <Python.h>
+// Remove the following lines
+// #include "/usr/include/python3.13/internal/pycore_pythread.h"
+// #include "/usr/include/python3.13/internal/pycore_condvar.h"
+// #include "/usr/include/python3.13/internal/pycore_gil.h"
+// #include "/usr/include/python3.13/internal/pycore_ceval_state.h"
+// #include "/usr/include/python3.13/internal/pycore_interp.h"
+}
+```
+
+3. Save the file.
+
+4. Run the `pip install .` command again:
+
+```bash
+pip install .
+```
+
+If the build process still fails, you may need to check if there are any other dependencies or configurations required for building `numba` with Python 3.13. You can also consider using a different version of Python that is known to work with `numba`.
+
+jdb130496: 3 -fPIC -I/home/admin/.venv/lib64/python3.13/site-packages/numpy/_core/include -I/home/admin/.venv/include -I/usr/include/python3.13 -c numba/_dispatcher.cpp -o build/temp.linux-x86_64-cpython-313/numba/_dispatcher.o -std=c++11
+      In file included from /usr/include/python3.13/internal/pycore_pythread.h:11,
+                       from /usr/include/python3.13/internal/pycore_condvar.h:8,
+                       from /usr/include/python3.13/internal/pycore_gil.h:11,
+                       from /usr/include/python3.13/internal/pycore_ceval_state.h:12,
+                       from /usr/include/python3.13/internal/pycore_interp.h:15,
+                       from numba/_dispatcher.cpp:53:
+      /usr/include/python3.13/dynamic_annotations.h:472:3: error: template with C linkage
+        472 |   template <class T>
+            |   ^~~~~~~~
+      /usr/include/python3.13/internal/pycore_pythread.h:4:1: note: ‘extern "C"’ linkage started here
+          4 | extern "C" {
+            | ^~~~~~~~~~
+      error: command '/usr/lib64/ccache/g++' failed with exit code 1
+      [end of output]
+
+GitHub Copilot: The error you're encountering is due to a conflict between C++ templates and C linkage in the Python headers. This is a complex issue that arises from mixing C and C++ code. To resolve this, you can try to isolate the C++ code from the C headers.
+
+Here is a potential workaround:
+
+1. Open the `numba/_dispatcher.cpp` file in your editor.
+
+2. Modify the includes to isolate the C++ code from the C headers:
+
+```cpp
+extern "C" {
+#include <Python.h>
+#include <dynamic_annotations.h>
+#include <pycore_pythread.h>
+#include <pycore_condvar.h>
+#include <pycore_gil.h>
+#include <pycore_ceval_state.h>
+#include <pycore_interp.h>
+}
+
+#include <iostream> // or any other C++ headers you need
+```
+
+3. Save the file.
+
+4. Run the `pip install .` command again:
+
+```bash
+pip install .
+```
+
+If this does not resolve the issue, you may need to consider using a different version of Python that is known to work with `numba`, as Python 3.13 is still relatively new and may have compatibility issues with some packages. Alternatively, you can check if there are any updates or patches available for `numba` that address this issue.
+
+jdb130496: Okay, I could not resolve but using this link (https://github.com/numba/numba/issues/9883), I install rc2 of next numba version:
+
+
+
+GitHub Copilot: I'm glad you found a solution by installing the release candidate (rc2) of the next version of `numba`. Using a pre-release version can often resolve compatibility issues with newer versions of dependencies.
+
+For future reference, here are the general steps to install a pre-release version of a package using `pip`:
+
+1. Uninstall the current version of the package if it's already installed:
+
+```bash
+pip uninstall numba
+```
+
+2. Install the pre-release version of the package:
+
+```bash
+pip install --pre numba
+```
+
+Or, if you have a specific version or release candidate you want to install, you can specify it directly:
+
+```bash
+pip install numba==0.56.0rc2
+```
+
+Replace `0.56.0rc2` with the appropriate version number.
+
+If you encounter any further issues or need additional assistance, feel free to ask!
+
+jdb130496: Now let us test functionalities of numba. How it can speed up data acces.. Give me exmaples
+
+GitHub Copilot: Sure! `numba` is a Just-In-Time (JIT) compiler that translates a subset of Python and NumPy code into fast machine code. Here are a few examples to demonstrate how `numba` can speed up data access and computation.
+
+### Example 1: Speeding Up a Simple Loop
+
+Without `numba`:
+
+```python
+import time
+
+def sum_array(arr):
+    total = 0
+    for i in range(len(arr)):
+        total += arr[i]
+    return total
+
+arr = list(range(1000000))
+start = time.time()
+print(sum_array(arr))
+print("Without numba:", time.time() - start)
+```
+
+With `numba`:
+
+```python
+import time
+from numba import jit
+
+@jit(nopython=True)
+def sum_array(arr):
+    total = 0
+    for i in range(len(arr)):
+        total += arr[i]
+    return total
+
+arr = list(range(1000000))
+start = time.time()
+print(sum_array(arr))
+print("With numba:", time.time() - start)
+```
+
+### Example 2: Speeding Up NumPy Operations
+
+Without `numba`:
+
+```python
+import numpy as np
+import time
+
+def add_arrays(a, b):
+    return a + b
+
+a = np.arange(1000000)
+b = np.arange(1000000)
+start = time.time()
+add_arrays(a, b)
+print("Without numba:", time.time() - start)
+```
+
+With `numba`:
+
+```python
+import numpy as np
+import time
+from numba import jit
+
+@jit(nopython=True)
+def add_arrays(a, b):
+    return a + b
+
+a = np.arange(1000000)
+b = np.arange(1000000)
+start = time.time()
+add_arrays(a, b)
+print("With numba:", time.time() - start)
+```
+
+### Example 3: Speeding Up a Complex Function
+
+Without `numba`:
+
+```python
+import time
+
+def mandelbrot(c, max_iter):
+    z = c
+    for n in range(max_iter):
+        if abs(z) > 2:
+            return n
+        z = z*z + c
+    return max_iter
+
+def create_fractal(min_x, max_x, min_y, max_y, image, iters):
+    height, width = image.shape
+    pixel_size_x = (max_x - min_x) / width
+    pixel_size_y = (max_y - min_y) / height
+    for x in range(width):
+        real = min_x + x * pixel_size_x
+        for y in range(height):
+            imag = min_y + y * pixel_size_y
+            color = mandelbrot(complex(real, imag), iters)
+            image[y, x] = color
+
+image = np.zeros((500, 750), dtype=np.uint8)
+start = time.time()
+create_fractal(-2.0, 1.0, -1.5, 1.5, image, 20)
+print("Without numba:", time.time() - start)
+```
+
+With `numba`:
+
+```python
+import time
+import numpy as np
+from numba import jit
+
+@jit(nopython=True)
+def mandelbrot(c, max_iter):
+    z = c
+    for n in range(max_iter):
+        if abs(z) > 2:
+            return n
+        z = z*z + c
+    return max_iter
+
+@jit(nopython=True)
+def create_fractal(min_x, max_x, min_y, max_y, image, iters):
+    height, width = image.shape
+    pixel_size_x = (max_x - min_x) / width
+    pixel_size_y = (max_y - min_y) / height
+    for x in range(width):
+        real = min_x + x * pixel_size_x
+        for y in range(height):
+            imag = min_y + y * pixel_size_y
+            color = mandelbrot(complex(real, imag), iters)
+            image[y, x] = color
+
+image = np.zeros((500, 750), dtype=np.uint8)
+start = time.time()
+create_fractal(-2.0, 1.0, -1.5, 1.5, image, 20)
+print("With numba:", time.time() - start)
+```
+
+These examples demonstrate how `numba` can significantly speed up Python code by compiling it to machine code. The `@jit` decorator is used to indicate that the function should be compiled by `numba`. The `nopython=True` argument ensures that the function is compiled in "nopython" mode, which is the fastest mode.
+
+Similar code found with 1 license type
+
+jdb130496: I got this code and saved it in a py file:
+
+# http://numba.pydata.org/numba-doc/latest/user/examples.html
+
+import matplotlib.pyplot as plt
+import numpy as np
+from numba import jit
+
+
+@jit
+def mandel(x, y, max_iters):
+    i = 0
+    c = complex(x, y)
+    z = 0.0j
+
+    for i in range(max_iters):
+        z = z * z + c
+
+        if z.real * z.real + z.imag * z.imag >= 4:
+            return i
+
+    return 255
+
+
+@jit
+def create_fractal(min_x, max_x, min_y, max_y, image, iters):
+    height, width = image.shape
+
+    pixel_size_x = (max_x - min_x) / width
+    pixel_size_y = (max_y - min_y) / height
+
+    for x in range(width):
+        real = min_x + x * pixel_size_x
+
+        for y in range(height):
+            imag = min_y + y * pixel_size_y
+
+            color = mandel(real, imag, iters)
+            image[y, x] = color
+
+    return image
+
+
+if __name__ == "__main__":
+    image = np.zeros((500 * 2, 750 * 2), dtype=np.uint8)
+    create_fractal(-2.0, 1.0, -1.0, 1.0, image, 20)
+
+    plt.jet()
+    plt.imshow(image)
+    plt.show()
+
+    Can I run it using python name of the file.py
+
+GitHub Copilot: Yes, you can run the script using the `python` command followed by the name of the file. Here are the steps:
+
+1. Save the code in a file, for example, `mandelbrot.py`.
+
+2. Open a terminal and navigate to the directory where the file is saved.
+
+3. Run the script using the following command:
+
+```bash
+python mandelbrot.py
+```
+
+This will execute the script, generate the Mandelbrot fractal, and display it using `matplotlib`. Make sure you have the required libraries installed (`matplotlib`, `numpy`, and `numba`). If not, you can install them using `pip`:
+
+```bash
+pip install matplotlib numpy numba
+```
+
+After running the script, you should see a window displaying the Mandelbrot fractal.

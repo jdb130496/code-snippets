@@ -1,0 +1,256 @@
+I want to change the second line to include more space between button just like first one without changing Latex metadata. See the image. There must be a simple to control content overriding what metadata suggests.
+
+
+
+It looks like you want to adjust the spacing between the buttons in the second row to match the spacing in the first row. While the image might be displaying these as buttons generated from some underlying data (which could involve LaTeX or other metadata), you can often control the visual presentation using styling.
+
+Without knowing the exact technology used to generate these "buttons," here are a few common approaches to increase the spacing, assuming they are HTML elements with associated CSS:
+
+1. Using CSS margin-right or margin-left:
+
+You can add right or left margins to the button elements in the second row. This will push them apart.
+
+For example, if each button has a class (let's say second-row-button), you could use CSS like this:
+
+CSS
+
+.second-row-button {
+  margin-right: 10px; /* Adjust the value (e.g., 5px, 15px) to get the desired spacing */
+}
+
+/* For the last button in the row, you might want to remove the right margin to avoid extra space at the end */
+.second-row-button:last-child {
+  margin-right: 0;
+}
+2. Using CSS padding-right or padding-left (less ideal for spacing between elements):
+
+Padding adds space inside the element. While it can visually increase the apparent space, it's generally better to use margins for controlling the space between elements.
+
+3. Using CSS gap with Flexbox or Grid:
+
+If the buttons are within a container that uses Flexbox or CSS Grid layout, you can easily control the spacing between the items using the gap property.
+
+For Flexbox:
+
+CSS
+
+.second-row-container { /* Assuming there's a container for the second row */
+  display: flex;
+  gap: 10px; /* Adjust the value */
+}
+For CSS Grid:
+
+CSS
+
+.second-row-container { /* Assuming there's a container for the second row */
+  display: grid;
+  grid-auto-flow: column; /* To arrange items in a row */
+  gap: 10px; /* Adjust the value */
+}
+How to Apply These Changes (without directly altering "LaTeX metadata"):
+
+You'll typically apply these CSS rules in one of the following ways, depending on how the webpage is structured:
+
+External CSS file: This is the most common and organized way. You'll have a .css file linked to your HTML where you can add or modify these rules.
+Internal CSS (within <style> tags): You can include <style> tags within the <head> section of your HTML document and write your CSS rules there.
+Inline CSS (directly within HTML elements): You can add a style attribute to each button element in the second row. However, this is generally less maintainable for more than a few styles.
+Example of Inline CSS (less recommended but directly overrides):
+
+HTML
+
+<button style="margin-right: 10px;">Financial Management</button>
+<button>Trading in Stocks - Technical Analysis</button>
+In summary, the most straightforward way to control the spacing visually without touching any underlying "LaTeX metadata" would be to use CSS margins on the button elements in the second row. You'll need to identify how these buttons are rendered in the HTML to apply the appropriate CSS rules.
+
+
+
+
+
+In content like this, how to use above in Latex:
+
+
+
+{Portfolio Management, Economics, Accounting, Cost Management, Business Taxation, Financial Management, Trading In Stocks - Technical Analysis}
+
+
+
+Ah, I see! You're presenting the subjects within a LaTeX environment. In this context, the "buttons" in the image are likely being represented as individual items within a list-like structure or perhaps as elements separated by some delimiter.
+
+To achieve spacing similar to the first row in your LaTeX output, you have a few options, depending on how you want the items to be displayed:
+
+1. Using a comma-separated list with manual spacing:
+
+You can insert horizontal space manually between the items using \hspace{<length>}.
+
+Code snippet
+
+{Portfolio Management,\hspace{1em} Economics,\hspace{1em} Accounting,\hspace{1em} Cost Management,\hspace{1em} Business Taxation, Financial Management,\hspace{1em} Trading In Stocks - Technical Analysis}
+Here, \hspace{1em} inserts a horizontal space equal to the width of the letter 'm' in the current font size. You can adjust the length (e.g., 0.5em, 2em, 1cm, 5mm) to get the desired spacing.
+
+2. Using a list environment (like itemize or enumerate) with horizontal arrangement:
+
+You can use a list environment and then arrange the items horizontally. This gives you more control over the spacing and formatting if needed.
+
+Code snippet
+
+\documentclass{article}
+\usepackage{amsmath} % For \text
+\usepackage{enumitem}
+
+\begin{document}
+
+\begin{itemize}[label={}, itemsep=0em, leftmargin=*, align=left]
+    \item Portfolio Management
+    \item Economics
+    \item Accounting
+    \item Cost Management
+    \item Business Taxation
+\end{itemize}
+
+\vspace{0.5em} % Add some vertical space between the rows
+
+\begin{itemize}[label={}, itemsep=0em, leftmargin=*, align=left, after=\vspace{-\baselineskip}]
+    \item Financial Management\hspace{1em}
+    \item Trading In Stocks -- Technical Analysis
+\end{itemize}
+
+\end{document}
+In this example:
+
+enumitem package is used for customizing the list.
+label={} removes the bullet points.
+itemsep=0em reduces vertical space between items (though they are horizontal here).
+leftmargin=* removes indentation.
+align=left ensures left alignment.
+\hspace{1em} is used to add space between the items in the second list.
+after=\vspace{-\baselineskip} can help adjust vertical spacing if needed.
+3. Using a tabular environment:
+
+You can arrange the items in a single-row table. This gives you precise control over column separation.
+
+Code snippet
+
+\documentclass{article}
+\usepackage{array} % For controlling column separation
+
+\begin{document}
+
+\noindent
+Portfolio Management \hspace{1em} Economics \hspace{1em} Accounting \hspace{1em} Cost Management \hspace{1em} Business Taxation
+
+\vspace{0.5em}
+
+\noindent
+\begin{tabular}{@{} l @{\hspace{2em}} l @{}}
+Financial Management & Trading In Stocks -- Technical Analysis \\
+\end{tabular}
+
+\end{document}
+Here:
+
+\noindent removes indentation.
+\begin{tabular}{@{} l @{\hspace{2em}} l @{}} creates a table with two left-aligned columns (l). @{\hspace{2em}} inserts a horizontal space of 2em between the columns. The outer @{} removes any default padding at the beginning and end of the table.
+Choosing the right method:
+
+If you simply need to add some visual space and the items don't need to be treated as distinct entities, the comma-separated list with \hspace (option 1) is the simplest.
+If you might want more control over the formatting of individual items or if you are generating this list programmatically, the itemize environment with horizontal arrangement (option 2) can be useful.
+If you need precise control over the spacing between a specific number of items arranged in a row, the tabular environment (option 3) is a good choice.
+Remember to choose the method that best suits your overall document structure and the level of control you need over the presentation of these subjects.
+
+
+
+
+
+But metadata is like this:
+
+begin{minipage}[t]{\rightcolumnlength} \setlength{\hangindent}{4mm}\hspace{4mm}\justifying\footnotesize{\foreach \n in {#7}{\cvtag{\textbf{\n}} }}\end{minipage}
+
+
+
+Ah, I see! You're using a \foreach loop within a minipage to generate these "tags," and #7 likely holds the comma-separated list of subjects. The \cvtag command is probably a custom command defined in your LaTeX template to format each subject.
+
+Given this structure, directly inserting \hspace within the \foreach loop might not be the most straightforward way to control the spacing between the tags generated by \cvtag. The loop iterates through each item, and \cvtag is applied to each individually.
+
+Here are a couple of approaches you can consider to introduce spacing between the tags, keeping in mind you might need to adjust the definition of \cvtag or the structure within the minipage:
+
+1. Modifying the \cvtag command (if you have access to its definition):
+
+If you can access the definition of \cvtag, you could potentially modify it to include some trailing horizontal space after each tag.
+
+For example, if \cvtag is defined something like this:
+
+Code snippet
+
+\newcommand{\cvtag}[1]{[#1]} % Example definition
+You could change it to:
+
+Code snippet
+
+\newcommand{\cvtag}[1]{[#1]\hspace{0.5em}}
+This would add a 0.5em horizontal space after each tag generated by \cvtag. You'd need to adjust the 0.5em value to your desired spacing.
+
+Important: Be cautious when modifying custom commands in a template, as it might affect other parts of your document. Make sure you understand what \cvtag does before altering it.
+
+2. Adding spacing within the \foreach loop (less clean but possible):
+
+You could try to conditionally add \hspace within the \foreach loop, but this can get a bit messy, especially if you need to handle the last item differently to avoid extra space at the end.
+
+Here's a conceptual (and potentially less ideal) way to illustrate:
+
+Code snippet
+
+\begin{minipage}[t]{\rightcolumnlength} \setlength{\hangindent}{4mm}\hspace{4mm}\justifying\footnotesize{
+  \def\firstitem{true}
+  \foreach \n in {#7}{
+    \ifbool{\firstitem}{\global\def\firstitem{false}}{ \hspace{1em} } % Add space after the first item
+    \cvtag{\textbf{\n}}
+  }
+}\end{minipage}
+This approach uses a flag (\firstitem) to avoid adding space before the first item. While it can work, it's less elegant than modifying \cvtag or restructuring the output.
+
+3. Post-processing the output (if the template allows):
+
+Depending on how the template processes the output of this minipage, there might be a way to add spacing after the entire block of tags. However, this is less likely to give you the even spacing between the tags.
+
+In summary, the most controlled and likely cleaner approach would be to modify the definition of the \cvtag command to include some trailing horizontal space. If you don't have direct access to or don't want to modify \cvtag, the conditional spacing within the \foreach loop is a less ideal but potentially workable alternative.
+
+Could you perhaps share the definition of the \cvtag command from your template? That would help in providing a more specific and effective solution.
+
+
+
+
+
+
+\newcommand{\cvtag}[1]{%
+
+  \tikz[baseline]\node[anchor=base,draw=darkGrey!70,rounded corners=0.5ex,inner xsep=1ex,inner ysep =0.55ex,text height=1.3ex,text depth=.25ex]{#1};
+
+}
+
+
+
+Okay, now that I see the definition of \cvtag, the most straightforward and clean way to add spacing between the tags is to include the horizontal space within the \foreach loop, right after each call to \cvtag.
+
+Here's how you can modify the minipage content:
+
+Code snippet
+
+\begin{minipage}[t]{\rightcolumnlength} \setlength{\hangindent}{4mm}\hspace{4mm}\justifying\footnotesize{
+  \foreach \n in {#7}{
+    \cvtag{\textbf{\n}}\hspace{0.8em} % Add horizontal space after each tag
+  }
+}\end{minipage}
+Explanation of the change:
+
+I've added \hspace{0.8em} immediately after \cvtag{\textbf{\n}} inside the \foreach loop.
+\hspace{0.8em} will insert a horizontal space equal to 0.8 times the width of the letter "m" in the current font size after each tag is created. You can adjust the value 0.8em (e.g., 0.5em, 1em, etc.) to control the amount of spacing between the tags.
+Why this approach is preferred:
+
+Localized change: It directly addresses the spacing between the elements generated by the loop.
+Clean and readable: It keeps the spacing logic within the loop where the tags are being created.
+No modification of \cvtag: You don't need to alter the definition of the \cvtag command, which might be used elsewhere in your template with different spacing requirements.
+How to adjust the spacing:
+
+Experiment with different values for the length in \hspace{<length>} (e.g., 0.5em, 1em, 5pt) until you achieve the spacing that visually matches the first row of your "buttons."
+
+By making this change within the \foreach loop, you'll insert the desired horizontal space between each of the subject tags generated from the comma-separated list in #7.

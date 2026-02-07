@@ -1,0 +1,2 @@
+values1 after replacement: [[123.0, 456.0, 23.43, '-0.34', -23.0]]
+values2 after replacement: [['123', '456', 23.43, 'null', -23.0]]
