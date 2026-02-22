@@ -71,7 +71,7 @@ def download_progress(url, check, filename):
     data = data.getvalue()
     digest = hashlib.sha256(data).hexdigest()
     if check.lower() != digest:
-      sys.exit(f"Hash mismatch for f{pkg}")
+      sys.exit(f"Hash mismatch for {filename}")
     total_download += len(data)
     return data
 
@@ -151,12 +151,12 @@ msvc = {}
 sdk = {}
 
 for pid,p in packages.items():
-  if pid.startswith("Microsoft.VC.".lower()) and pid.endswith(".Tools.HostX64.TargetX64.base".lower()):
+  if pid.startswith("microsoft.vc.") and pid.endswith(".tools.hostx64.targetx64.base"):
     pver = ".".join(pid.split(".")[2:4])
     if pver[0].isnumeric():
       msvc[pver] = pid
-  elif pid.startswith("Microsoft.VisualStudio.Component.Windows10SDK.".lower()) or \
-       pid.startswith("Microsoft.VisualStudio.Component.Windows11SDK.".lower()):
+  elif pid.startswith("microsoft.visualstudio.component.windows10sdk.") or \
+       pid.startswith("microsoft.visualstudio.component.windows11sdk."):
     pver = pid.split(".")[-1]
     if pver.isnumeric():
       sdk[pver] = pid
@@ -166,21 +166,155 @@ if args.show_versions:
   print("Windows SDK versions:", " ".join(sorted(sdk.keys())))
   sys.exit(0)
 
-msvc_ver = args.msvc_version or max(sorted(msvc.keys()))
-sdk_ver = args.sdk_version or max(sorted(sdk.keys()))
 
-if msvc_ver in msvc:
-  msvc_pid = msvc[msvc_ver]
-  msvc_ver = ".".join(msvc_pid.split(".")[2:6])
+### Analyze package availability for all versions
+
+def get_version_string_variants(short_ver, packages):
+  """
+  Find all version string formats that actually appear in package IDs.
+  """
+  variants = set()
+  prefix = f"microsoft.vc.{short_ver}"
+  
+  for pid in packages.keys():
+    if pid.startswith(prefix):
+      parts = pid.split(".")
+      version_parts = []
+      for i in range(2, len(parts)):
+        if parts[i].isnumeric():
+          version_parts.append(parts[i])
+        else:
+          break
+      if version_parts:
+        variants.add(".".join(version_parts))
+  
+  return sorted(variants)
+
+
+def count_available_packages(short_ver, packages, host, targets):
+  """
+  Count how many packages are available for a given version.
+  Returns: (available_count, total_expected, version_string, full_version)
+  """
+  
+  version_variants = get_version_string_variants(short_ver, packages)
+  
+  if not version_variants:
+    return (0, 0, None, None)
+  
+  best_available = 0
+  best_version_str = None
+  best_full_version = None
+  
+  for ver_str in version_variants:
+    # Define all expected package patterns
+    expected_patterns = [
+      f"microsoft.visualcpp.dia.sdk",
+      f"microsoft.vc.{ver_str}.crt.headers.base",
+      f"microsoft.vc.{ver_str}.crt.source.base",
+      f"microsoft.vc.{ver_str}.asan.headers.base",
+      f"microsoft.vc.{ver_str}.pgo.headers.base",
+    ]
+    
+    for target in targets:
+      expected_patterns += [
+        f"microsoft.vc.{ver_str}.tools.host{host}.target{target}.base",
+        f"microsoft.vc.{ver_str}.tools.host{host}.target{target}.res.base",
+        f"microsoft.vc.{ver_str}.crt.{target}.desktop.base",
+        f"microsoft.vc.{ver_str}.crt.{target}.store.base",
+        f"microsoft.vc.{ver_str}.premium.tools.host{host}.target{target}.base",
+        f"microsoft.vc.{ver_str}.pgo.{target}.base",
+      ]
+      if target in ["x86", "x64"]:
+        expected_patterns.append(f"microsoft.vc.{ver_str}.asan.{target}.base")
+    
+    # Count available packages
+    available = 0
+    for pattern in expected_patterns:
+      if pattern in packages:
+        available += 1
+    
+    if available > best_available:
+      best_available = available
+      best_version_str = ver_str
+      
+      # Get full version from metadata
+      sample_pkg = f"microsoft.vc.{ver_str}.tools.host{host}.target{targets[0]}.base"
+      if sample_pkg in packages:
+        pkg_data = first(packages[sample_pkg])
+        if pkg_data and "version" in pkg_data:
+          best_full_version = pkg_data["version"]
+  
+  if best_full_version is None:
+    best_full_version = best_version_str
+  
+  total_expected = len(expected_patterns)
+  
+  return (best_available, total_expected, best_version_str, best_full_version)
+
+
+### Select best version based on package availability
+
+print("\n" + "="*70)
+print("Analyzing MSVC versions...")
+print("="*70)
+
+version_analysis = {}
+for ver in sorted(msvc.keys(), reverse=True):
+  avail, total, pkg_ver, full_ver = count_available_packages(ver, packages, host, targets)
+  percentage = (avail / total * 100) if total > 0 else 0
+  version_analysis[ver] = {
+    'available': avail,
+    'total': total,
+    'percentage': percentage,
+    'pkg_version': pkg_ver,
+    'full_version': full_ver
+  }
+  
+  status = "✓ COMPLETE" if percentage == 100 else f"⚠ {percentage:.0f}% ({avail}/{total} packages)"
+  print(f"  {ver:8s} [{full_ver:16s}]: {status}")
+
+print("="*70)
+
+# Select version with most packages available (prioritizing newer versions)
+if args.msvc_version:
+  if args.msvc_version not in msvc:
+    sys.exit(f"ERROR: MSVC version {args.msvc_version} not found")
+  selected_short_ver = args.msvc_version
 else:
-  sys.exit(f"Unknown MSVC version: f{args.msvc_version}")
+  # Find version with most packages, prefer newer if tied
+  best_ver = None
+  best_count = -1
+  
+  for ver in sorted(version_analysis.keys(), reverse=True):  # Newest first
+    count = version_analysis[ver]['available']
+    if count > best_count:
+      best_count = count
+      best_ver = ver
+  
+  selected_short_ver = best_ver
+
+selected = version_analysis[selected_short_ver]
+msvc_short_ver = selected_short_ver
+msvc_pkg_ver = selected['pkg_version']
+msvc_full_ver = selected['full_version']
+
+print(f"\n✓ Selected best available version: {msvc_short_ver}")
+print(f"  Full version: {msvc_full_ver}")
+print(f"  Available packages: {selected['available']}/{selected['total']} ({selected['percentage']:.0f}%)")
+
+if selected['percentage'] < 100:
+  print(f"  ⚠ Warning: This version is incomplete ({selected['total'] - selected['available']} packages missing)")
+  print(f"     Microsoft may still be uploading files for this version")
+else:
+  print(f"  ✓ All required packages available")
+
+sdk_ver = args.sdk_version or max(sorted(sdk.keys()))
 
 if sdk_ver in sdk:
   sdk_pid = sdk[sdk_ver]
 else:
-  sys.exit(f"Unknown Windows SDK version: f{args.sdk_version}")
-
-print(f"Downloading MSVC v{msvc_ver} and Windows SDK v{sdk_ver}")
+  sys.exit(f"Unknown Windows SDK version: {args.sdk_version}")
 
 
 ### agree to license
@@ -190,6 +324,7 @@ resource = first(tools["localizedResources"], lambda x: x["language"] == "en-us"
 license = resource["license"]
 
 if not args.accept_license:
+  print(f"\nDownloading MSVC v{msvc_full_ver} and Windows SDK v{sdk_ver}")
   accept = input(f"Do you accept Visual Studio license at {license} [Y/N] ? ")
   if not accept or accept[0].lower() != "y":
     sys.exit(0)
@@ -202,37 +337,55 @@ DOWNLOADS.mkdir(exist_ok=True)
 
 msvc_packages = [
   f"microsoft.visualcpp.dia.sdk",
-  f"microsoft.vc.{msvc_ver}.crt.headers.base",
-  f"microsoft.vc.{msvc_ver}.crt.source.base",
-  f"microsoft.vc.{msvc_ver}.asan.headers.base",
-  f"microsoft.vc.{msvc_ver}.pgo.headers.base",
+  f"microsoft.vc.{msvc_pkg_ver}.crt.headers.base",
+  f"microsoft.vc.{msvc_pkg_ver}.crt.source.base",
+  f"microsoft.vc.{msvc_pkg_ver}.asan.headers.base",
+  f"microsoft.vc.{msvc_pkg_ver}.pgo.headers.base",
 ]
 
 for target in targets:
   msvc_packages += [
-    f"microsoft.vc.{msvc_ver}.tools.host{host}.target{target}.base",
-    f"microsoft.vc.{msvc_ver}.tools.host{host}.target{target}.res.base",
-    f"microsoft.vc.{msvc_ver}.crt.{target}.desktop.base",
-    f"microsoft.vc.{msvc_ver}.crt.{target}.store.base",
-    f"microsoft.vc.{msvc_ver}.premium.tools.host{host}.target{target}.base",
-    f"microsoft.vc.{msvc_ver}.pgo.{target}.base",
+    f"microsoft.vc.{msvc_pkg_ver}.tools.host{host}.target{target}.base",
+    f"microsoft.vc.{msvc_pkg_ver}.tools.host{host}.target{target}.res.base",
+    f"microsoft.vc.{msvc_pkg_ver}.crt.{target}.desktop.base",
+    f"microsoft.vc.{msvc_pkg_ver}.crt.{target}.store.base",
+    f"microsoft.vc.{msvc_pkg_ver}.premium.tools.host{host}.target{target}.base",
+    f"microsoft.vc.{msvc_pkg_ver}.pgo.{target}.base",
   ]
   if target in ["x86", "x64"]:
-    msvc_packages += [f"microsoft.vc.{msvc_ver}.asan.{target}.base"]
+    msvc_packages += [f"microsoft.vc.{msvc_pkg_ver}.asan.{target}.base"]
 
   redist_suffix = ".onecore.desktop" if target == "arm" else ""
-  redist_pkg = f"microsoft.vc.{msvc_ver}.crt.redist.{target}{redist_suffix}.base"
+  redist_pkg = f"microsoft.vc.{msvc_pkg_ver}.crt.redist.{target}{redist_suffix}.base"
   if redist_pkg not in packages:
     redist_name = f"microsoft.visualcpp.crt.redist.{target}{redist_suffix}"
     redist = first(packages[redist_name])
-    redist_pkg = first(redist["dependencies"], lambda dep: dep.endswith(".base")).lower()
-  msvc_packages += [redist_pkg]
+    if redist and "dependencies" in redist:
+      redist_pkg = first(redist["dependencies"], lambda dep: dep.endswith(".base"))
+      if redist_pkg:
+        redist_pkg = redist_pkg.lower()
+  if redist_pkg:
+    msvc_packages += [redist_pkg]
+
+missing_packages = []
+successful_packages = []
+
+print(f"\n{'='*70}")
+print(f"Downloading MSVC v{msvc_full_ver} packages...")
+print(f"{'='*70}\n")
 
 for pkg in sorted(msvc_packages):
   if pkg not in packages:
-    print(f"\r{pkg} ... !!! MISSING !!!")
+    print(f"⚠ {pkg} ... MISSING")
+    missing_packages.append(pkg)
     continue
+  
   p = first(packages[pkg], lambda p: p.get("language") in (None, "en-US"))
+  if not p:
+    print(f"⚠ {pkg} ... NO SUITABLE LANGUAGE")
+    missing_packages.append(pkg)
+    continue
+  
   for payload in p["payloads"]:
     filename = payload["fileName"]
     download_progress(payload["url"], payload["sha256"], filename)
@@ -242,6 +395,8 @@ for pkg in sorted(msvc_packages):
           out = OUTPUT / Path(name).relative_to("Contents")
           out.parent.mkdir(parents=True, exist_ok=True)
           out.write_bytes(z.read(name))
+  
+  successful_packages.append(pkg)
 
 
 ### download Windows SDK
@@ -262,6 +417,10 @@ for target in ALL_TARGETS:
 
 for target in targets:
   sdk_packages += [f"Windows SDK Desktop Libs {target}-x86_en-us.msi"]
+
+print(f"\n{'='*70}")
+print(f"Downloading Windows SDK v{sdk_ver} packages...")
+print(f"{'='*70}\n")
 
 with tempfile.TemporaryDirectory(dir=DOWNLOADS) as d:
   dst = Path(d)
@@ -286,7 +445,7 @@ with tempfile.TemporaryDirectory(dir=DOWNLOADS) as d:
     payload = first(sdk_pkg["payloads"], lambda p: p["fileName"] == f"Installers\\{pkg}")
     download_progress(payload["url"], payload["sha256"], pkg)
 
-  print("Unpacking msi files...")
+  print("\nUnpacking msi files...")
 
   # run msi installers
   for m in msi:
@@ -294,15 +453,14 @@ with tempfile.TemporaryDirectory(dir=DOWNLOADS) as d:
     (OUTPUT / m.name).unlink()
 
 
-### versions
+### Get the actual installed version (use the one we just downloaded)
 
-msvcv = first((OUTPUT / "VC/Tools/MSVC").glob("*")).name
+# The full version folder name should match what we downloaded
+msvcv = msvc_full_ver
 sdkv = first((OUTPUT / "Windows Kits/10/bin").glob("*")).name
 
 
-# place debug CRT runtime files into MSVC bin folder (not what real Visual Studio installer does... but is reasonable)
-# NOTE: these are Target architecture, not Host architecture binaries
-
+# place debug CRT runtime files into MSVC bin folder
 redist = OUTPUT / "VC/Redist"
 
 if redist.exists():
@@ -317,8 +475,6 @@ if redist.exists():
 
 
 # copy msdia140.dll file into MSVC bin folder
-# NOTE: this is meant only for development - always Host architecture, even when placed into all Target architecture folders
-
 msdia140dll = {
   "x86": "msdia140.dll",
   "x64": "amd64/msdia140.dll",
@@ -337,7 +493,7 @@ shutil.rmtree(OUTPUT / "DIA%20SDK")
 ### cleanup
 
 shutil.rmtree(OUTPUT / "Common7", ignore_errors=True)
-shutil.rmtree(OUTPUT / "VC/Tools/MSVC" / msvcv / "Auxiliary")
+shutil.rmtree(OUTPUT / "VC/Tools/MSVC" / msvcv / "Auxiliary", ignore_errors=True)
 for target in targets:
   for f in [f"store", "uwp", "enclave", "onecore"]:
     shutil.rmtree(OUTPUT / "VC/Tools/MSVC" / msvcv / "lib" / target / f, ignore_errors=True)
@@ -384,5 +540,27 @@ set LIB=%~dp0VC\Tools\MSVC\{msvcv}\lib\{target};%~dp0Windows Kits\10\Lib\{sdkv}\
 """
   (OUTPUT / f"setup_{target}.bat").write_text(SETUP)
 
+print(f"\n{'='*70}")
+print(f"Installation Summary")
+print(f"{'='*70}")
+print(f"MSVC version installed: {msvcv}")
+print(f"SDK version installed: {sdkv}")
+print(f"Packages downloaded: {len(successful_packages)}/{len(msvc_packages)}")
+if missing_packages:
+  print(f"Packages missing: {len(missing_packages)} ⚠")
+  print(f"\nMissing packages:")
+  for pkg in missing_packages:
+    print(f"  - {pkg}")
+else:
+  print(f"Packages missing: 0 ✓")
 print(f"Total downloaded: {total_download>>20} MB")
-print("Done!")
+print(f"{'='*70}")
+
+if missing_packages:
+  print(f"\n⚠ WARNING: Toolchain may be incomplete!")
+  print(f"This usually means Microsoft is still uploading this version.")
+  print(f"The installation will work but some features may be unavailable.")
+else:
+  print(f"\n✓ Installation complete!")
+
+print(f"\nTo use the toolchain, run: setup_{targets[0]}.bat")

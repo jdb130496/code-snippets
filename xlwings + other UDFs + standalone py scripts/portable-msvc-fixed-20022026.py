@@ -14,6 +14,7 @@ import subprocess
 import urllib.error
 import urllib.request
 from pathlib import Path
+import re
 
 OUTPUT = Path("msvc")         # output folder
 DOWNLOADS = Path("downloads") # temporary download files
@@ -71,7 +72,7 @@ def download_progress(url, check, filename):
     data = data.getvalue()
     digest = hashlib.sha256(data).hexdigest()
     if check.lower() != digest:
-      sys.exit(f"Hash mismatch for f{pkg}")
+      sys.exit(f"Hash mismatch for {filename}")
     total_download += len(data)
     return data
 
@@ -151,12 +152,12 @@ msvc = {}
 sdk = {}
 
 for pid,p in packages.items():
-  if pid.startswith("Microsoft.VC.".lower()) and pid.endswith(".Tools.HostX64.TargetX64.base".lower()):
+  if pid.startswith("microsoft.vc.") and pid.endswith(".tools.hostx64.targetx64.base"):
     pver = ".".join(pid.split(".")[2:4])
     if pver[0].isnumeric():
       msvc[pver] = pid
-  elif pid.startswith("Microsoft.VisualStudio.Component.Windows10SDK.".lower()) or \
-       pid.startswith("Microsoft.VisualStudio.Component.Windows11SDK.".lower()):
+  elif pid.startswith("microsoft.visualstudio.component.windows10sdk.") or \
+       pid.startswith("microsoft.visualstudio.component.windows11sdk."):
     pver = pid.split(".")[-1]
     if pver.isnumeric():
       sdk[pver] = pid
@@ -169,16 +170,132 @@ if args.show_versions:
 msvc_ver = args.msvc_version or max(sorted(msvc.keys()))
 sdk_ver = args.sdk_version or max(sorted(sdk.keys()))
 
+
+### Auto-discover package naming pattern
+
+def discover_package_pattern(msvc_short_ver, packages):
+  """
+  Automatically discover what version format Microsoft is using in package IDs.
+  Returns: (version_string_for_packages, full_version_for_folders)
+  """
+  
+  # Look for any MSVC package to understand the naming pattern
+  sample_patterns = [
+    f"microsoft.vc.{msvc_short_ver}.tools.hostx64.targetx64.base",
+    f"microsoft.vc.{msvc_short_ver}.crt.headers.base",
+  ]
+  
+  # First, try to find an exact match with short version
+  for pattern in sample_patterns:
+    if pattern in packages:
+      print(f"✓ Found package with short version: {pattern}")
+      # Get full version from package metadata
+      pkg = first(packages[pattern])
+      if pkg and "version" in pkg:
+        full_ver = pkg["version"]
+        print(f"✓ Full version from metadata: {full_ver}")
+        return (msvc_short_ver, full_ver)
+  
+  # If short version doesn't work, search for packages that start with our prefix
+  # and extract the version pattern they're actually using
+  prefix = f"microsoft.vc.{msvc_short_ver}"
+  matching_packages = [pid for pid in packages.keys() if pid.startswith(prefix)]
+  
+  if not matching_packages:
+    print(f"✗ No packages found starting with {prefix}")
+    return None
+  
+  # Analyze the first matching package to understand the version format
+  sample_pkg_id = matching_packages[0]
+  print(f"✓ Analyzing package naming from: {sample_pkg_id}")
+  
+  # Extract version components after "microsoft.vc."
+  parts = sample_pkg_id.split(".")
+  if len(parts) < 4:
+    return None
+  
+  # Try to figure out how many version parts are in the package ID
+  version_parts = []
+  for i in range(2, len(parts)):
+    if parts[i].isnumeric():
+      version_parts.append(parts[i])
+    else:
+      break
+  
+  if len(version_parts) >= 2:
+    pkg_version = ".".join(version_parts)
+    print(f"✓ Detected package version format: {pkg_version}")
+    
+    # Get full version from metadata if available
+    pkg = first(packages[sample_pkg_id])
+    full_ver = pkg.get("version", pkg_version) if pkg else pkg_version
+    print(f"✓ Full version for folders: {full_ver}")
+    
+    return (pkg_version, full_ver)
+  
+  return None
+
+
+def find_package_with_pattern(base_pattern, pkg_version, packages):
+  """
+  Find a package that matches the base pattern, trying different version formats.
+  Returns the actual package ID found, or None.
+  """
+  # Try exact match first
+  pkg_id = base_pattern.format(ver=pkg_version)
+  if pkg_id in packages:
+    return pkg_id
+  
+  # If not found, try to find packages that match the base pattern structurally
+  # Extract the pattern structure (without version)
+  pattern_parts = base_pattern.replace("{ver}", "VERSION").split(".")
+  
+  for pid in packages.keys():
+    pid_parts = pid.split(".")
+    if len(pid_parts) != len(pattern_parts):
+      continue
+    
+    # Check if structure matches (ignoring the version part)
+    match = True
+    for pp, pidp in zip(pattern_parts, pid_parts):
+      if pp == "VERSION":
+        # This should be numeric version components
+        continue
+      elif pp != pidp:
+        match = False
+        break
+    
+    if match:
+      return pid
+  
+  return None
+
+
 if msvc_ver in msvc:
   msvc_pid = msvc[msvc_ver]
-  msvc_ver = ".".join(msvc_pid.split(".")[2:6])
+  
+  # Auto-discover the version pattern
+  pattern_result = discover_package_pattern(msvc_ver, packages)
+  
+  if pattern_result is None:
+    sys.exit(f"ERROR: Could not auto-discover package naming pattern for MSVC {msvc_ver}")
+  
+  pkg_version, full_version = pattern_result
+  msvc_short_ver = pkg_version  # Version string used in package IDs
+  msvc_ver = full_version        # Full version for folder names
+  
+  print(f"\n=== Auto-discovered version info ===")
+  print(f"Package ID version: {msvc_short_ver}")
+  print(f"Installation folder version: {msvc_ver}")
+  print(f"====================================\n")
+  
 else:
-  sys.exit(f"Unknown MSVC version: f{args.msvc_version}")
+  sys.exit(f"Unknown MSVC version: {args.msvc_version}")
 
 if sdk_ver in sdk:
   sdk_pid = sdk[sdk_ver]
 else:
-  sys.exit(f"Unknown Windows SDK version: f{args.sdk_version}")
+  sys.exit(f"Unknown Windows SDK version: {args.sdk_version}")
 
 print(f"Downloading MSVC v{msvc_ver} and Windows SDK v{sdk_ver}")
 
@@ -198,41 +315,102 @@ OUTPUT.mkdir(exist_ok=True)
 DOWNLOADS.mkdir(exist_ok=True)
 
 
-### download MSVC
+### download MSVC - using auto-discovered patterns
 
-msvc_packages = [
-  f"microsoft.visualcpp.dia.sdk",
-  f"microsoft.vc.{msvc_ver}.crt.headers.base",
-  f"microsoft.vc.{msvc_ver}.crt.source.base",
-  f"microsoft.vc.{msvc_ver}.asan.headers.base",
-  f"microsoft.vc.{msvc_ver}.pgo.headers.base",
-]
-
-for target in targets:
-  msvc_packages += [
-    f"microsoft.vc.{msvc_ver}.tools.host{host}.target{target}.base",
-    f"microsoft.vc.{msvc_ver}.tools.host{host}.target{target}.res.base",
-    f"microsoft.vc.{msvc_ver}.crt.{target}.desktop.base",
-    f"microsoft.vc.{msvc_ver}.crt.{target}.store.base",
-    f"microsoft.vc.{msvc_ver}.premium.tools.host{host}.target{target}.base",
-    f"microsoft.vc.{msvc_ver}.pgo.{target}.base",
+def build_package_list(msvc_short_ver, host, targets, packages):
+  """
+  Dynamically build the list of packages to download.
+  Uses pattern matching to find packages even if naming scheme changes.
+  """
+  
+  # Define package patterns - {ver} will be replaced with discovered version
+  base_packages = [
+    "microsoft.visualcpp.dia.sdk",
   ]
-  if target in ["x86", "x64"]:
-    msvc_packages += [f"microsoft.vc.{msvc_ver}.asan.{target}.base"]
+  
+  version_packages = [
+    "microsoft.vc.{ver}.crt.headers.base",
+    "microsoft.vc.{ver}.crt.source.base",
+    "microsoft.vc.{ver}.asan.headers.base",
+    "microsoft.vc.{ver}.pgo.headers.base",
+  ]
+  
+  # Build complete package list
+  pkg_list = []
+  
+  # Add base packages (no version)
+  for pkg in base_packages:
+    if pkg in packages:
+      pkg_list.append(pkg)
+    else:
+      print(f"⚠ Optional package not found: {pkg}")
+  
+  # Add version-specific packages
+  for pattern in version_packages:
+    pkg_id = find_package_with_pattern(pattern, msvc_short_ver, packages)
+    if pkg_id:
+      pkg_list.append(pkg_id)
+    else:
+      print(f"⚠ Package not found for pattern: {pattern.format(ver=msvc_short_ver)}")
+  
+  # Add target-specific packages
+  for target in targets:
+    target_patterns = [
+      f"microsoft.vc.{{ver}}.tools.host{host}.target{target}.base",
+      f"microsoft.vc.{{ver}}.tools.host{host}.target{target}.res.base",
+      f"microsoft.vc.{{ver}}.crt.{target}.desktop.base",
+      f"microsoft.vc.{{ver}}.crt.{target}.store.base",
+      f"microsoft.vc.{{ver}}.premium.tools.host{host}.target{target}.base",
+      f"microsoft.vc.{{ver}}.pgo.{target}.base",
+    ]
+    
+    if target in ["x86", "x64"]:
+      target_patterns.append(f"microsoft.vc.{{ver}}.asan.{target}.base")
+    
+    for pattern in target_patterns:
+      pkg_id = find_package_with_pattern(pattern, msvc_short_ver, packages)
+      if pkg_id:
+        pkg_list.append(pkg_id)
+      else:
+        print(f"⚠ Package not found for pattern: {pattern.format(ver=msvc_short_ver)}")
+    
+    # Handle redist packages with fallback
+    redist_suffix = ".onecore.desktop" if target == "arm" else ""
+    redist_pkg = f"microsoft.vc.{msvc_short_ver}.crt.redist.{target}{redist_suffix}.base"
+    
+    if redist_pkg not in packages:
+      # Try fallback through meta-package
+      redist_name = f"microsoft.visualcpp.crt.redist.{target}{redist_suffix}"
+      if redist_name in packages:
+        redist = first(packages[redist_name])
+        if redist and "dependencies" in redist:
+          redist_pkg = first(redist["dependencies"], lambda dep: dep.endswith(".base"))
+          if redist_pkg:
+            redist_pkg = redist_pkg.lower()
+            print(f"✓ Found redist via fallback: {redist_pkg}")
+    
+    if redist_pkg and redist_pkg in packages:
+      pkg_list.append(redist_pkg)
+    else:
+      print(f"⚠ Redist package not found for {target}")
+  
+  return pkg_list
 
-  redist_suffix = ".onecore.desktop" if target == "arm" else ""
-  redist_pkg = f"microsoft.vc.{msvc_ver}.crt.redist.{target}{redist_suffix}.base"
-  if redist_pkg not in packages:
-    redist_name = f"microsoft.visualcpp.crt.redist.{target}{redist_suffix}"
-    redist = first(packages[redist_name])
-    redist_pkg = first(redist["dependencies"], lambda dep: dep.endswith(".base")).lower()
-  msvc_packages += [redist_pkg]
+
+msvc_packages = build_package_list(msvc_short_ver, host, targets, packages)
+
+print(f"\n=== Downloading {len(msvc_packages)} MSVC packages ===\n")
 
 for pkg in sorted(msvc_packages):
   if pkg not in packages:
-    print(f"\r{pkg} ... !!! MISSING !!!")
+    print(f"✗ {pkg} ... !!! MISSING !!!")
     continue
+  
   p = first(packages[pkg], lambda p: p.get("language") in (None, "en-US"))
+  if not p:
+    print(f"✗ {pkg} ... !!! NO SUITABLE LANGUAGE VARIANT !!!")
+    continue
+  
   for payload in p["payloads"]:
     filename = payload["fileName"]
     download_progress(payload["url"], payload["sha256"], filename)
@@ -263,6 +441,8 @@ for target in ALL_TARGETS:
 for target in targets:
   sdk_packages += [f"Windows SDK Desktop Libs {target}-x86_en-us.msi"]
 
+print(f"\n=== Downloading Windows SDK packages ===\n")
+
 with tempfile.TemporaryDirectory(dir=DOWNLOADS) as d:
   dst = Path(d)
 
@@ -286,7 +466,7 @@ with tempfile.TemporaryDirectory(dir=DOWNLOADS) as d:
     payload = first(sdk_pkg["payloads"], lambda p: p["fileName"] == f"Installers\\{pkg}")
     download_progress(payload["url"], payload["sha256"], pkg)
 
-  print("Unpacking msi files...")
+  print("\nUnpacking msi files...")
 
   # run msi installers
   for m in msi:
@@ -298,6 +478,9 @@ with tempfile.TemporaryDirectory(dir=DOWNLOADS) as d:
 
 msvcv = first((OUTPUT / "VC/Tools/MSVC").glob("*")).name
 sdkv = first((OUTPUT / "Windows Kits/10/bin").glob("*")).name
+
+print(f"\n✓ Installed MSVC folder version: {msvcv}")
+print(f"✓ Installed SDK version: {sdkv}")
 
 
 # place debug CRT runtime files into MSVC bin folder (not what real Visual Studio installer does... but is reasonable)
@@ -337,7 +520,7 @@ shutil.rmtree(OUTPUT / "DIA%20SDK")
 ### cleanup
 
 shutil.rmtree(OUTPUT / "Common7", ignore_errors=True)
-shutil.rmtree(OUTPUT / "VC/Tools/MSVC" / msvcv / "Auxiliary")
+shutil.rmtree(OUTPUT / "VC/Tools/MSVC" / msvcv / "Auxiliary", ignore_errors=True)
 for target in targets:
   for f in [f"store", "uwp", "enclave", "onecore"]:
     shutil.rmtree(OUTPUT / "VC/Tools/MSVC" / msvcv / "lib" / target / f, ignore_errors=True)
@@ -384,5 +567,8 @@ set LIB=%~dp0VC\Tools\MSVC\{msvcv}\lib\{target};%~dp0Windows Kits\10\Lib\{sdkv}\
 """
   (OUTPUT / f"setup_{target}.bat").write_text(SETUP)
 
+print(f"\n{'='*50}")
 print(f"Total downloaded: {total_download>>20} MB")
-print("Done!")
+print(f"✓ Installation complete!")
+print(f"{'='*50}")
+print(f"\nTo use the toolchain, run: setup_{targets[0]}.bat")

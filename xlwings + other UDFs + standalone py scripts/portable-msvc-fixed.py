@@ -169,9 +169,84 @@ if args.show_versions:
 msvc_ver = args.msvc_version or max(sorted(msvc.keys()))
 sdk_ver = args.sdk_version or max(sorted(sdk.keys()))
 
+# Version cache file — survives across runs so we can fall back if the server
+# starts returning a malformed/changed package ID format again.
+VERSION_CACHE = DOWNLOADS / "versions.json"
+
+def load_version_cache():
+  if VERSION_CACHE.exists():
+    try:
+      return json.loads(VERSION_CACHE.read_text())
+    except Exception:
+      pass
+  return {}
+
+def save_version_cache(cache):
+  try:
+    DOWNLOADS.mkdir(exist_ok=True)
+    VERSION_CACHE.write_text(json.dumps(cache, indent=2))
+  except Exception as e:
+    print(f"WARNING: could not save version cache: {e}")
+
+def is_valid_full_version(ver):
+  """A proper MSVC version has 3 or 4 all-numeric segments, e.g. 14.51.36014 or 14.50.35717.0."""
+  parts = ver.split(".")
+  return len(parts) in (3, 4) and all(p.isnumeric() for p in parts)
+
+def resolve_msvc_full_version(msvc_pid, packages):
+  """
+  Extract the real 4-part full version for MSVC from the package metadata.
+  Prefers the package's 'version' field (reliable), falls back to slicing the
+  package ID (which broke when Microsoft changed the ID format in early 2026).
+  """
+  # Primary: use the 'version' field that Microsoft includes in each package entry
+  pkg_entry = first(packages.get(msvc_pid, []))
+  if pkg_entry and "version" in pkg_entry:
+    ver = pkg_entry["version"]
+    if is_valid_full_version(ver):
+      return ver
+    print(f"WARNING: package 'version' field looks unexpected ({ver!r}), trying ID-based fallback")
+
+  # Fallback: slice the package ID string (the old approach, works when IDs are
+  # formatted as microsoft.vc.14.50.35717.0.tools.hostx64.targetx64.base)
+  ver_from_id = ".".join(msvc_pid.split(".")[2:6])
+  if is_valid_full_version(ver_from_id):
+    return ver_from_id
+
+  return None  # both methods failed
+
 if msvc_ver in msvc:
   msvc_pid = msvc[msvc_ver]
-  msvc_ver = ".".join(msvc_pid.split(".")[2:6])
+  msvc_short_ver = msvc_ver  # 2-part prefix used in package IDs, e.g. "14.51"
+  resolved = resolve_msvc_full_version(msvc_pid, packages)
+
+  # Cache key includes the VS channel and short version so different channels
+  # don't overwrite each other (e.g. insiders vs stable, 2022 vs 2026).
+  cache_key = f"{'insiders' if args.insiders else 'stable'}-{args.vs}-msvc-{msvc_ver}"
+  cache = load_version_cache()
+
+  if resolved is None:
+    # Server gave us something we can't parse — check the cache for a known-good value
+    if cache_key in cache:
+      cached = cache[cache_key]
+      msvc_ver = cached["msvc_full_ver"]
+      msvc_short_ver = cached.get("msvc_short_ver", msvc_short_ver)
+      print(f"WARNING: could not determine full MSVC version from server response.")
+      print(f"WARNING: falling back to cached version {msvc_ver!r} from a previous successful run.")
+    else:
+      sys.exit(
+        f"ERROR: could not determine a valid MSVC version from the server.\n"
+        f"  package ID  : {msvc_pid}\n"
+        f"  ID-slice    : {'.'.join(msvc_pid.split('.')[2:6])}\n"
+        f"  package ver : {first(packages.get(msvc_pid, []), lambda x: True) and first(packages.get(msvc_pid, [])).get('version', 'N/A')}\n"
+        f"No cached version available. Run once with a working server or supply --msvc-version explicitly."
+      )
+  else:
+    msvc_ver = resolved
+    # Persist both versions so future runs can fall back if the format breaks again
+    cache[cache_key] = {"msvc_full_ver": msvc_ver, "msvc_short_ver": msvc_short_ver, "sdk_ver": sdk_ver}
+    save_version_cache(cache)
+    print(f"NOTE: resolved MSVC full version: {msvc_ver} (package ID prefix: {msvc_short_ver})")
 else:
   sys.exit(f"Unknown MSVC version: f{args.msvc_version}")
 
@@ -200,28 +275,33 @@ DOWNLOADS.mkdir(exist_ok=True)
 
 ### download MSVC
 
+# msvc_short_ver is the 2-part prefix used in package IDs (e.g. "14.51").
+# msvc_ver is the full resolved version used for folder paths (e.g. "14.51.36014").
+# These are the same on older manifests where the full version is in the package ID,
+# but differ on newer manifests (VS 2026 insiders) where IDs use only the short prefix.
+
 msvc_packages = [
   f"microsoft.visualcpp.dia.sdk",
-  f"microsoft.vc.{msvc_ver}.crt.headers.base",
-  f"microsoft.vc.{msvc_ver}.crt.source.base",
-  f"microsoft.vc.{msvc_ver}.asan.headers.base",
-  f"microsoft.vc.{msvc_ver}.pgo.headers.base",
+  f"microsoft.vc.{msvc_short_ver}.crt.headers.base",
+  f"microsoft.vc.{msvc_short_ver}.crt.source.base",
+  f"microsoft.vc.{msvc_short_ver}.asan.headers.base",
+  f"microsoft.vc.{msvc_short_ver}.pgo.headers.base",
 ]
 
 for target in targets:
   msvc_packages += [
-    f"microsoft.vc.{msvc_ver}.tools.host{host}.target{target}.base",
-    f"microsoft.vc.{msvc_ver}.tools.host{host}.target{target}.res.base",
-    f"microsoft.vc.{msvc_ver}.crt.{target}.desktop.base",
-    f"microsoft.vc.{msvc_ver}.crt.{target}.store.base",
-    f"microsoft.vc.{msvc_ver}.premium.tools.host{host}.target{target}.base",
-    f"microsoft.vc.{msvc_ver}.pgo.{target}.base",
+    f"microsoft.vc.{msvc_short_ver}.tools.host{host}.target{target}.base",
+    f"microsoft.vc.{msvc_short_ver}.tools.host{host}.target{target}.res.base",
+    f"microsoft.vc.{msvc_short_ver}.crt.{target}.desktop.base",
+    f"microsoft.vc.{msvc_short_ver}.crt.{target}.store.base",
+    f"microsoft.vc.{msvc_short_ver}.premium.tools.host{host}.target{target}.base",
+    f"microsoft.vc.{msvc_short_ver}.pgo.{target}.base",
   ]
   if target in ["x86", "x64"]:
-    msvc_packages += [f"microsoft.vc.{msvc_ver}.asan.{target}.base"]
+    msvc_packages += [f"microsoft.vc.{msvc_short_ver}.asan.{target}.base"]
 
   redist_suffix = ".onecore.desktop" if target == "arm" else ""
-  redist_pkg = f"microsoft.vc.{msvc_ver}.crt.redist.{target}{redist_suffix}.base"
+  redist_pkg = f"microsoft.vc.{msvc_short_ver}.crt.redist.{target}{redist_suffix}.base"
   if redist_pkg not in packages:
     redist_name = f"microsoft.visualcpp.crt.redist.{target}{redist_suffix}"
     redist = first(packages[redist_name])
@@ -337,7 +417,7 @@ shutil.rmtree(OUTPUT / "DIA%20SDK")
 ### cleanup
 
 shutil.rmtree(OUTPUT / "Common7", ignore_errors=True)
-shutil.rmtree(OUTPUT / "VC/Tools/MSVC" / msvcv / "Auxiliary")
+shutil.rmtree(OUTPUT / "VC/Tools/MSVC" / msvcv / "Auxiliary", ignore_errors=True)
 for target in targets:
   for f in [f"store", "uwp", "enclave", "onecore"]:
     shutil.rmtree(OUTPUT / "VC/Tools/MSVC" / msvcv / "lib" / target / f, ignore_errors=True)
