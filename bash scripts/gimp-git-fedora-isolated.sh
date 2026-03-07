@@ -48,21 +48,17 @@ if [ -f "/usr/local/bin/gimp-git" ] || [ -f "/usr/local/bin/gimp-git-bin" ] || \
     [ -d "/usr/local/lib64/babl-0.1" ] && echo "  - /usr/local/lib64/babl-0.1/"
     [ -d "/usr/local/lib64/gegl-0.4" ] && echo "  - /usr/local/lib64/gegl-0.4/"
     echo ""
-    echo "Cleanup commands (run manually if you want to remove old installation):"
-    echo "  sudo rm -rf /usr/local/bin/gimp-git*"
-    echo "  sudo rm -rf /usr/local/lib*/gimp* /usr/local/lib*/libgimp*"
-    echo "  sudo rm -rf /usr/local/lib*/babl* /usr/local/lib*/libbabl*"
-    echo "  sudo rm -rf /usr/local/lib*/gegl* /usr/local/lib*/libgegl*"
-    echo "  sudo rm -rf /usr/local/lib*/gexiv2* /usr/local/lib*/libgexiv2*"
-    echo "  sudo rm -rf /usr/local/lib*/pkgconfig/{babl,gegl,gexiv2}*"
-    echo "  sudo rm -rf /usr/local/share/gimp*"
-    echo "  sudo ldconfig"
+    echo "Options:"
+    echo "  1. Run cleanup script first: ./gimp-git-cleanup.sh"
+    echo "  2. Continue anyway (not recommended - wastes space)"
+    echo "  3. Exit and clean manually"
     echo ""
     read -p "Continue with installation? (y/N) " -n 1 -r
     echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         echo ""
         echo "Installation cancelled."
+        echo "Run ./gimp-git-cleanup.sh to remove old installation."
         exit 0
     fi
     echo ""
@@ -74,9 +70,7 @@ if [[ "$CLEAN" == true ]]; then
     echo "Cleaning previous build..."
     rm -rf "$BUILD_DIR"
     sudo rm -rf "$INSTALL_PREFIX"
-    rm -f ~/.local/share/applications/gimp-git.desktop
-    update-desktop-database ~/.local/share/applications/ 2>/dev/null || true
-    echo "✓ Clean complete."
+    echo "Clean complete."
     exit 0
 fi
 
@@ -89,15 +83,7 @@ fi
 
 if [[ "$SKIP_DEPS" == false ]]; then
     echo "Installing build dependencies (no removals)..."
-    
-    # First, ensure system packages are installed (in case they were removed before)
-    echo "Ensuring system image libraries are installed..."
-    sudo dnf install -y libgexiv2 libgexiv2-devel exiv2-libs exiv2-devel \
-        babl gegl04 gegl04-devel lcms2 lcms2-devel 2>/dev/null || {
-        echo "ℹ️  Note: Some system packages already installed or unavailable"
-    }
-    
-    # Install build dependencies
+    # Only install what's needed for building, don't remove anything
     sudo dnf install -y gcc-c++ meson ninja-build pkgconfig gtk3-devel glib2-devel \
         cairo-devel gdk-pixbuf2-devel bubblewrap git json-glib-devel \
         gobject-introspection-devel python3-gobject vala ghostscript \
@@ -116,21 +102,17 @@ if [[ "$SKIP_DEPS" == false ]]; then
     fi
     
     # Try to install glycin if available (Fedora 39+)
-    sudo dnf install -y glycin-devel glycin-loaders 2>/dev/null || echo "ℹ️  Note: glycin not available, GIMP will build without it"
-    
-    echo "✓ Dependencies installed"
-    echo "✓ System packages (babl, gegl04, libgexiv2, exiv2-libs) verified/restored"
+    sudo dnf install -y glycin-devel glycin-loaders 2>/dev/null || echo "Note: glycin not available, GIMP will build without it"
 fi
 
 mkdir -p "$BUILD_DIR"
 cd "$BUILD_DIR"
 
-# Set up isolated environment for all builds
+# Set up isolated environment
 export PKG_CONFIG_PATH="$INSTALL_PREFIX/lib64/pkgconfig:$INSTALL_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
 export LD_LIBRARY_PATH="$INSTALL_PREFIX/lib64:$INSTALL_PREFIX/lib:$LD_LIBRARY_PATH"
 export PATH="$INSTALL_PREFIX/bin:$PATH"
 export GI_TYPELIB_PATH="$INSTALL_PREFIX/lib64/girepository-1.0:$INSTALL_PREFIX/lib/girepository-1.0:$GI_TYPELIB_PATH"
-export XDG_DATA_DIRS="$INSTALL_PREFIX/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
 
 echo ""
 echo "===================================================================="
@@ -160,7 +142,7 @@ make -j$(nproc)
 make install
 cd ../..
 
-EXIV2_VERSION=$(pkg-config --modversion exiv2)
+EXIV2_VERSION=$(PKG_CONFIG_PATH="$INSTALL_PREFIX/lib64/pkgconfig:$PKG_CONFIG_PATH" pkg-config --modversion exiv2)
 echo "✓ Installed exiv2 version: $EXIV2_VERSION to $INSTALL_PREFIX"
 echo ""
 
@@ -189,11 +171,8 @@ ninja -C build
 ninja -C build install
 cd ..
 
-GEXIV2_VERSION=$(pkg-config --modversion gexiv2)
+GEXIV2_VERSION=$(PKG_CONFIG_PATH="$INSTALL_PREFIX/lib64/pkgconfig:$PKG_CONFIG_PATH" pkg-config --modversion gexiv2)
 echo "✓ Installed gexiv2 version: $GEXIV2_VERSION to $INSTALL_PREFIX"
-if [[ ! "$GEXIV2_VERSION" =~ ^0\.14\. ]]; then
-    echo "⚠️  WARNING: Expected gexiv2 0.14.x but got $GEXIV2_VERSION"
-fi
 echo ""
 
 echo "===================================================================="
@@ -247,16 +226,8 @@ ninja -C build
 ninja -C build install
 cd ..
 
-BABL_VERSION=$(pkg-config --modversion babl-0.1)
+BABL_VERSION=$(PKG_CONFIG_PATH="$INSTALL_PREFIX/lib64/pkgconfig:$PKG_CONFIG_PATH" pkg-config --modversion babl-0.1)
 echo "✓ Installed babl version: $BABL_VERSION to $INSTALL_PREFIX"
-
-# Verify version requirement
-MAJOR_MINOR=$(echo "$BABL_VERSION" | cut -d. -f1-2)
-PATCH=$(echo "$BABL_VERSION" | cut -d. -f3)
-if [[ "$MAJOR_MINOR" == "0.1" ]] && [[ "$PATCH" -lt 116 ]]; then
-    echo "✗ ERROR: babl version $BABL_VERSION is less than required 0.1.116"
-    exit 1
-fi
 
 if [ -f "$INSTALL_PREFIX/lib64/girepository-1.0/Babl-0.1.typelib" ] || [ -f "$INSTALL_PREFIX/lib/girepository-1.0/Babl-0.1.typelib" ]; then
     echo "✓ Babl-0.1.typelib installed successfully"
@@ -265,12 +236,11 @@ else
     exit 1
 fi
 
-# Check VAPI (optional but nice to have)
+# Check if VAPI was installed
 if [ -f "$INSTALL_PREFIX/share/vala/vapi/babl-0.1.vapi" ]; then
     echo "✓ Babl-0.1.vapi installed successfully"
-    export VALA_VAPIDIR="$INSTALL_PREFIX/share/vala/vapi"
 else
-    echo "ℹ️  Babl-0.1.vapi not found (Vala bindings not built - usually not critical)"
+    echo "⚠ Babl-0.1.vapi not found (Vala bindings not built - usually not critical)"
 fi
 echo ""
 
@@ -288,12 +258,16 @@ fi
 cd gegl
 rm -rf build
 
-# Determine vapigen option based on Babl VAPI availability
+# Set up environment so GEGL can find Babl's VAPI and GIR files
+export XDG_DATA_DIRS="$INSTALL_PREFIX/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+export VALA_VAPIDIR="$INSTALL_PREFIX/share/vala/vapi"
+
+# Check if Babl VAPI was installed
 if [ -f "$INSTALL_PREFIX/share/vala/vapi/babl-0.1.vapi" ]; then
     echo "✓ Babl VAPI found, enabling Vala bindings"
     VAPIGEN_OPTION="-Dvapigen=enabled"
 else
-    echo "ℹ️  Babl VAPI not found, disabling Vala bindings (not critical)"
+    echo "⚠ Babl VAPI not found, disabling Vala bindings (not critical)"
     VAPIGEN_OPTION="-Dvapigen=disabled"
 fi
 
@@ -344,13 +318,13 @@ echo "✓ gimp-data submodule initialized"
 echo "Checking for glycin support..."
 if pkg-config --exists glycin-2; then
     GLYCIN_VERSION=$(pkg-config --modversion glycin-2)
-    echo "✓ Found glycin-2 version: $GLYCIN_VERSION"
+    echo "Found glycin-2 version: $GLYCIN_VERSION"
 else
-    echo "ℹ️  glycin-2 not found. GIMP will build without glycin support."
+    echo "Note: glycin-2 not found. GIMP will build without glycin support."
 fi
 
 echo ""
-echo "Verifying typelib files..."
+echo "Verifying typelib files are accessible..."
 ls -lh "$INSTALL_PREFIX"/lib*/girepository-1.0/ 2>/dev/null || echo "No typelib directory found!"
 echo ""
 
@@ -368,32 +342,22 @@ ninja -C build install
 GIMP_BINARY=$(find "$INSTALL_PREFIX/bin" -name "gimp-[0-9]*" -not -name "gimp-console*" -not -name "gimp-script*" -not -name "gimp-test*" -not -name "gimptool*" | head -1)
 if [ -n "$GIMP_BINARY" ]; then
     mv "$GIMP_BINARY" "$INSTALL_PREFIX/bin/gimp-git-bin"
-    echo "✓ Renamed $(basename $GIMP_BINARY) to gimp-git-bin"
+    echo "Renamed $(basename $GIMP_BINARY) to gimp-git-bin"
     
-    # Create wrapper script with isolated environment
+    # Create wrapper script
     cat > "$INSTALL_PREFIX/bin/gimp-git" << EOF
 #!/bin/bash
-# GIMP-git wrapper with isolated environment
-# Ensures custom libraries don't interfere with system applications
-
-export LD_LIBRARY_PATH="$INSTALL_PREFIX/lib64:$INSTALL_PREFIX/lib:\${LD_LIBRARY_PATH}"
-export PKG_CONFIG_PATH="$INSTALL_PREFIX/lib64/pkgconfig:$INSTALL_PREFIX/lib/pkgconfig:\${PKG_CONFIG_PATH}"
-export GI_TYPELIB_PATH="$INSTALL_PREFIX/lib64/girepository-1.0:$INSTALL_PREFIX/lib/girepository-1.0:\${GI_TYPELIB_PATH}"
-export PATH="$INSTALL_PREFIX/bin:\${PATH}"
-export XDG_DATA_DIRS="$INSTALL_PREFIX/share:\${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
-
-# Glycin loader path (if available on system)
-if [ -d "/usr/libexec/glycin-loaders/2+" ]; then
-    export GLYCIN_LOADERS_PATH="/usr/libexec/glycin-loaders/2+"
-fi
-
-# Suppress glycin sandbox warnings (kernel 6.17+ seccomp incompatibility)
+export LD_LIBRARY_PATH="$INSTALL_PREFIX/lib64:$INSTALL_PREFIX/lib:\$LD_LIBRARY_PATH"
+export PKG_CONFIG_PATH="$INSTALL_PREFIX/lib64/pkgconfig:$INSTALL_PREFIX/lib/pkgconfig:\$PKG_CONFIG_PATH"
+export GI_TYPELIB_PATH="$INSTALL_PREFIX/lib64/girepository-1.0:$INSTALL_PREFIX/lib/girepository-1.0:\$GI_TYPELIB_PATH"
+export PATH="$INSTALL_PREFIX/bin:\$PATH"
+export GLYCIN_LOADERS_PATH="/usr/libexec/glycin-loaders/2+"
 exec "$INSTALL_PREFIX/bin/gimp-git-bin" "\$@" 2>&1 | grep -v "WARNING: Glycin running without sandbox"
 EOF
     chmod +x "$INSTALL_PREFIX/bin/gimp-git"
     echo "✓ Created gimp-git wrapper script"
 else
-    echo "⚠️  Warning: No GIMP binary found to rename"
+    echo "Warning: No GIMP binary found to rename"
 fi
 
 # Create desktop entry
@@ -404,7 +368,7 @@ Version=1.0
 Type=Application
 Name=GIMP (Git) - Isolated
 GenericName=Image Editor
-Comment=Create images and edit photographs (isolated build in $INSTALL_PREFIX)
+Comment=Create images and edit photographs (isolated build)
 Exec=$INSTALL_PREFIX/bin/gimp-git %U
 TryExec=$INSTALL_PREFIX/bin/gimp-git
 Icon=gimp
@@ -420,27 +384,26 @@ update-desktop-database ~/.local/share/applications/ 2>/dev/null || true
 
 echo ""
 echo "===================================================================="
-echo "✓ GIMP-GIT INSTALLED SUCCESSFULLY IN ISOLATION!"
+echo "GIMP-GIT INSTALLED SUCCESSFULLY IN ISOLATION!"
 echo "===================================================================="
+echo "Installation directory: $INSTALL_PREFIX"
 echo ""
-echo "📁 Installation directory: $INSTALL_PREFIX"
+echo "To run GIMP-git:"
+echo "  $INSTALL_PREFIX/bin/gimp-git"
 echo ""
-echo "🚀 To run GIMP-git:"
-echo "   $INSTALL_PREFIX/bin/gimp-git"
+echo "Or search for 'GIMP (Git) - Isolated' in your applications menu"
 echo ""
-echo "   Or search for 'GIMP (Git) - Isolated' in your applications menu"
+echo "Your system packages are untouched:"
+echo "  - System babl/gegl/exiv2/gexiv2 remain intact"
+echo "  - All GIMP-git libraries are in: $INSTALL_PREFIX"
 echo ""
-echo "✅ Your system packages are untouched:"
-echo "   • System babl/gegl/exiv2/gexiv2 remain intact"
-echo "   • System GIMP (if installed) continues to work normally"
-echo "   • All GIMP-git libraries are isolated in: $INSTALL_PREFIX"
+echo "To add to PATH for this session:"
+echo "  export PATH=\"$INSTALL_PREFIX/bin:\$PATH\""
 echo ""
-echo "💡 Optional: Add to PATH for easy access (current session only):"
-echo "   export PATH=\"$INSTALL_PREFIX/bin:\$PATH\""
-echo ""
-echo "   Or add permanently to ~/.bashrc:"
-echo "   echo 'export PATH=\"$INSTALL_PREFIX/bin:\$PATH\"' >> ~/.bashrc"
-echo ""
-echo "🧹 To remove this installation:"
-echo "   $0 --clean"
+echo "To clean this installation:"
+echo "  $0 --clean"
 echo "===================================================================="
+echo "Cleaning up build directory..."
+rm -rf "$BUILD_DIR"
+echo "✓ Build directory removed: $BUILD_DIR"
+[ -d "$HOME/gimp-build" ] && rm -rf "$HOME/gimp-build" && echo "✓ Removed old build dir: $HOME/gimp-build"
