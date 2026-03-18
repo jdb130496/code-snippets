@@ -11,11 +11,18 @@ $MaximumHistoryCount = 10000
 # =====================================================
 # Base Path Configuration (Tool Locations)
 # =====================================================
-$msvcRoot = "D:\dev\msvc"
-$clangRoot = "D:\Programs\clang"
-$cmakeRoot = "D:\Programs\cmake"
-$msys64Root = "D:\Programs\msys64"
-$nodejsRoot = "D:\Programs\nodejs"
+$msvcRoot    = "D:\dev\msvc"
+$clangRoot   = "D:\Programs\clang"
+$cmakeRoot   = "D:\Programs\cmake"
+$msys64Root  = "D:\Programs\msys64"
+$nodejsRoot  = "D:\Programs\nodejs"
+$perlRoot    = "D:\Programs\Perl"
+$nasmRoot    = "D:\Programs\nasm"
+$opensslRoot = "D:\Programs\OpenSSL"
+$mysqlRoot   = "D:\Programs\mysql"
+$postgresRoot = "D:\Programs\postgre"
+$sqliteRoot = "D:\Programs\sqlite"
+$bisonRoot = "D:\Programs\winflexbison"
 
 # Auto-detect Python 3.14
 $pythonRoot = $null
@@ -47,20 +54,29 @@ if (-not $pythonRoot) {
     }
 }
 
-$vcToolsVersion = "14.51.36014"
+$vcToolsVersion   = "14.51.36122"
 $windowsSDKVersion = "10.0.26100.0"
-$hostArch = "x64"
-$targetArch = "x64"
-$msvcBinPath = "$msvcRoot\VC\Tools\MSVC\$vcToolsVersion\bin\Host$hostArch\$targetArch"
+$hostArch         = "x64"
+$targetArch       = "x64"
+$msvcBinPath      = "$msvcRoot\VC\Tools\MSVC\$vcToolsVersion\bin\Host$hostArch\$targetArch"
 
 # =====================================================
-# BASE PATH - Only Node.js and Python (universal tools)
+# BASE PATH - Universal tools always in PATH
 # =====================================================
 $basePaths = @()
 
+if (Test-Path "$bisonRoot\win_bison.exe") {
+    $basePaths += $bisonRoot
+}
+
+# Make nmake always available for cargo build scripts (e.g. openssl-src)
+if (Test-Path "$msvcBinPath\nmake.exe") {
+    $env:NMAKE = "$msvcBinPath\nmake.exe"
+    $basePaths += $msvcBinPath
+}
+
 if (Test-Path "$nodejsRoot\node.exe") {
     $basePaths += $nodejsRoot
-    # Unblock npm/npx PowerShell wrappers so they run under RemoteSigned policy
     Get-ChildItem "$nodejsRoot\*.ps1" -ErrorAction SilentlyContinue | ForEach-Object {
         Unblock-File $_.FullName -ErrorAction SilentlyContinue
     }
@@ -73,6 +89,50 @@ if ($pythonRoot) {
     )
 }
 
+if (Test-Path "$perlRoot\perl\bin\perl.exe") {
+    $basePaths += @(
+        "$perlRoot\perl\bin",
+        "$perlRoot\c\bin"
+    )
+}
+
+if (Test-Path "$nasmRoot\nasm.exe") {
+    $basePaths += $nasmRoot
+}
+
+# MySQL - official Oracle connector
+if (Test-Path "$mysqlRoot\lib\libmysql.lib") {
+    $basePaths += "$mysqlRoot\bin"
+    $env:MYSQLCLIENT_LIB_DIR  = "$mysqlRoot\lib"
+    $env:MYSQLCLIENT_LIB_NAME = "libmysql"
+    $env:MYSQLCLIENT_VERSION  = "9.0.0"
+    $env:MYSQLCLIENT_NO_PKG_CONFIG = "1"
+    $env:MYSQL_INCLUDE_DIR    = "$mysqlRoot\include"
+}
+
+# PostgreSQL
+if (Test-Path "$postgresRoot\lib\libpq.lib") {
+    $basePaths += "$postgresRoot\bin"
+    $env:PQ_LIB_DIR    = "$postgresRoot\lib"
+    $env:PQ_LIB_STATIC = "0"
+}
+
+# OpenSSL
+if (Test-Path "$opensslRoot\include\openssl\ssl.h") {
+    $env:OPENSSL_DIR         = $opensslRoot
+    $env:OPENSSL_NO_VENDOR   = "1"
+    $env:OPENSSL_INCLUDE_DIR = "$opensslRoot\include"
+    $env:OPENSSL_LIB_DIR     = "$opensslRoot\lib\VC\x64\MD"
+    $env:WITH_SSL            = $opensslRoot
+    $env:CMAKE_PREFIX_PATH   = $opensslRoot
+}
+
+if (Test-Path "$sqliteRoot\sqlite3.lib") {
+    $env:SQLITE3_LIB_DIR  = $sqliteRoot
+    $env:SQLITE3_LIB_NAME = "sqlite3"
+    $basePaths += $sqliteRoot
+}
+
 $env:PATH = ($basePaths -join ";") + ";$env:PATH"
 
 # =====================================================
@@ -81,33 +141,33 @@ $env:PATH = ($basePaths -join ";") + ";$env:PATH"
 
 # --- MSVC Toolchain Aliases ---
 if (Test-Path "$msvcBinPath\cl.exe") {
-    Set-Alias -Name cl-msvc -Value "$msvcBinPath\cl.exe" -Force
-    Set-Alias -Name link-msvc -Value "$msvcBinPath\link.exe" -Force
-    Set-Alias -Name lib-msvc -Value "$msvcBinPath\lib.exe" -Force
+    Set-Alias -Name cl-msvc    -Value "$msvcBinPath\cl.exe"    -Force
+    Set-Alias -Name link-msvc  -Value "$msvcBinPath\link.exe"  -Force
+    Set-Alias -Name lib-msvc   -Value "$msvcBinPath\lib.exe"   -Force
     Set-Alias -Name nmake-msvc -Value "$msvcBinPath\nmake.exe" -Force
 }
 
 # --- MSYS2 GCC Toolchain Aliases ---
 if (Test-Path "$msys64Root\ucrt64\bin\gcc.exe") {
-    Set-Alias -Name gcc-msys -Value "$msys64Root\ucrt64\bin\gcc.exe" -Force
-    Set-Alias -Name g++-msys -Value "$msys64Root\ucrt64\bin\g++.exe" -Force
-    Set-Alias -Name ld-msys -Value "$msys64Root\ucrt64\bin\ld.exe" -Force
-    Set-Alias -Name ar-msys -Value "$msys64Root\ucrt64\bin\ar.exe" -Force
+    Set-Alias -Name gcc-msys -Value "$msys64Root\ucrt64\bin\gcc.exe"  -Force
+    Set-Alias -Name g++-msys -Value "$msys64Root\ucrt64\bin\g++.exe"  -Force
+    Set-Alias -Name ld-msys  -Value "$msys64Root\ucrt64\bin\ld.exe"   -Force
+    Set-Alias -Name ar-msys  -Value "$msys64Root\ucrt64\bin\ar.exe"   -Force
 }
 
 # --- MSYS2 Clang Toolchain Aliases ---
 if (Test-Path "$msys64Root\ucrt64\bin\clang.exe") {
-    Set-Alias -Name clang-msys -Value "$msys64Root\ucrt64\bin\clang.exe" -Force
+    Set-Alias -Name clang-msys   -Value "$msys64Root\ucrt64\bin\clang.exe"   -Force
     Set-Alias -Name clang++-msys -Value "$msys64Root\ucrt64\bin\clang++.exe" -Force
-    Set-Alias -Name lld-msys -Value "$msys64Root\ucrt64\bin\lld.exe" -Force
+    Set-Alias -Name lld-msys     -Value "$msys64Root\ucrt64\bin\lld.exe"     -Force
 }
 
 # --- Windows Clang Toolchain Aliases ---
 if (Test-Path "$clangRoot\bin\clang.exe") {
-    Set-Alias -Name clang-win -Value "$clangRoot\bin\clang.exe" -Force
-    Set-Alias -Name clang++-win -Value "$clangRoot\bin\clang++.exe" -Force
-    Set-Alias -Name clang-cl-win -Value "$clangRoot\bin\clang-cl.exe" -Force
-    Set-Alias -Name lld-link-win -Value "$clangRoot\bin\lld-link.exe" -Force
+    Set-Alias -Name clang-win     -Value "$clangRoot\bin\clang.exe"    -Force
+    Set-Alias -Name clang++-win   -Value "$clangRoot\bin\clang++.exe"  -Force
+    Set-Alias -Name clang-cl-win  -Value "$clangRoot\bin\clang-cl.exe" -Force
+    Set-Alias -Name lld-link-win  -Value "$clangRoot\bin\lld-link.exe" -Force
 }
 
 # --- CMake Aliases ---
@@ -133,13 +193,28 @@ if (Test-Path "$msys64Root\ucrt64\bin\make.exe") {
 
 # --- Python Aliases ---
 if ($pythonRoot -and (Test-Path "$pythonRoot\python.exe")) {
-    Set-Alias -Name python314 -Value "$pythonRoot\python.exe" -Force
-    Set-Alias -Name py314 -Value "$pythonRoot\python.exe" -Force
-    Set-Alias -Name pip314 -Value "$pythonRoot\Scripts\pip.exe" -Force
+    Set-Alias -Name python314 -Value "$pythonRoot\python.exe"        -Force
+    Set-Alias -Name py314     -Value "$pythonRoot\python.exe"        -Force
+    Set-Alias -Name pip314    -Value "$pythonRoot\Scripts\pip.exe"   -Force
 }
 if (Test-Path "$msys64Root\ucrt64\bin\python.exe") {
     Set-Alias -Name python-msys -Value "$msys64Root\ucrt64\bin\python.exe" -Force
-    Set-Alias -Name pip-msys -Value "$msys64Root\ucrt64\bin\pip.exe" -Force
+    Set-Alias -Name pip-msys    -Value "$msys64Root\ucrt64\bin\pip.exe"    -Force
+}
+
+# --- Perl Alias ---
+if (Test-Path "$perlRoot\perl\bin\perl.exe") {
+    Set-Alias -Name perl-win -Value "$perlRoot\perl\bin\perl.exe" -Force
+}
+
+# --- NASM Alias ---
+if (Test-Path "$nasmRoot\nasm.exe") {
+    Set-Alias -Name nasm-win -Value "$nasmRoot\nasm.exe" -Force
+}
+
+if (Test-Path "$bisonRoot\win_bison.exe") {
+    Set-Alias -Name bison-win -Value "$bisonRoot\win_bison.exe" -Force
+    Set-Alias -Name flex-win  -Value "$bisonRoot\win_flex.exe"  -Force
 }
 
 # =====================================================
@@ -154,7 +229,6 @@ function Remove-ToolchainPaths {
         "*\msys64\usr\bin*",
         "*Windows Kits*\bin*"
     )
-    
     $currentPath = $env:PATH -split ';'
     $cleanPath = $currentPath | Where-Object {
         $item = $_
@@ -167,7 +241,6 @@ function Remove-ToolchainPaths {
         }
         -not $shouldRemove
     }
-    
     $env:PATH = $cleanPath -join ';'
 }
 
@@ -176,33 +249,22 @@ function Remove-ToolchainPaths {
 # =====================================================
 function Use-WindowsMSVC {
     Write-Host "`n==> Switching to Windows MSVC toolchain..." -ForegroundColor Cyan
-    
     Remove-ToolchainPaths
-    
-    # MSVC paths: D:\dev\msvc\VC\Tools\MSVC\14.51.36014\bin\Hostx64\x64
-    #             D:\dev\msvc\Windows Kits\10\bin\10.0.26100.0\x64
     $msvcPaths = @(
-        "$cmakeRoot\bin",  # D:\Programs\cmake\bin (Windows CMake + Ninja)
+        "$cmakeRoot\bin",
         "$msvcBinPath",
         "$msvcRoot\Windows Kits\10\bin\$windowsSDKVersion\$targetArch"
     )
-    
     foreach ($path in $msvcPaths) {
-        if (Test-Path $path) {
-            $env:PATH = "$path;$env:PATH"
-        }
+        if (Test-Path $path) { $env:PATH = "$path;$env:PATH" }
     }
-    
-    # MSVC environment variables
-    $env:VSCMD_ARG_HOST_ARCH = $hostArch
-    $env:VSCMD_ARG_TGT_ARCH = $targetArch
-    $env:VCToolsVersion = $vcToolsVersion
-    $env:WindowsSDKVersion = "$windowsSDKVersion\"
-    $env:VCToolsInstallDir = "$msvcRoot\VC\Tools\MSVC\$vcToolsVersion\"
-    $env:WindowsSdkBinPath = "$msvcRoot\Windows Kits\10\bin\"
-    $env:WindowsSDKDir = "$msvcRoot\Windows Kits\10"
-    
-    # INCLUDE and LIB
+    $env:VSCMD_ARG_HOST_ARCH  = $hostArch
+    $env:VSCMD_ARG_TGT_ARCH   = $targetArch
+    $env:VCToolsVersion       = $vcToolsVersion
+    $env:WindowsSDKVersion    = "$windowsSDKVersion\"
+    $env:VCToolsInstallDir    = "$msvcRoot\VC\Tools\MSVC\$vcToolsVersion\"
+    $env:WindowsSdkBinPath    = "$msvcRoot\Windows Kits\10\bin\"
+    $env:WindowsSDKDir        = "$msvcRoot\Windows Kits\10"
     $env:INCLUDE = @(
         "$msvcRoot\VC\Tools\MSVC\$vcToolsVersion\include",
         "$msvcRoot\Windows Kits\10\Include\$windowsSDKVersion\ucrt",
@@ -210,31 +272,24 @@ function Use-WindowsMSVC {
         "$msvcRoot\Windows Kits\10\Include\$windowsSDKVersion\um",
         "$msvcRoot\Windows Kits\10\Include\$windowsSDKVersion\winrt"
     ) -join ";"
-    
     $env:LIB = @(
         "$msvcRoot\VC\Tools\MSVC\$vcToolsVersion\lib\$targetArch",
         "$msvcRoot\Windows Kits\10\Lib\$windowsSDKVersion\ucrt\$targetArch",
         "$msvcRoot\Windows Kits\10\Lib\$windowsSDKVersion\um\$targetArch"
     ) -join ";"
-    
-    # CMake configuration
     $env:CMAKE_GENERATOR = "Ninja"
     $windowsNinja = "$cmakeRoot\bin\ninja.exe"
     if (Test-Path $windowsNinja) {
         $env:CMAKE_MAKE_PROGRAM = $windowsNinja
     } else {
-        $env:CMAKE_GENERATOR = "NMake Makefiles"
+        $env:CMAKE_GENERATOR    = "NMake Makefiles"
         $env:CMAKE_MAKE_PROGRAM = "$msvcBinPath\nmake.exe"
     }
-    
-    # Compiler selection
-    $env:CC = "$msvcBinPath\cl.exe"
-    $env:CXX = "$msvcBinPath\cl.exe"
-    $env:CMAKE_C_COMPILER = "$msvcBinPath\cl.exe"
+    $env:CC                = "$msvcBinPath\cl.exe"
+    $env:CXX               = "$msvcBinPath\cl.exe"
+    $env:CMAKE_C_COMPILER  = "$msvcBinPath\cl.exe"
     $env:CMAKE_CXX_COMPILER = "$msvcBinPath\cl.exe"
-    
     Remove-Item Env:\CMAKE_LINKER -ErrorAction SilentlyContinue
-    
     Write-Host "✓ MSVC toolchain active" -ForegroundColor Green
     Write-Host "  Compiler:  $msvcBinPath\cl.exe" -ForegroundColor White
     Write-Host "  Linker:    $msvcBinPath\link.exe" -ForegroundColor White
@@ -247,41 +302,24 @@ function Use-WindowsMSVC {
 # =====================================================
 function Use-MSYS2GCC {
     Write-Host "`n==> Switching to MSYS2 GCC toolchain..." -ForegroundColor Cyan
-    
     Remove-ToolchainPaths
-    
-    # MSYS2 paths: D:\Programs\msys64\ucrt64\bin ONLY
-    # DO NOT add \usr\bin - it has duplicate ninja that breaks CMAKE_MAKE_PROGRAM
-    $msys2Paths = @(
-        "$msys64Root\ucrt64\bin"  # GCC, CMake, Ninja all here
-    )
-    
+    $msys2Paths = @( "$msys64Root\ucrt64\bin" )
     foreach ($path in $msys2Paths) {
-        if (Test-Path $path) {
-            $env:PATH = "$path;$env:PATH"
-        }
+        if (Test-Path $path) { $env:PATH = "$path;$env:PATH" }
     }
-    
     $env:INCLUDE = "$msys64Root\ucrt64\include"
-    $env:LIB = "$msys64Root\ucrt64\lib"
-    
-    # CMake configuration
-    $env:CMAKE_GENERATOR = "Ninja"
+    $env:LIB     = "$msys64Root\ucrt64\lib"
+    $env:CMAKE_GENERATOR    = "Ninja"
     $env:CMAKE_MAKE_PROGRAM = "$msys64Root\ucrt64\bin\ninja.exe"
-    
-    # Compiler selection
-    $env:CC = "$msys64Root\ucrt64\bin\gcc.exe"
-    $env:CXX = "$msys64Root\ucrt64\bin\g++.exe"
-    $env:CMAKE_C_COMPILER = "$msys64Root\ucrt64\bin\gcc.exe"
+    $env:CC                 = "$msys64Root\ucrt64\bin\gcc.exe"
+    $env:CXX                = "$msys64Root\ucrt64\bin\g++.exe"
+    $env:CMAKE_C_COMPILER   = "$msys64Root\ucrt64\bin\gcc.exe"
     $env:CMAKE_CXX_COMPILER = "$msys64Root\ucrt64\bin\g++.exe"
-    
-    # Clear Windows-specific variables
-    Remove-Item Env:\LINKER -ErrorAction SilentlyContinue
-    Remove-Item Env:\LINK -ErrorAction SilentlyContinue
-    Remove-Item Env:\CMAKE_LINKER -ErrorAction SilentlyContinue
+    Remove-Item Env:\LINKER          -ErrorAction SilentlyContinue
+    Remove-Item Env:\LINK            -ErrorAction SilentlyContinue
+    Remove-Item Env:\CMAKE_LINKER    -ErrorAction SilentlyContinue
     Remove-Item Env:\VCToolsInstallDir -ErrorAction SilentlyContinue
-    Remove-Item Env:\WindowsSDKDir -ErrorAction SilentlyContinue
-    
+    Remove-Item Env:\WindowsSDKDir   -ErrorAction SilentlyContinue
     Write-Host "✓ MSYS2 GCC toolchain active" -ForegroundColor Green
     Write-Host "  Compiler:  $msys64Root\ucrt64\bin\gcc.exe" -ForegroundColor White
     Write-Host "  Linker:    $msys64Root\ucrt64\bin\ld.exe (GNU ld)" -ForegroundColor White
@@ -294,41 +332,24 @@ function Use-MSYS2GCC {
 # =====================================================
 function Use-MSYS2Clang {
     Write-Host "`n==> Switching to MSYS2 Clang toolchain..." -ForegroundColor Cyan
-    
     Remove-ToolchainPaths
-    
-    # MSYS2 paths: D:\Programs\msys64\ucrt64\bin ONLY
-    # DO NOT add \usr\bin - it has duplicate ninja that breaks CMAKE_MAKE_PROGRAM
-    $msys2Paths = @(
-        "$msys64Root\ucrt64\bin"  # Clang, CMake, Ninja all here
-    )
-    
+    $msys2Paths = @( "$msys64Root\ucrt64\bin" )
     foreach ($path in $msys2Paths) {
-        if (Test-Path $path) {
-            $env:PATH = "$path;$env:PATH"
-        }
+        if (Test-Path $path) { $env:PATH = "$path;$env:PATH" }
     }
-    
     $env:INCLUDE = "$msys64Root\ucrt64\include"
-    $env:LIB = "$msys64Root\ucrt64\lib"
-    
-    # CMake configuration
-    $env:CMAKE_GENERATOR = "Ninja"
+    $env:LIB     = "$msys64Root\ucrt64\lib"
+    $env:CMAKE_GENERATOR    = "Ninja"
     $env:CMAKE_MAKE_PROGRAM = "$msys64Root\ucrt64\bin\ninja.exe"
-    
-    # Compiler selection
-    $env:CC = "$msys64Root\ucrt64\bin\clang.exe"
-    $env:CXX = "$msys64Root\ucrt64\bin\clang++.exe"
-    $env:CMAKE_C_COMPILER = "$msys64Root\ucrt64\bin\clang.exe"
+    $env:CC                 = "$msys64Root\ucrt64\bin\clang.exe"
+    $env:CXX                = "$msys64Root\ucrt64\bin\clang++.exe"
+    $env:CMAKE_C_COMPILER   = "$msys64Root\ucrt64\bin\clang.exe"
     $env:CMAKE_CXX_COMPILER = "$msys64Root\ucrt64\bin\clang++.exe"
-    
-    # Clear Windows-specific variables
-    Remove-Item Env:\LINKER -ErrorAction SilentlyContinue
-    Remove-Item Env:\LINK -ErrorAction SilentlyContinue
-    Remove-Item Env:\CMAKE_LINKER -ErrorAction SilentlyContinue
+    Remove-Item Env:\LINKER          -ErrorAction SilentlyContinue
+    Remove-Item Env:\LINK            -ErrorAction SilentlyContinue
+    Remove-Item Env:\CMAKE_LINKER    -ErrorAction SilentlyContinue
     Remove-Item Env:\VCToolsInstallDir -ErrorAction SilentlyContinue
-    Remove-Item Env:\WindowsSDKDir -ErrorAction SilentlyContinue
-    
+    Remove-Item Env:\WindowsSDKDir   -ErrorAction SilentlyContinue
     Write-Host "✓ MSYS2 Clang toolchain active" -ForegroundColor Green
     Write-Host "  Compiler:  $msys64Root\ucrt64\bin\clang++.exe" -ForegroundColor White
     Write-Host "  Linker:    $msys64Root\ucrt64\bin\lld.exe (LLVM lld)" -ForegroundColor White
@@ -341,28 +362,17 @@ function Use-MSYS2Clang {
 # =====================================================
 function Use-WindowsClang {
     Write-Host "`n==> Switching to Windows Clang-cl toolchain..." -ForegroundColor Cyan
-    
     Remove-ToolchainPaths
-    
-    # Windows Clang paths: D:\Programs\clang\bin
-    #                      D:\Programs\cmake\bin
     $clangPaths = @(
-        "$cmakeRoot\bin",  # D:\Programs\cmake\bin (Windows CMake + Ninja)
-        "$clangRoot\bin",  # D:\Programs\clang\bin
+        "$cmakeRoot\bin",
+        "$clangRoot\bin",
         "$msvcRoot\Windows Kits\10\bin\$windowsSDKVersion\$targetArch"
     )
-    
     foreach ($path in $clangPaths) {
-        if (Test-Path $path) {
-            $env:PATH = "$path;$env:PATH"
-        }
+        if (Test-Path $path) { $env:PATH = "$path;$env:PATH" }
     }
-    
-    # Windows SDK environment
     $env:WindowsSDKVersion = "$windowsSDKVersion\"
-    $env:WindowsSDKDir = "$msvcRoot\Windows Kits\10"
-    
-    # INCLUDE and LIB
+    $env:WindowsSDKDir     = "$msvcRoot\Windows Kits\10"
     $env:INCLUDE = @(
         "$clangRoot\include",
         "$msvcRoot\VC\Tools\MSVC\$vcToolsVersion\include",
@@ -370,35 +380,28 @@ function Use-WindowsClang {
         "$msvcRoot\Windows Kits\10\Include\$windowsSDKVersion\shared",
         "$msvcRoot\Windows Kits\10\Include\$windowsSDKVersion\um"
     ) -join ";"
-    
     $env:LIB = @(
         "$clangRoot\lib",
         "$msvcRoot\VC\Tools\MSVC\$vcToolsVersion\lib\$targetArch",
         "$msvcRoot\Windows Kits\10\Lib\$windowsSDKVersion\ucrt\$targetArch",
         "$msvcRoot\Windows Kits\10\Lib\$windowsSDKVersion\um\$targetArch"
     ) -join ";"
-    
-    # CMake configuration
-    $env:CMAKE_GENERATOR = "Ninja"
+    $env:CMAKE_GENERATOR    = "Ninja"
     $windowsNinja = "$cmakeRoot\bin\ninja.exe"
     if (Test-Path $windowsNinja) {
         $env:CMAKE_MAKE_PROGRAM = $windowsNinja
     } else {
-        $env:CMAKE_GENERATOR = "NMake Makefiles"
+        $env:CMAKE_GENERATOR    = "NMake Makefiles"
         $env:CMAKE_MAKE_PROGRAM = "$msvcBinPath\nmake.exe"
     }
-    
-    # Compiler selection
-    $env:CC = "$clangRoot\bin\clang-cl.exe"
-    $env:CXX = "$clangRoot\bin\clang-cl.exe"
-    $env:CMAKE_C_COMPILER = "$clangRoot\bin\clang-cl.exe"
-    $env:CMAKE_CXX_COMPILER = "$clangRoot\bin\clang-cl.exe"
-    $env:CMAKE_LINKER = "$clangRoot\bin\lld-link.exe"
-    
-    Remove-Item Env:\LINKER -ErrorAction SilentlyContinue
-    Remove-Item Env:\LINK -ErrorAction SilentlyContinue
+    $env:CC                  = "$clangRoot\bin\clang-cl.exe"
+    $env:CXX                 = "$clangRoot\bin\clang-cl.exe"
+    $env:CMAKE_C_COMPILER    = "$clangRoot\bin\clang-cl.exe"
+    $env:CMAKE_CXX_COMPILER  = "$clangRoot\bin\clang-cl.exe"
+    $env:CMAKE_LINKER        = "$clangRoot\bin\lld-link.exe"
+    Remove-Item Env:\LINKER          -ErrorAction SilentlyContinue
+    Remove-Item Env:\LINK            -ErrorAction SilentlyContinue
     Remove-Item Env:\VCToolsInstallDir -ErrorAction SilentlyContinue
-    
     Write-Host "✓ Windows Clang-cl toolchain active" -ForegroundColor Green
     Write-Host "  Compiler:  $clangRoot\bin\clang-cl.exe" -ForegroundColor White
     Write-Host "  Linker:    $clangRoot\bin\lld-link.exe" -ForegroundColor White
@@ -409,82 +412,106 @@ function Use-WindowsClang {
 # =====================================================
 # Convenient Aliases
 # =====================================================
-Set-Alias -Name use-msvc -Value Use-WindowsMSVC
-Set-Alias -Name use-gcc -Value Use-MSYS2GCC
+Set-Alias -Name use-msvc       -Value Use-WindowsMSVC
+Set-Alias -Name use-gcc        -Value Use-MSYS2GCC
 Set-Alias -Name use-clang-msys -Value Use-MSYS2Clang
-Set-Alias -Name use-clang-win -Value Use-WindowsClang
+Set-Alias -Name use-clang-win  -Value Use-WindowsClang
 
 # =====================================================
 # Rust/Cargo Update Function
 # =====================================================
 function Update-Cargo {
-    # Packages that need custom RUSTFLAGS or feature flags when built from source
     $customPackages = @{
-        'ripgrep' = @{
-            flags    = '-C target-cpu=native'
-            features = '--all-features'
-        }
-        'xh' = @{
-            flags    = '--cfg reqwest_unstable'
-            features = '--all-features'
-        }
+        'ripgrep' = @{ flags = '-C target-cpu=native'; features = '--all-features' }
+        'xh'      = @{ flags = '--cfg reqwest_unstable'; features = '--all-features' }
     }
-
     Write-Host "`nSwitching to MSVC for Cargo builds..." -ForegroundColor Cyan
     Use-WindowsMSVC
-
     Write-Host "`nChecking cargo-binstall..." -ForegroundColor Cyan
     cargo install cargo-binstall
-
     Write-Host "`nUpdating custom-compiled packages..." -ForegroundColor Cyan
     foreach ($pkg in $customPackages.Keys) {
         Write-Host "  Updating $pkg with custom flags..." -ForegroundColor Yellow
         $flags       = $customPackages[$pkg].flags
         $featuresArg = $customPackages[$pkg].features
-
-        $oldRustFlags    = $env:RUSTFLAGS
-        $env:RUSTFLAGS   = $flags
-
+        $oldRustFlags  = $env:RUSTFLAGS
+        $env:RUSTFLAGS = $flags
         if ($featuresArg) {
             & cargo install $pkg $featuresArg.Split(' ')
         } else {
             & cargo install $pkg
         }
-
         if ($oldRustFlags) {
             $env:RUSTFLAGS = $oldRustFlags
         } else {
             Remove-Item Env:\RUSTFLAGS -ErrorAction SilentlyContinue
         }
     }
-
     Write-Host "`nUpdating remaining cargo packages..." -ForegroundColor Cyan
     cargo install-update -a
-
     Write-Host "`nAll Cargo updates complete!" -ForegroundColor Green
+}
+
+# =====================================================
+# MysqlclientSrc Patch Function
+# =====================================================
+
+function Patch-MysqlclientSrc {
+    $buildRs = Get-ChildItem "D:\Programs\cargo\registry\src" -Recurse -Filter "build.rs" | 
+        Where-Object { $_.FullName -like "*mysqlclient-src*" } | 
+        Select-Object -First 1
+
+    if (-not $buildRs) {
+        Write-Host "mysqlclient-src build.rs not found - may not be downloaded yet" -ForegroundColor Red
+        Write-Host "Run: cargo install diesel_cli --all-features (let it fail once first)" -ForegroundColor Yellow
+        return
+    }
+
+    $content = Get-Content $buildRs.FullName -Raw
+    
+    if ($content -like "*dst.push(`"Release`")*") {
+        $old = @'
+    // on windows the library is in a different folder
+    if std::env::var("CARGO_CFG_TARGET_ENV").as_deref() == Ok("msvc") {
+        dst.push("Release");
+    }
+'@
+        $new = @'
+    // on windows the library is in a different folder
+    // NOTE: patched - mysqlclient.lib lands directly in archive_output_directory
+    // if std::env::var("CARGO_CFG_TARGET_ENV").as_deref() == Ok("msvc") {
+    //     dst.push("Release");
+    // }
+'@
+        $content = $content.Replace($old, $new)
+        Set-Content $buildRs.FullName $content -NoNewline
+        Write-Host "✓ Patched: $($buildRs.FullName)" -ForegroundColor Green
+    } else {
+        Write-Host "✓ Already patched: $($buildRs.FullName)" -ForegroundColor Cyan
+    }
 }
 
 # =====================================================
 # npm Global Package Update Function
 # =====================================================
 function Update-GlobalNpm {
+    # 1. Pre-flight: Unblock npm/npx PowerShell wrappers only
+    if (Test-Path $nodejsRoot) {
+        Write-Host "Checking for blocked scripts in $nodejsRoot..." -ForegroundColor Gray
+        Get-ChildItem -Path $nodejsRoot -Filter "*.ps1" -ErrorAction SilentlyContinue | Unblock-File
+        Get-ChildItem -Path $nodejsRoot -Filter "*.cmd" -ErrorAction SilentlyContinue | Unblock-File
+    }
+
     if (Get-Command npm -ErrorAction SilentlyContinue) {
         Write-Host "`nUpdating global npm packages..." -ForegroundColor Cyan
         try {
-            # Force the global prefix to match where packages are actually installed.
-            # This overrides any misconfigured npm prefix (e.g. AppData) and ensures
-            # list and install both operate on the same location.
             npm config set prefix $nodejsRoot
-
             $json = npm list -g --depth=0 --json 2>$null | ConvertFrom-Json
-
-            # npm may use either .dependencies or .node_modules depending on version/prefix
             if ($json.dependencies) {
                 $pkgs = $json.dependencies.PSObject.Properties.Name
             } elseif ($json.node_modules) {
                 $pkgs = $json.node_modules.PSObject.Properties.Name
             } else {
-                # Last resort: read package folders directly from disk
                 $pkgs = Get-ChildItem "$nodejsRoot\node_modules" -Directory -ErrorAction SilentlyContinue |
                          Where-Object { $_.Name -notmatch '^.npm$' -and $_.Name -notlike '.bin*' } |
                          ForEach-Object {
@@ -493,7 +520,6 @@ function Update-GlobalNpm {
                              } else { $_.Name }
                          }
             }
-
             if (-not $pkgs) {
                 Write-Host "No global npm packages found under $nodejsRoot." -ForegroundColor Yellow
                 return
@@ -510,7 +536,6 @@ function Update-GlobalNpm {
         Write-Host "npm not found in PATH" -ForegroundColor Red
     }
 }
-
 Set-Alias -Name npmupdate -Value Update-GlobalNpm
 
 # =====================================================
@@ -523,11 +548,48 @@ Write-Host "=====================================================" -ForegroundCo
 Write-Host "`nUniversal Tools:" -ForegroundColor Yellow
 if (Test-Path "$nodejsRoot\node.exe") {
     $nodeVer = & node --version 2>&1
-    Write-Host "  ✓ Node.js: $nodeVer" -ForegroundColor Green
+    Write-Host "  ✓ Node.js:    $nodeVer" -ForegroundColor Green
 }
 if ($pythonRoot) {
     $pythonVer = & python --version 2>&1
-    Write-Host "  ✓ Python:  $pythonVer" -ForegroundColor Green
+    Write-Host "  ✓ Python:     $pythonVer" -ForegroundColor Green
+}
+if (Test-Path "$perlRoot\perl\bin\perl.exe") {
+    $perlVer = & "$perlRoot\perl\bin\perl.exe" --version 2>&1 | Select-String "v\d+\.\d+\.\d+"
+    Write-Host "  ✓ Perl:       $perlVer" -ForegroundColor Green
+} else {
+    Write-Host "  ⚠ Perl:       not found at $perlRoot" -ForegroundColor Red
+}
+if (Test-Path "$nasmRoot\nasm.exe") {
+    $nasmVer = & "$nasmRoot\nasm.exe" --version 2>&1
+    Write-Host "  ✓ NASM:       $nasmVer" -ForegroundColor Green
+} else {
+    Write-Host "  ⚠ NASM:       not found at $nasmRoot" -ForegroundColor Red
+}
+
+if (Test-Path "$bisonRoot\win_bison.exe") {
+    $bisonVer = & "$bisonRoot\win_bison.exe" --version 2>&1 | Select-Object -First 1
+    Write-Host "  ✓ Bison:   $bisonVer" -ForegroundColor Green
+} else {
+    Write-Host "  ⚠ Bison:   not found at $bisonRoot" -ForegroundColor Red
+}
+
+if (Test-Path "$opensslRoot\include\openssl\ssl.h") {
+    $opensslVer = (Get-Content "$opensslRoot\include\openssl\opensslv.h" -ErrorAction SilentlyContinue |
+                   Select-String 'OPENSSL_VERSION_STR') -replace '.*"(.*)".*', '$1'
+    Write-Host "  ✓ OpenSSL:    $opensslVer" -ForegroundColor Green
+} else {
+    Write-Host "  ⚠ OpenSSL:    not found at $opensslRoot" -ForegroundColor Red
+}
+if (Test-Path "$mysqlRoot\lib\libmysql.lib") {
+    Write-Host "  ✓ MySQL:      client at $mysqlRoot" -ForegroundColor Green
+} else {
+    Write-Host "  ⚠ MySQL:      not found at $mysqlRoot" -ForegroundColor Red
+}
+if (Test-Path "$postgresRoot\lib\libpq.lib") {
+    Write-Host "  ✓ PostgreSQL: client at $postgresRoot" -ForegroundColor Green
+} else {
+    Write-Host "  ⚠ PostgreSQL: not found at $postgresRoot" -ForegroundColor Red
 }
 
 Write-Host "`nToolchain Switching (sets PATH + environment):" -ForegroundColor Yellow
@@ -537,7 +599,7 @@ Write-Host "  use-clang-msys   → MSYS2 Clang (D:\Programs\msys64\ucrt64\...)" 
 Write-Host "  use-clang-win    → Windows Clang (D:\Programs\clang\... + D:\Programs\cmake\...)" -ForegroundColor White
 
 Write-Host "`nUpdate Commands:" -ForegroundColor Yellow
-Write-Host "  Update-Cargo     → Update Rust/Cargo packages (ripgrep, xh with custom flags + rest via install-update)" -ForegroundColor White
+Write-Host "  Update-Cargo     → Update Rust/Cargo packages" -ForegroundColor White
 Write-Host "  npmupdate        → Update all global npm packages to @latest" -ForegroundColor White
 
 Write-Host "`nExplicit Aliases (always available):" -ForegroundColor Yellow
@@ -546,16 +608,19 @@ Write-Host "    cl-msvc, link-msvc, lib-msvc, nmake-msvc" -ForegroundColor White
 Write-Host "    gcc-msys, g++-msys, ld-msys, ar-msys" -ForegroundColor White
 Write-Host "    clang-msys, clang++-msys, lld-msys" -ForegroundColor White
 Write-Host "    clang-win, clang++-win, clang-cl-win, lld-link-win" -ForegroundColor White
-
 Write-Host "  Build Tools:" -ForegroundColor Cyan
 Write-Host "    cmake-win, cmake-msys" -ForegroundColor White
 Write-Host "    ninja-win, ninja-msys" -ForegroundColor White
 Write-Host "    make-msys" -ForegroundColor White
-
 Write-Host "  Python:" -ForegroundColor Cyan
 Write-Host "    python314, py314, pip314" -ForegroundColor White
 Write-Host "    python-msys, pip-msys" -ForegroundColor White
-
+Write-Host "  Perl:" -ForegroundColor Cyan
+Write-Host "    perl-win" -ForegroundColor White
+Write-Host "  NASM:" -ForegroundColor Cyan
+Write-Host "    nasm-win" -ForegroundColor White
+Write-Host "  Bison/Flex:" -ForegroundColor Cyan
+Write-Host "    bison-win, flex-win" -ForegroundColor White
 Write-Host "`nUsage Examples:" -ForegroundColor Yellow
 Write-Host "  # Switch toolchain then build normally" -ForegroundColor Cyan
 Write-Host "  use-msvc" -ForegroundColor White
