@@ -54,16 +54,41 @@ if (-not $pythonRoot) {
     }
 }
 
-$vcToolsVersion   = "14.51.36122"
-$windowsSDKVersion = "10.0.26100.0"
-$hostArch         = "x64"
-$targetArch       = "x64"
-$msvcBinPath      = "$msvcRoot\VC\Tools\MSVC\$vcToolsVersion\bin\Host$hostArch\$targetArch"
+$hostArch   = "x64"
+$targetArch = "x64"
+
+# Auto-detect MSVC tools version (highest installed)
+$vcToolsVersion = Get-ChildItem "$msvcRoot\VC\Tools\MSVC" -Directory -ErrorAction SilentlyContinue |
+                  Sort-Object Name -Descending | Select-Object -First 1 -ExpandProperty Name
+if (-not $vcToolsVersion) { $vcToolsVersion = "14.51.36223" }  # fallback
+
+# Auto-detect Windows Kits root (11 takes priority over 10)
+$windowsKitsRoot = $null
+foreach ($kv in @("11","10")) {
+    if (Test-Path "$msvcRoot\Windows Kits\$kv\bin") {
+        $windowsKitsRoot = "$msvcRoot\Windows Kits\$kv"
+        break
+    }
+}
+if (-not $windowsKitsRoot) { $windowsKitsRoot = "$msvcRoot\Windows Kits\10" }  # fallback
+
+# Auto-detect SDK version (highest subfolder under bin\)
+$windowsSDKVersion = Get-ChildItem "$windowsKitsRoot\bin" -Directory -ErrorAction SilentlyContinue |
+                     Where-Object { $_.Name -match '^\d+\.\d+\.\d+\.\d+$' } |
+                     Sort-Object { [version]$_.Name } -Descending |
+                     Select-Object -First 1 -ExpandProperty Name
+if (-not $windowsSDKVersion) { $windowsSDKVersion = "10.0.26100.0" }  # fallback
+
+$msvcBinPath = "$msvcRoot\VC\Tools\MSVC\$vcToolsVersion\bin\Host$hostArch\$targetArch"
 
 # =====================================================
 # BASE PATH - Universal tools always in PATH
 # =====================================================
 $basePaths = @()
+
+if (Test-Path "$nasmRoot\nasm.exe") {
+    $basePaths += $nasmRoot
+}
 
 if (Test-Path "$bisonRoot\win_bison.exe") {
     $basePaths += $bisonRoot
@@ -94,10 +119,6 @@ if (Test-Path "$perlRoot\perl\bin\perl.exe") {
         "$perlRoot\perl\bin",
         "$perlRoot\c\bin"
     )
-}
-
-if (Test-Path "$nasmRoot\nasm.exe") {
-    $basePaths += $nasmRoot
 }
 
 # MySQL - official Oracle connector
@@ -249,11 +270,12 @@ function Remove-ToolchainPaths {
 # =====================================================
 function Use-WindowsMSVC {
     Write-Host "`n==> Switching to Windows MSVC toolchain..." -ForegroundColor Cyan
+    Write-Host "  MSVC: $vcToolsVersion  SDK: $windowsSDKVersion" -ForegroundColor Gray
     Remove-ToolchainPaths
     $msvcPaths = @(
         "$cmakeRoot\bin",
         "$msvcBinPath",
-        "$msvcRoot\Windows Kits\10\bin\$windowsSDKVersion\$targetArch"
+        "$windowsKitsRoot\bin\$windowsSDKVersion\$targetArch"
     )
     foreach ($path in $msvcPaths) {
         if (Test-Path $path) { $env:PATH = "$path;$env:PATH" }
@@ -263,19 +285,19 @@ function Use-WindowsMSVC {
     $env:VCToolsVersion       = $vcToolsVersion
     $env:WindowsSDKVersion    = "$windowsSDKVersion\"
     $env:VCToolsInstallDir    = "$msvcRoot\VC\Tools\MSVC\$vcToolsVersion\"
-    $env:WindowsSdkBinPath    = "$msvcRoot\Windows Kits\10\bin\"
-    $env:WindowsSDKDir        = "$msvcRoot\Windows Kits\10"
+    $env:WindowsSdkBinPath    = "$windowsKitsRoot\bin\"
+    $env:WindowsSDKDir        = $windowsKitsRoot
     $env:INCLUDE = @(
         "$msvcRoot\VC\Tools\MSVC\$vcToolsVersion\include",
-        "$msvcRoot\Windows Kits\10\Include\$windowsSDKVersion\ucrt",
-        "$msvcRoot\Windows Kits\10\Include\$windowsSDKVersion\shared",
-        "$msvcRoot\Windows Kits\10\Include\$windowsSDKVersion\um",
-        "$msvcRoot\Windows Kits\10\Include\$windowsSDKVersion\winrt"
+        "$windowsKitsRoot\Include\$windowsSDKVersion\ucrt",
+        "$windowsKitsRoot\Include\$windowsSDKVersion\shared",
+        "$windowsKitsRoot\Include\$windowsSDKVersion\um",
+        "$windowsKitsRoot\Include\$windowsSDKVersion\winrt"
     ) -join ";"
     $env:LIB = @(
         "$msvcRoot\VC\Tools\MSVC\$vcToolsVersion\lib\$targetArch",
-        "$msvcRoot\Windows Kits\10\Lib\$windowsSDKVersion\ucrt\$targetArch",
-        "$msvcRoot\Windows Kits\10\Lib\$windowsSDKVersion\um\$targetArch"
+        "$windowsKitsRoot\Lib\$windowsSDKVersion\ucrt\$targetArch",
+        "$windowsKitsRoot\Lib\$windowsSDKVersion\um\$targetArch"
     ) -join ";"
     $env:CMAKE_GENERATOR = "Ninja"
     $windowsNinja = "$cmakeRoot\bin\ninja.exe"
@@ -366,25 +388,25 @@ function Use-WindowsClang {
     $clangPaths = @(
         "$cmakeRoot\bin",
         "$clangRoot\bin",
-        "$msvcRoot\Windows Kits\10\bin\$windowsSDKVersion\$targetArch"
+        "$windowsKitsRoot\bin\$windowsSDKVersion\$targetArch"
     )
     foreach ($path in $clangPaths) {
         if (Test-Path $path) { $env:PATH = "$path;$env:PATH" }
     }
     $env:WindowsSDKVersion = "$windowsSDKVersion\"
-    $env:WindowsSDKDir     = "$msvcRoot\Windows Kits\10"
+    $env:WindowsSDKDir     = $windowsKitsRoot
     $env:INCLUDE = @(
         "$clangRoot\include",
         "$msvcRoot\VC\Tools\MSVC\$vcToolsVersion\include",
-        "$msvcRoot\Windows Kits\10\Include\$windowsSDKVersion\ucrt",
-        "$msvcRoot\Windows Kits\10\Include\$windowsSDKVersion\shared",
-        "$msvcRoot\Windows Kits\10\Include\$windowsSDKVersion\um"
+        "$windowsKitsRoot\Include\$windowsSDKVersion\ucrt",
+        "$windowsKitsRoot\Include\$windowsSDKVersion\shared",
+        "$windowsKitsRoot\Include\$windowsSDKVersion\um"
     ) -join ";"
     $env:LIB = @(
         "$clangRoot\lib",
         "$msvcRoot\VC\Tools\MSVC\$vcToolsVersion\lib\$targetArch",
-        "$msvcRoot\Windows Kits\10\Lib\$windowsSDKVersion\ucrt\$targetArch",
-        "$msvcRoot\Windows Kits\10\Lib\$windowsSDKVersion\um\$targetArch"
+        "$windowsKitsRoot\Lib\$windowsSDKVersion\ucrt\$targetArch",
+        "$windowsKitsRoot\Lib\$windowsSDKVersion\um\$targetArch"
     ) -join ";"
     $env:CMAKE_GENERATOR    = "Ninja"
     $windowsNinja = "$cmakeRoot\bin\ninja.exe"
@@ -600,6 +622,7 @@ Write-Host "  use-clang-win    → Windows Clang (D:\Programs\clang\... + D:\Pro
 
 Write-Host "`nUpdate Commands:" -ForegroundColor Yellow
 Write-Host "  Update-Cargo     → Update Rust/Cargo packages" -ForegroundColor White
+Write-Host "  Patch-MysqlclientSrc  → Patch mysqlclient-src build.rs for Windows MSVC" -ForegroundColor White
 Write-Host "  npmupdate        → Update all global npm packages to @latest" -ForegroundColor White
 
 Write-Host "`nExplicit Aliases (always available):" -ForegroundColor Yellow

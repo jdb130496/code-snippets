@@ -1,0 +1,66 @@
+# PCRE2 10.47 Test File
+# Contains: emails, URLs, dates, versions, Unicode, paths, IPs, mixed content
+
+## Emails
+contact@example.com
+support@my-company.org
+no-reply@subdomain.domain.co.uk
+invalid-email@
+user.name+tag@gmail.com
+
+## URLs
+https://www.example.com/path/to/page
+http://insecure-site.org/index.html
+https://api.service.io/v2/endpoint?key=abc123&limit=50
+ftp://files.oldserver.net/pub/data.tar.gz
+not-a-url://broken
+
+## Dates (various formats)
+2024-01-15
+2025-12-31
+19-03-2026
+2023/07/04
+31.12.1999
+invalid-date: 2024-13-45
+
+## Version Numbers
+pcre2-10.47
+openssl-3.4.1
+Python 3.14.0a1
+gcc version 14.2.0
+MSVC 19.51.36122.0
+node v22.11.0
+
+## File Paths (Windows + Unix)
+D:\Programs\pcre2-msvc\lib\pcre2-8-static.lib
+D:\dev\pcre2\src\pcre2_compile.c
+C:\Windows\System32\drivers\etc\hosts
+/usr/local/lib/libpcre2-8.so.0
+/home/user/.config/app/settings.json
+
+## IP Addresses
+192.168.1.1
+10.0.0.255
+256.300.1.1
+172.16.254.1
+::1
+2001:0db8:85a3:0000:0000:8a2e:0370:7334
+
+## Unicode content (tests safe iteration in 10.47)
+héllo wörld — это тест
+café résumé naïve
+日本語テスト: 東京 大阪
+Ünïcödé strïng wïth dïacrïtïcs
+emoji test: 🎯 🚀 ✅ 
+
+## Mixed: Log-style lines
+[2024-01-15 08:23:11] ERROR user@app.com failed login from 192.168.1.100
+[2025-06-30 14:05:59] INFO  deployment v2.3.1 succeeded on server-01.prod.io
+[2026-03-19 11:20:00] WARN  pcre2-10.47 JIT compiled pattern took 523ms
+[2024-11-08 00:00:01] DEBUG config loaded from D:\Programs\app\config.json
+
+## Capture group test (for $+ substitution in 10.47)
+John Smith, Age 34
+Jane Doe, Age 28
+Robert Johnson, Age 51
+firstName lastName pattern above
