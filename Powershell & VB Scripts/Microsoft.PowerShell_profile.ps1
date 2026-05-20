@@ -60,7 +60,7 @@ $targetArch = "x64"
 # Auto-detect MSVC tools version (highest installed)
 $vcToolsVersion = Get-ChildItem "$msvcRoot\VC\Tools\MSVC" -Directory -ErrorAction SilentlyContinue |
                   Sort-Object Name -Descending | Select-Object -First 1 -ExpandProperty Name
-if (-not $vcToolsVersion) { $vcToolsVersion = "14.51.36223" }  # fallback
+if (-not $vcToolsVersion) { $vcToolsVersion = "14.52.36405" }  # fallback
 
 # Auto-detect Windows Kits root (11 takes priority over 10)
 $windowsKitsRoot = $null
@@ -71,6 +71,27 @@ foreach ($kv in @("11","10")) {
     }
 }
 if (-not $windowsKitsRoot) { $windowsKitsRoot = "$msvcRoot\Windows Kits\10" }  # fallback
+
+# =====================================================
+# Windows Kits Registry Check (required by winres/cargo)
+# =====================================================
+$kitsRegKey = "HKLM:\SOFTWARE\Microsoft\Windows Kits\Installed Roots"
+$kitsRegValue = "KitsRoot10"
+$expectedKitsPath = "$windowsKitsRoot\"
+
+$current = (Get-ItemProperty -Path $kitsRegKey -Name $kitsRegValue -ErrorAction SilentlyContinue).$kitsRegValue
+if ($current -ne $expectedKitsPath) {
+    $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    if ($isAdmin) {
+        New-Item -Path $kitsRegKey -Force | Out-Null
+        Set-ItemProperty -Path $kitsRegKey -Name $kitsRegValue -Value $expectedKitsPath
+        Write-Host "  ✓ Windows Kits registry key auto-fixed" -ForegroundColor Green
+    } else {
+        Write-Warning "Windows Kits registry missing — winres/cargo builds may fail!"
+        Write-Warning "Run PowerShell as admin once to auto-fix, or run:"
+        Write-Warning "  reg add `"HKLM\SOFTWARE\Microsoft\Windows Kits\Installed Roots`" /v KitsRoot10 /t REG_SZ /d `"$expectedKitsPath`" /f /reg:32"
+    }
+}
 
 # Auto-detect SDK version (highest subfolder under bin\)
 $windowsSDKVersion = Get-ChildItem "$windowsKitsRoot\bin" -Directory -ErrorAction SilentlyContinue |
@@ -152,6 +173,13 @@ if (Test-Path "$sqliteRoot\sqlite3.lib") {
     $env:SQLITE3_LIB_DIR  = $sqliteRoot
     $env:SQLITE3_LIB_NAME = "sqlite3"
     $basePaths += $sqliteRoot
+}
+
+# MSYS2 bash only - needed for packages that require bash to build from source (e.g. pythonmonkey/SpiderMonkey)
+# WARNING: usr\bin contains GNU coreutils that may shadow Windows commands (e.g. find, sort, link)
+# link.exe conflict is mitigated by $msvcBinPath being prepended earlier in $basePaths
+if (Test-Path "$msys64Root\usr\bin\bash.exe") {
+    $basePaths += "$msys64Root\usr\bin"
 }
 
 $env:PATH = ($basePaths -join ";") + ";$env:PATH"
@@ -479,38 +507,68 @@ function Update-Cargo {
 # =====================================================
 
 function Patch-MysqlclientSrc {
-    $buildRs = Get-ChildItem "D:\Programs\cargo\registry\src" -Recurse -Filter "build.rs" | 
-        Where-Object { $_.FullName -like "*mysqlclient-src*" } | 
+    # ── Patch 1: build.rs (Release folder path fix) ──────────────────
+    $buildRs = Get-ChildItem "D:\Programs\cargo\registry\src" -Recurse -Filter "build.rs" |
+        Where-Object { $_.FullName -like "*mysqlclient-src*" } |
         Select-Object -First 1
 
     if (-not $buildRs) {
         Write-Host "mysqlclient-src build.rs not found - may not be downloaded yet" -ForegroundColor Red
         Write-Host "Run: cargo install diesel_cli --all-features (let it fail once first)" -ForegroundColor Yellow
+    } else {
+        $content = Get-Content $buildRs.FullName -Raw
+        if ($content -match 'dst\.push\("Release"\);') {
+            $old = "    // on windows the library is in a different folder`n    if std::env::var(""CARGO_CFG_TARGET_ENV"").as_deref() == Ok(""msvc"") {`n        dst.push(""Release"");`n    }"
+            $new = "    // on windows the library is in a different folder`n    // NOTE: patched - mysqlclient.lib lands directly in archive_output_directory`n    // if std::env::var(""CARGO_CFG_TARGET_ENV"").as_deref() == Ok(""msvc"") {`n    //     dst.push(""Release"");`n    // }"
+            $content = $content.Replace($old, $new)
+            [System.IO.File]::WriteAllText($buildRs.FullName, $content, [System.Text.Encoding]::UTF8)
+            Write-Host "✓ Patched build.rs: $($buildRs.FullName)" -ForegroundColor Green
+        } else {
+            Write-Host "✓ Already patched build.rs: $($buildRs.FullName)" -ForegroundColor Cyan
+        }
+    }
+
+    # ── Patch 2: ssl.cmake (OpenSSL 4.x support) ─────────────────────
+    $sslCmake = Get-ChildItem "D:\Programs\cargo\registry\src" -Recurse -Filter "ssl.cmake" |
+        Where-Object { $_.FullName -like "*mysqlclient-src*" } |
+        Select-Object -First 1
+
+    if (-not $sslCmake) {
+        Write-Host "ssl.cmake not found - may not be downloaded yet" -ForegroundColor Red
+        Write-Host "Run: cargo install diesel_cli --all-features (let it fail once first)" -ForegroundColor Yellow
         return
     }
 
-    $content = Get-Content $buildRs.FullName -Raw
-    
-    if ($content -like "*dst.push(`"Release`")*") {
-        $old = @'
-    // on windows the library is in a different folder
-    if std::env::var("CARGO_CFG_TARGET_ENV").as_deref() == Ok("msvc") {
-        dst.push("Release");
+    attrib -r $sslCmake.FullName
+    $content = Get-Content $sslCmake.FullName -Raw
+
+    if ($content -match 'VERSION_EQUAL 4') {
+        Write-Host "✓ Already patched ssl.cmake: $($sslCmake.FullName)" -ForegroundColor Cyan
+        return
     }
-'@
-        $new = @'
-    // on windows the library is in a different folder
-    // NOTE: patched - mysqlclient.lib lands directly in archive_output_directory
-    // if std::env::var("CARGO_CFG_TARGET_ENV").as_deref() == Ok("msvc") {
-    //     dst.push("Release");
-    // }
-'@
-        $content = $content.Replace($old, $new)
-        Set-Content $buildRs.FullName $content -NoNewline
-        Write-Host "✓ Patched: $($buildRs.FullName)" -ForegroundColor Green
-    } else {
-        Write-Host "✓ Already patched: $($buildRs.FullName)" -ForegroundColor Cyan
-    }
+
+    # Patch 2a: Version detection in FIND_OPENSSL_VERSION macro
+    $old2a = 'IF(OPENSSL_VERSION_MAJOR VERSION_EQUAL 3)'
+    $new2a = 'IF(OPENSSL_VERSION_MAJOR VERSION_EQUAL 3 OR OPENSSL_VERSION_MAJOR VERSION_EQUAL 4)'
+    $content = $content.Replace($old2a, $new2a)
+
+    # Patch 2b: DLL naming in MYSQL_CHECK_SSL_DLLS macro
+    $old2b = '      IF(OPENSSL_VERSION_MAJOR VERSION_EQUAL 3)
+        SET(SSL_MSVC_VERSION_SUFFIX "-3")
+        SET(SSL_MSVC_ARCH_SUFFIX "-x64")
+      ENDIF()'
+    $new2b = '      IF(OPENSSL_VERSION_MAJOR VERSION_EQUAL 3)
+        SET(SSL_MSVC_VERSION_SUFFIX "-3")
+        SET(SSL_MSVC_ARCH_SUFFIX "-x64")
+      ENDIF()
+      IF(OPENSSL_VERSION_MAJOR VERSION_EQUAL 4)
+        SET(SSL_MSVC_VERSION_SUFFIX "-4")
+        SET(SSL_MSVC_ARCH_SUFFIX "-x64")
+      ENDIF()'
+    $content = $content.Replace($old2b, $new2b)
+
+    [System.IO.File]::WriteAllText($sslCmake.FullName, $content, [System.Text.Encoding]::UTF8)
+    Write-Host "✓ Patched ssl.cmake: $($sslCmake.FullName)" -ForegroundColor Green
 }
 
 # =====================================================
@@ -546,7 +604,13 @@ function Update-GlobalNpm {
                 Write-Host "No global npm packages found under $nodejsRoot." -ForegroundColor Yellow
                 return
             }
+            $pkgs | Out-File "$env:USERPROFILE\npm-global-packages.txt" -Force
+            Write-Host "  Package list saved to npm-global-packages.txt" -ForegroundColor Gray
             foreach ($pkg in $pkgs) {
+                if ($pkg -in @("npm", "npx", "corepack")) {
+                    Write-Host "  Skipping $pkg (managed by Node.js installer)" -ForegroundColor Gray
+                    continue
+                }
                 Write-Host "  Updating $pkg..." -ForegroundColor Yellow
                 npm install -g "$pkg@latest"
             }
@@ -654,3 +718,4 @@ Write-Host "  clang-msys++ -o test test.cpp" -ForegroundColor White
 
 Write-Host "`n=====================================================" -ForegroundColor Cyan
 Write-Host ""
+
