@@ -175,6 +175,13 @@ if (Test-Path "$sqliteRoot\sqlite3.lib") {
     $basePaths += $sqliteRoot
 }
 
+# libclang for bindgen (required by libsqlite3-sys, librocksdb-sys, etc.)
+if (Test-Path "$clangRoot\bin\libclang.dll") {
+    $env:LIBCLANG_PATH = "$clangRoot\bin"
+} elseif (Test-Path "$msys64Root\ucrt64\bin\libclang.dll") {
+    $env:LIBCLANG_PATH = "$msys64Root\ucrt64\bin"
+}
+
 # MSYS2 bash only - needed for packages that require bash to build from source (e.g. pythonmonkey/SpiderMonkey)
 # WARNING: usr\bin contains GNU coreutils that may shadow Windows commands (e.g. find, sort, link)
 # link.exe conflict is mitigated by $msvcBinPath being prepended earlier in $basePaths
