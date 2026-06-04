@@ -12,6 +12,7 @@ import argparse
 import subprocess
 import urllib.error
 import urllib.request
+import threading
 from pathlib import Path
 
 OUTPUT = Path("msvc")
@@ -35,7 +36,30 @@ MANIFEST_URLS = {
 }
 
 ssl_context = None
-
+def download_aria2c_style(url, num_threads=16):
+  ARIA2C = r"D:\Programs\msys64\ucrt64\bin\aria2c.exe"
+  import tempfile, os
+  with tempfile.TemporaryDirectory() as tmp:
+    out_file = os.path.join(tmp, "download.bin")
+    cmd = [
+      ARIA2C,
+      "--split", str(num_threads),
+      "--max-connection-per-server", str(num_threads),
+      "--min-split-size", "1M",
+      "--out", "download.bin",
+      "--dir", tmp,
+      "--console-log-level", "warn",
+      "--show-console-readout", "true",
+      "--async-dns-server", "8.8.8.8",
+      url
+    ]
+    result = subprocess.run(cmd)
+    if result.returncode != 0:
+      print("  aria2c failed, falling back to threaded download...")
+      return download(url)  # fallback
+    with open(out_file, "rb") as f:
+      return f.read()
+  
 def download(url):
   print(f"  Fetching {url[:80]}...", flush=True)
   req = urllib.request.Request(url, headers={
@@ -233,7 +257,9 @@ URL = MANIFEST_URLS[args.vs][args.insiders]
 
 try:
   print("Step 1/2: Downloading VS channel manifest (may take 30+ seconds from your location)...")
-  manifest = json.loads(download(URL))
+  # manifest = json.loads(download(URL))          # comment this out
+  manifest = json.loads(download_aria2c_style(URL))
+  #manifest = json.loads(download(URL))
 except urllib.error.URLError as err:
   import ssl
   if isinstance(err.args[0], ssl.SSLCertVerificationError):
@@ -257,7 +283,8 @@ vs = first(manifest["channelItems"], lambda x: x["id"] == ITEM_NAME)
 payload = vs["payloads"][0]["url"]
 
 print("Step 2/2: Downloading VS packages manifest (large file, please wait)...")
-vsmanifest = json.loads(download(payload))
+# vsmanifest = json.loads(download(payload))    # comment this out
+vsmanifest = json.loads(download_aria2c_style(payload))
 
 
 packages = {}

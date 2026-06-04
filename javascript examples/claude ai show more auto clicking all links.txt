@@ -9,23 +9,21 @@ Longer Version - automation using tempermonkey extension in brave browser:
 // ==UserScript==
 // @name         Claude Auto-Expand Show More
 // @namespace    http://tampermonkey.net/
-// @version      1.5
+// @version      1.6
 // @description  Automatically expand all "Show more" buttons in Claude
 // @match        *://claude.ai/*
 // @match        *://*.claude.ai/*
 // @grant        none
 // @run-at       document-start
 // ==/UserScript==
-
 (function() {
     'use strict';
-
     console.log('Claude Auto-Expand: Script loaded at document-start');
 
     function expandAll() {
         let count = 0;
         document.querySelectorAll('button').forEach(btn => {
-            if (btn.textContent.includes('Show more')) {
+            if (btn.textContent.trim().toLowerCase() === 'show more') {
                 btn.click();
                 count++;
             }
@@ -35,31 +33,23 @@ Longer Version - automation using tempermonkey extension in brave browser:
         }
     }
 
-    // Multiple attempts to catch the page at different load stages
-    setTimeout(function() {
-        console.log('Claude Auto-Expand: First attempt (2s)');
-        expandAll();
-    }, 2000);
-
-    setTimeout(function() {
-        console.log('Claude Auto-Expand: Second attempt (5s)');
-        expandAll();
-    }, 5000);
-
-    setTimeout(function() {
+    // Early attempts to catch buttons rendered during initial page load
+    setTimeout(() => { console.log('Claude Auto-Expand: First attempt (2s)');  expandAll(); }, 2000);
+    setTimeout(() => { console.log('Claude Auto-Expand: Second attempt (5s)'); expandAll(); }, 5000);
+    setTimeout(() => {
         console.log('Claude Auto-Expand: Third attempt (10s)');
         expandAll();
 
-        // Start continuous monitoring
-        setInterval(expandAll, 3000);
-
-        const observer = new MutationObserver(expandAll);
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
+        // Debounced MutationObserver - fires 300ms after DOM settles
+        let debounceTimer;
+        const observer = new MutationObserver(() => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(expandAll, 300);
         });
 
-        console.log('Claude Auto-Expand: Continuous monitoring started');
+        if (document.body) {
+            observer.observe(document.body, { childList: true, subtree: true });
+            console.log('Claude Auto-Expand: MutationObserver started');
+        }
     }, 10000);
-
 })();
