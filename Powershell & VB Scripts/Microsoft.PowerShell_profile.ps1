@@ -60,7 +60,7 @@ $targetArch = "x64"
 # Auto-detect MSVC tools version (highest installed)
 $vcToolsVersion = Get-ChildItem "$msvcRoot\VC\Tools\MSVC" -Directory -ErrorAction SilentlyContinue |
                   Sort-Object Name -Descending | Select-Object -First 1 -ExpandProperty Name
-if (-not $vcToolsVersion) { $vcToolsVersion = "14.52.36405" }  # fallback
+if (-not $vcToolsVersion) { $vcToolsVersion = "14.52.36502" }  # fallback
 
 # Auto-detect Windows Kits root (11 takes priority over 10)
 $windowsKitsRoot = $null
@@ -135,6 +135,17 @@ if ($pythonRoot) {
     )
 }
 
+# OpenSSL
+if (Test-Path "$opensslRoot\include\openssl\ssl.h") {
+    $env:OPENSSL_DIR         = $opensslRoot
+    $env:OPENSSL_NO_VENDOR   = "1"
+    $env:OPENSSL_INCLUDE_DIR = "$opensslRoot\include"
+    $env:OPENSSL_LIB_DIR     = "$opensslRoot\lib\VC\x64\MD"
+    $env:WITH_SSL            = $opensslRoot
+    $env:CMAKE_PREFIX_PATH   = $opensslRoot
+    $basePaths += "$opensslRoot\bin"    # <-- this line is missing
+}
+
 if (Test-Path "$perlRoot\perl\bin\perl.exe") {
     $basePaths += @(
         "$perlRoot\perl\bin",
@@ -159,15 +170,7 @@ if (Test-Path "$postgresRoot\lib\libpq.lib") {
     $env:PQ_LIB_STATIC = "0"
 }
 
-# OpenSSL
-if (Test-Path "$opensslRoot\include\openssl\ssl.h") {
-    $env:OPENSSL_DIR         = $opensslRoot
-    $env:OPENSSL_NO_VENDOR   = "1"
-    $env:OPENSSL_INCLUDE_DIR = "$opensslRoot\include"
-    $env:OPENSSL_LIB_DIR     = "$opensslRoot\lib\VC\x64\MD"
-    $env:WITH_SSL            = $opensslRoot
-    $env:CMAKE_PREFIX_PATH   = $opensslRoot
-}
+
 
 if (Test-Path "$sqliteRoot\sqlite3.lib") {
     $env:SQLITE3_LIB_DIR  = $sqliteRoot
@@ -581,6 +584,10 @@ function Patch-MysqlclientSrc {
 # =====================================================
 # npm Global Package Update Function
 # =====================================================
+
+# Packages with install scripts that are safe to auto-approve
+$npmSafeScriptPackages = @("yarn", "node-gyp", "esbuild", "pnpm")
+
 function Update-GlobalNpm {
     # 1. Pre-flight: Unblock npm/npx PowerShell wrappers only
     if (Test-Path $nodejsRoot) {
@@ -621,6 +628,27 @@ function Update-GlobalNpm {
                 Write-Host "  Updating $pkg..." -ForegroundColor Yellow
                 npm install -g "$pkg@latest"
             }
+
+            # 2. Post-install: auto-approve install scripts for known-safe packages
+            Write-Host "`nChecking for pending install scripts..." -ForegroundColor Gray
+            $pendingRaw = npm approve-scripts --allow-scripts-pending 2>&1
+            $pendingPkgs = $pendingRaw | Select-String '^\s+(\S+@\S+)' | ForEach-Object {
+                $_.Matches[0].Groups[1].Value -replace '@[\d.]+.*$', ''
+            } | Sort-Object -Unique
+
+            foreach ($pending in $pendingPkgs) {
+                # Strip version suffix for comparison (e.g. "yarn" from "yarn@1.22.22")
+                $baseName = $pending -replace '@.*$', ''
+                if ($baseName -in $npmSafeScriptPackages) {
+                    Write-Host "  Auto-approving install script for: $pending" -ForegroundColor Yellow
+                    npm approve-scripts $baseName
+                    Write-Host "  ✓ Approved: $pending" -ForegroundColor Green
+                } else {
+                    Write-Host "  ⚠ Skipped (not in safe list): $pending" -ForegroundColor DarkYellow
+                    Write-Host "    Run manually: npm approve-scripts $baseName" -ForegroundColor Gray
+                }
+            }
+
             Write-Host "`nAll npm global packages updated!" -ForegroundColor Green
         } catch {
             Write-Host "Failed to list npm packages: $_" -ForegroundColor Red
@@ -725,4 +753,3 @@ Write-Host "  clang-msys++ -o test test.cpp" -ForegroundColor White
 
 Write-Host "`n=====================================================" -ForegroundColor Cyan
 Write-Host ""
-
