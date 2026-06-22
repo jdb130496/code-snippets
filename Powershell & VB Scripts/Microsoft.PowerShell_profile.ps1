@@ -303,6 +303,24 @@ function Remove-ToolchainPaths {
     $env:PATH = $cleanPath -join ';'
 }
 
+function Reset-Toolchain {
+    Write-Host "`n==> Resetting to default (no toolchain active)..." -ForegroundColor Cyan
+    Remove-ToolchainPaths
+    $varsToClear = @(
+        'CC','CXX','CMAKE_C_COMPILER','CMAKE_CXX_COMPILER',
+        'CMAKE_GENERATOR','CMAKE_MAKE_PROGRAM','CMAKE_LINKER',
+        'INCLUDE','LIB','LINKER','LINK',
+        'VCToolsInstallDir','VCToolsVersion','WindowsSDKVersion',
+        'WindowsSdkBinPath','WindowsSDKDir',
+        'VSCMD_ARG_HOST_ARCH','VSCMD_ARG_TGT_ARCH'
+    )
+    foreach ($v in $varsToClear) {
+        Remove-Item "Env:\$v" -ErrorAction SilentlyContinue
+    }
+    Write-Host "✓ No toolchain active — same state as a fresh PowerShell window" -ForegroundColor Green
+}
+Set-Alias -Name use-none -Value Reset-Toolchain
+
 # =====================================================
 # Toolchain 1: Windows MSVC
 # =====================================================
