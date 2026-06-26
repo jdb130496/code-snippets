@@ -1,0 +1,8 @@
+{
+  "source_dir": "D:\\dev\\rdseed-intel",
+  "build_dir": "D:\\dev\\rdseed-intel\\build\\cp314-cp314-win_amd64",
+  "cmake_path": "D:\\Programs\\msys64\\ucrt64\\bin\\cmake.EXE",
+  "skbuild_path": "D:\\Programs\\msys64\\home\\juhi\\venv\\Lib\\site-packages\\scikit_build_core",
+  "skbuild_version": "0.12.2",
+  "python_executable": "D:\\Programs\\msys64\\home\\juhi\\venv\\Scripts\\python.exe"
+}

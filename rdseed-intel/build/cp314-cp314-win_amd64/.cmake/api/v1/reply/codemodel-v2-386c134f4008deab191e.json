@@ -1,0 +1,97 @@
+{
+	"configurations" : 
+	[
+		{
+			"abstractTargets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "Python::Interpreter::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Python__Interpreter-Release-9f9ecbaa1d8bf2049011.json",
+					"name" : "Python::Interpreter",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Python::InterpreterMultiConfig::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Python__InterpreterMultiConfig-Release-598d2c4c76b0103cfd1b.json",
+					"name" : "Python::InterpreterMultiConfig",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Python::Module::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Python__Module-Release-fe77f2de2431c369ef72.json",
+					"name" : "Python::Module",
+					"projectIndex" : 0
+				}
+			],
+			"directories" : 
+			[
+				{
+					"abstractTargetIndexes" : 
+					[
+						0,
+						1,
+						2
+					],
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Release-170d5c956516f14ff318.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.30"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0
+					]
+				}
+			],
+			"name" : "Release",
+			"projects" : 
+			[
+				{
+					"abstractTargetIndexes" : 
+					[
+						0,
+						1,
+						2
+					],
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "hwrng",
+					"targetIndexes" : 
+					[
+						0
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "hwrng::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-hwrng-Release-c147c4f26e71f7c6f0e5.json",
+					"name" : "hwrng",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "D:/dev/rdseed-intel/build/cp314-cp314-win_amd64",
+		"source" : "D:/dev/rdseed-intel"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 10
+	}
+}
