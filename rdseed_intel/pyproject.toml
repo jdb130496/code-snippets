@@ -1,0 +1,24 @@
+[build-system]
+requires = ["scikit-build-core>=0.10"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "hwrng"
+version = "0.1.0"
+description = "Direct RDSEED hardware RNG for x86_64 (Windows / MSYS2 / Linux)"
+requires-python = ">=3.8"
+
+# Note: this project builds a C extension whose compile flags depend on
+# which compiler is active (MSVC vs GCC/Clang need different flags for
+# RDSEED intrinsics). That logic now lives in CMakeLists.txt's
+# `if(NOT MSVC)` block, evaluated by CMake itself rather than by a custom
+# setuptools build_ext command. setup.py is no longer needed -- CMake's
+# own compiler detection (via the Ninja generator) trusts an already
+# active toolchain on PATH instead of re-discovering Visual Studio via
+# vswhere.exe/registry lookups the way setuptools' bundled distutils does.
+
+[tool.scikit-build]
+minimum-version = "build-system.requires"
+build-dir = "build/{wheel_tag}"
+cmake.version = ">=3.30"
+ninja.version = ">=1.11"

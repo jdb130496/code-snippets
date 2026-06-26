@@ -535,69 +535,149 @@ function Update-Cargo {
 # =====================================================
 
 function Patch-MysqlclientSrc {
-    # ── Patch 1: build.rs (Release folder path fix) ──────────────────
-    $buildRs = Get-ChildItem "D:\Programs\cargo\registry\src" -Recurse -Filter "build.rs" |
-        Where-Object { $_.FullName -like "*mysqlclient-src*" } |
+    $registryBase = "D:\Programs\cargo\registry\src"
+    $opensslPath  = "D:/Programs/OpenSSL"
+    $marker       = "PATCH5-OPENSSL4-PATH-FORCED"
+
+    $srcDir = Get-ChildItem $registryBase -Depth 1 -Directory |
+        Where-Object { $_.Name -like "mysqlclient-src-*" } |
+        Select-Object -First 1
+
+    if (-not $srcDir) {
+        Write-Host "✗ mysqlclient-src not found in registry." -ForegroundColor Red
+        Write-Host "  Run: cargo install diesel_cli --force --all-features (let it fail once)" -ForegroundColor Yellow
+        return
+    }
+    Write-Host "  Found: $($srcDir.FullName)" -ForegroundColor Gray
+
+    # ════════════════════════════════════════════════════════════════════
+    # Patch 1 — build.rs: stop looking in Release\ subfolder for .lib
+    # ════════════════════════════════════════════════════════════════════
+    $buildRs = Get-ChildItem $srcDir.FullName -Recurse -Filter "build.rs" |
         Select-Object -First 1
 
     if (-not $buildRs) {
-        Write-Host "mysqlclient-src build.rs not found - may not be downloaded yet" -ForegroundColor Red
-        Write-Host "Run: cargo install diesel_cli --all-features (let it fail once first)" -ForegroundColor Yellow
+        Write-Host "  ⚠ Patch 1: build.rs not found" -ForegroundColor Yellow
     } else {
+        attrib -r $buildRs.FullName 2>$null
         $content = Get-Content $buildRs.FullName -Raw
-        if ($content -match 'dst\.push\("Release"\);') {
-            $old = "    // on windows the library is in a different folder`n    if std::env::var(""CARGO_CFG_TARGET_ENV"").as_deref() == Ok(""msvc"") {`n        dst.push(""Release"");`n    }"
-            $new = "    // on windows the library is in a different folder`n    // NOTE: patched - mysqlclient.lib lands directly in archive_output_directory`n    // if std::env::var(""CARGO_CFG_TARGET_ENV"").as_deref() == Ok(""msvc"") {`n    //     dst.push(""Release"");`n    // }"
-            $content = $content.Replace($old, $new)
+        if ($content -match [regex]::Escape('dst.push("Release");')) {
+            $old1 = "    // on windows the library is in a different folder`n    if std::env::var(""CARGO_CFG_TARGET_ENV"").as_deref() == Ok(""msvc"") {`n        dst.push(""Release"");`n    }"
+            $new1 = "    // on windows the library is in a different folder`n    // PATCH1: mysqlclient.lib lands directly in archive_output_directory`n    // if std::env::var(""CARGO_CFG_TARGET_ENV"").as_deref() == Ok(""msvc"") {`n    //     dst.push(""Release"");`n    // }"
+            $content = $content.Replace($old1, $new1)
             [System.IO.File]::WriteAllText($buildRs.FullName, $content, [System.Text.Encoding]::UTF8)
-            Write-Host "✓ Patched build.rs: $($buildRs.FullName)" -ForegroundColor Green
+            Write-Host "  ✓ Patch 1: build.rs Release\ path removed" -ForegroundColor Green
         } else {
-            Write-Host "✓ Already patched build.rs: $($buildRs.FullName)" -ForegroundColor Cyan
+            Write-Host "  ✓ Patch 1: Already applied (build.rs)" -ForegroundColor Cyan
         }
     }
 
-    # ── Patch 2: ssl.cmake (OpenSSL 4.x support) ─────────────────────
-    $sslCmake = Get-ChildItem "D:\Programs\cargo\registry\src" -Recurse -Filter "ssl.cmake" |
-        Where-Object { $_.FullName -like "*mysqlclient-src*" } |
+    # ════════════════════════════════════════════════════════════════════
+    # Patches 2-5 — ssl.cmake  (LF-only file, spaces not tabs)
+    # ════════════════════════════════════════════════════════════════════
+    $sslCmake = Get-ChildItem $srcDir.FullName -Recurse -Filter "ssl.cmake" |
         Select-Object -First 1
 
     if (-not $sslCmake) {
-        Write-Host "ssl.cmake not found - may not be downloaded yet" -ForegroundColor Red
-        Write-Host "Run: cargo install diesel_cli --all-features (let it fail once first)" -ForegroundColor Yellow
+        Write-Host "  ⚠ ssl.cmake not found" -ForegroundColor Yellow
         return
     }
 
-    attrib -r $sslCmake.FullName
-    $content = Get-Content $sslCmake.FullName -Raw
+    attrib -r $sslCmake.FullName 2>$null
+    # Read as bytes and decode as UTF8 to preserve LF-only line endings
+    $bytes   = [System.IO.File]::ReadAllBytes($sslCmake.FullName)
+    $content = [System.Text.Encoding]::UTF8.GetString($bytes)
+    $changed = $false
+    $LF      = "`n"   # single LF — matches the file's actual line endings
 
-    if ($content -match 'VERSION_EQUAL 4') {
-        Write-Host "✓ Already patched ssl.cmake: $($sslCmake.FullName)" -ForegroundColor Cyan
-        return
+    # ── Patch 2: version gate accepts OpenSSL major=4 ────────────────────
+    $old2 = "IF(OPENSSL_VERSION_MAJOR VERSION_EQUAL 3)"
+    $new2 = "IF(OPENSSL_VERSION_MAJOR VERSION_EQUAL 3 OR OPENSSL_VERSION_MAJOR VERSION_EQUAL 4)"
+    if ($content -match [regex]::Escape($old2)) {
+        $content = $content.Replace($old2, $new2)
+        $changed = $true
+        Write-Host "  ✓ Patch 2: Version gate extended to OpenSSL major=4" -ForegroundColor Green
+    } else {
+        Write-Host "  ✓ Patch 2: Already applied" -ForegroundColor Cyan
     }
 
-    # Patch 2a: Version detection in FIND_OPENSSL_VERSION macro
-    $old2a = 'IF(OPENSSL_VERSION_MAJOR VERSION_EQUAL 3)'
-    $new2a = 'IF(OPENSSL_VERSION_MAJOR VERSION_EQUAL 3 OR OPENSSL_VERSION_MAJOR VERSION_EQUAL 4)'
-    $content = $content.Replace($old2a, $new2a)
+    # ── Patch 3: FIND_OPENSSL_VERSION — fix for OpenSSL 4.x header ───────
+    # File uses LF only. Indentation: 2 spaces outer, 4 spaces inner, 6 deep.
+    $old3 = "MACRO(FIND_OPENSSL_VERSION)${LF}  FOREACH(version_part${LF}      OPENSSL_VERSION_MAJOR${LF}      OPENSSL_VERSION_MINOR${LF}      OPENSSL_VERSION_PATCH${LF}      )${LF}    FILE(STRINGS `"`${OPENSSL_INCLUDE_DIR}/openssl/opensslv.h`" `${version_part}${LF}      REGEX `"^#[\t ]*define[\t ]+`${version_part}[\t ]+([0-9]+).*`")${LF}    STRING(REGEX REPLACE${LF}      `"^.*`${version_part}[\t ]+([0-9]+).*`" `"\\1`"${LF}      `${version_part} `"`${`${version_part}}`")${LF}  ENDFOREACH()"
+    $new3 = "MACRO(FIND_OPENSSL_VERSION)${LF}  # PATCH3: handle OpenSSL 4.x '# define NAME  VALUE' format${LF}  FOREACH(version_part${LF}      OPENSSL_VERSION_MAJOR${LF}      OPENSSL_VERSION_MINOR${LF}      OPENSSL_VERSION_PATCH${LF}      )${LF}    FILE(STRINGS `"`${OPENSSL_INCLUDE_DIR}/openssl/opensslv.h`" _version_line${LF}      REGEX `"^#[ \t]*define[ \t]+`${version_part}[ \t]+[0-9]+`")${LF}    IF(_version_line)${LF}      STRING(REGEX REPLACE${LF}        `"^.*define[ \t]+`${version_part}[ \t]+([0-9]+).*$`" `"\\1`"${LF}        `${version_part} `"`${_version_line}`")${LF}    ELSE()${LF}      SET(`${version_part} `"0`")${LF}    ENDIF()${LF}  ENDFOREACH()"
 
-    # Patch 2b: DLL naming in MYSQL_CHECK_SSL_DLLS macro
-    $old2b = '      IF(OPENSSL_VERSION_MAJOR VERSION_EQUAL 3)
-        SET(SSL_MSVC_VERSION_SUFFIX "-3")
-        SET(SSL_MSVC_ARCH_SUFFIX "-x64")
-      ENDIF()'
-    $new2b = '      IF(OPENSSL_VERSION_MAJOR VERSION_EQUAL 3)
-        SET(SSL_MSVC_VERSION_SUFFIX "-3")
-        SET(SSL_MSVC_ARCH_SUFFIX "-x64")
-      ENDIF()
-      IF(OPENSSL_VERSION_MAJOR VERSION_EQUAL 4)
-        SET(SSL_MSVC_VERSION_SUFFIX "-4")
-        SET(SSL_MSVC_ARCH_SUFFIX "-x64")
-      ENDIF()'
-    $content = $content.Replace($old2b, $new2b)
+    if ($content -match 'PATCH3') {
+        Write-Host "  ✓ Patch 3: Already applied (FIND_OPENSSL_VERSION)" -ForegroundColor Cyan
+    } elseif ($content.Contains($old3)) {
+        $content = $content.Replace($old3, $new3)
+        $changed = $true
+        Write-Host "  ✓ Patch 3: FIND_OPENSSL_VERSION fixed for OpenSSL 4.x" -ForegroundColor Green
+    } else {
+        Write-Host "  ⚠ Patch 3: block not matched — trying alternate approach" -ForegroundColor Yellow
+        # Alternate: use regex replace on the FOREACH block directly
+        $pattern3 = '(?s)(MACRO\(FIND_OPENSSL_VERSION\)\n  FOREACH\(version_part.*?ENDFOREACH\(\))'
+        if ($content -match $pattern3) {
+            $old3block = $Matches[1]
+            $new3block = $old3block `
+                -replace 'FILE\(STRINGS "\$\{OPENSSL_INCLUDE_DIR\}/openssl/opensslv\.h" \$\{version_part\}\n      REGEX "\^#\[\\t \]\*define\[\\t \]\+\$\{version_part\}\[\\t \]\+\(\[0-9\]\+\)\.\*"\)', `
+                         "FILE(STRINGS `"`${OPENSSL_INCLUDE_DIR}/openssl/opensslv.h`" _version_line${LF}      REGEX `"^#[ \t]*define[ \t]+`${version_part}[ \t]+[0-9]+`")" `
+                -replace 'STRING\(REGEX REPLACE\n      "\^\.\*\$\{version_part\}\[\\t \]\+\(\[0-9\]\+\)\.\*" "\\\\1"\n      \$\{version_part\} "\$\{\$\{version_part\}\}"\)', `
+                         "IF(_version_line)${LF}      STRING(REGEX REPLACE${LF}        `"^.*define[ \t]+`${version_part}[ \t]+([0-9]+).*$`" `"\\1`"${LF}        `${version_part} `"`${_version_line}`")${LF}    ELSE()${LF}      SET(`${version_part} `"0`")${LF}    ENDIF()"
+            if ($old3block -ne $new3block) {
+                $content = $content.Replace($old3block, $new3block)
+                $changed = $true
+                Write-Host "  ✓ Patch 3: Applied via regex alternate" -ForegroundColor Green
+            } else {
+                Write-Host "  ✗ Patch 3: Could not apply — manual edit required" -ForegroundColor Red
+            }
+        }
+    }
 
-    [System.IO.File]::WriteAllText($sslCmake.FullName, $content, [System.Text.Encoding]::UTF8)
-    Write-Host "✓ Patched ssl.cmake: $($sslCmake.FullName)" -ForegroundColor Green
+    # ── Patch 4: DLL suffix -4-x64 for OpenSSL 4.x ───────────────────────
+    # Actual indentation from file: 6 spaces before IF, 8 spaces before SET
+    $old4 = "      IF(OPENSSL_VERSION_MAJOR VERSION_EQUAL 1 AND${LF}         OPENSSL_VERSION_MINOR VERSION_EQUAL 1)${LF}        SET(SSL_MSVC_VERSION_SUFFIX `"-1_1`")${LF}        SET(SSL_MSVC_ARCH_SUFFIX `"-x64`")${LF}      ENDIF()"
+    $new4 = "      IF(OPENSSL_VERSION_MAJOR VERSION_EQUAL 1 AND${LF}         OPENSSL_VERSION_MINOR VERSION_EQUAL 1)${LF}        SET(SSL_MSVC_VERSION_SUFFIX `"-1_1`")${LF}        SET(SSL_MSVC_ARCH_SUFFIX `"-x64`")${LF}      ENDIF()${LF}      IF(OPENSSL_VERSION_MAJOR VERSION_EQUAL 3)${LF}        SET(SSL_MSVC_VERSION_SUFFIX `"-3`")${LF}        SET(SSL_MSVC_ARCH_SUFFIX `"-x64`")${LF}      ENDIF()${LF}      IF(OPENSSL_VERSION_MAJOR VERSION_EQUAL 4)${LF}        SET(SSL_MSVC_VERSION_SUFFIX `"-4`")${LF}        SET(SSL_MSVC_ARCH_SUFFIX `"-x64`")${LF}      ENDIF()"
+
+    if ($content -match 'VERSION_SUFFIX "-4"') {
+        Write-Host "  ✓ Patch 4: Already applied (DLL suffix -4-x64)" -ForegroundColor Cyan
+    } elseif ($content.Contains($old4)) {
+        $content = $content.Replace($old4, $new4)
+        $changed = $true
+        Write-Host "  ✓ Patch 4: DLL suffix -4-x64 added" -ForegroundColor Green
+    } else {
+        Write-Host "  ⚠ Patch 4: block not matched" -ForegroundColor Yellow
+    }
+
+    # ── Patch 5: Force OPENSSL_ROOT_DIR in FIND_CUSTOM_OPENSSL ───────────
+    # Inject at top of function, before WITH_SSL_PATH block
+    # Exact text from raw dump: FUNCTION(FIND_CUSTOM_OPENSSL)[LF][LF][SP][SP]IF(WITH_SSL_PATH)
+    if ($content -match [regex]::Escape($marker)) {
+        Write-Host "  ✓ Patch 5: Already applied (OPENSSL_ROOT_DIR forced)" -ForegroundColor Cyan
+    } else {
+        $old5 = "FUNCTION(FIND_CUSTOM_OPENSSL)${LF}${LF}  IF(WITH_SSL_PATH)"
+        $new5 = "FUNCTION(FIND_CUSTOM_OPENSSL)${LF}  # ${marker}${LF}  SET(OPENSSL_ROOT_DIR `"${opensslPath}`" CACHE PATH `"Forced portable OpenSSL 4.x`" FORCE)${LF}  SET(WITH_SSL_PATH `"${opensslPath}`" CACHE PATH `"Forced portable OpenSSL 4.x`" FORCE)${LF}${LF}  IF(WITH_SSL_PATH)"
+        if ($content.Contains($old5)) {
+            $content = $content.Replace($old5, $new5)
+            $changed = $true
+            Write-Host "  ✓ Patch 5: OPENSSL_ROOT_DIR forced to $opensslPath" -ForegroundColor Green
+        } else {
+            Write-Host "  ⚠ Patch 5: FIND_CUSTOM_OPENSSL opening not matched" -ForegroundColor Yellow
+        }
+    }
+
+    if ($changed) {
+        $outBytes = [System.Text.Encoding]::UTF8.GetBytes($content)
+        [System.IO.File]::WriteAllBytes($sslCmake.FullName, $outBytes)
+        Write-Host "✓ ssl.cmake written: $($sslCmake.FullName)" -ForegroundColor Green
+    } else {
+        Write-Host "✓ ssl.cmake: All patches already applied, no changes written" -ForegroundColor Cyan
+    }
+
+    Write-Host ""
+    Write-Host "Now run: cargo install diesel_cli --force --all-features" -ForegroundColor Yellow
 }
+
+
 
 # =====================================================
 # npm Global Package Update Function
