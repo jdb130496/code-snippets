@@ -1,5 +1,0 @@
-# ninja log v7
-3	217	8041547971139607	CMakeFiles/hwrng.dir/rdseed-intel.c.obj	f47a491a27bb5e6f
-220	467	8041547973318013	hwrng.cp314-win_amd64.pyd	ab42ddf748af38a4
-21	972	8041597809773934	CMakeFiles/hwrng.dir/rdseed-intel.c.obj	1244c90d7763dea
-975	1127	8041597819316046	hwrng.cp314-win_amd64.pyd	3e159258f4a745de
