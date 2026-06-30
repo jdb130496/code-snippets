@@ -1,121 +1,75 @@
 # hwrng
 
-Below are features, methods to build this library on veraious OSs. I have tested that it built clearly on Windows, msys (python virtual environment pointing to windows python), msys (python virtual environment pointing to msys ucrt64 python) and fedora rawhide (python 3.15.0b3). Further tested it's working using some examples. One is attached here.
+Direct RDSEED hardware RNG for x86_64.
 
-Python C extension exposing Intel/AMD `RDSEED` directly — raw CPU thermal noise,
-no OS entropy pool, no CSPRNG conditioning.
+Bypasses the OS entropy pool entirely and reads raw thermal-noise entropy
+straight from the CPU via the `RDSEED` instruction — no CSPRNG, no
+conditioning, no OS-level mixing. Intended for callers who specifically
+want hardware-sourced entropy rather than a general-purpose random
+number generator.
 
-x86_64 only. ARM is not supported and fails at build time with a clear message.
+## Requirements
+
+- Python 3.14+
+- x86_64 CPU with RDSEED support (Intel Broadwell 2014+, AMD Zen+)
+- 64-bit only — 32-bit builds are rejected at compile time
+
+## Install
+
+```bash
+pip install hwrng
+```
+
+Building from source on Windows, Linux, macOS, or MSYS2 — see
+[BUILDING.md](BUILDING.md) for full platform-specific instructions,
+including the MSYS2/UCRT64 setup.
 
 ## Usage
 
 ```python
 import hwrng
 
-if not hwrng.has_rdseed():
-    raise RuntimeError("CPU does not support RDSEED")
-
-entropy = hwrng.rdseed_raw_bytes(64)
-print(entropy.hex())
+if hwrng.has_rdseed():
+    data = hwrng.rdseed_raw_bytes(32)   # 32 bytes of raw hardware entropy
+    print(data.hex())
 ```
 
-`n_bytes` must be a positive multiple of 8. Maximum 1 MB per call.
+## API
 
-### AMD Zen 5
+### `has_rdseed() -> bool`
 
-A known Zen 5 bug (Oct 2025) returns `0` with the success flag set when the
-entropy pool is exhausted. This library retries on zero output and raises a
-`UserWarning` at import time on affected hardware. Update CPU microcode to fix
-at the hardware level.
+Returns `True` if the current CPU supports the `RDSEED` instruction.
+Call this before `rdseed_raw_bytes()` on unknown hardware.
 
-## Requirements
+### `rdseed_raw_bytes(n_bytes, max_retries=100) -> bytes`
 
-- x86_64 CPU with RDSEED (Intel Broadwell 2014+, AMD Zen 2019+)
-- Python 3.14+
-- C compiler with `<immintrin.h>` support
+Generates `n_bytes` of raw hardware entropy.
 
-## Building from source
+- `n_bytes` — positive multiple of 8, maximum 1 MB
+- `max_retries` — per-word retry limit (Intel recommends ≥ 10)
+- Output is native little-endian byte order
 
-### Linux
+Raises `RuntimeError` if the CPU lacks RDSEED support, or if entropy is
+exhausted after `max_retries` attempts per word.
 
-```bash
-# Debian/Ubuntu
-sudo apt install python3-dev ninja-build
+## A Note on AMD Zen 5
 
-# Arch/Manjaro
-sudo pacman -S python ninja meson
+Zen 5 CPUs have a known issue where `RDSEED` can report success with a
+returned value of `0` when the entropy pool is exhausted. This library
+mitigates the issue by treating a zero result as a failed attempt and
+retrying — a genuine all-zero 64-bit value has probability `1 / 2^64`,
+so this does not meaningfully bias output. A `UserWarning` is raised at
+import time on affected hardware; updating CPU microcode (Oct 2025 fix)
+resolves the underlying issue.
 
-pip install meson-python meson
-pip install -e . --no-build-isolation
-```
+## Why Not Just Use `os.urandom()`?
 
-### macOS (Intel only)
-
-```bash
-brew install ninja meson python@3.14
-pip install meson-python
-pip install -e . --no-build-isolation
-```
-
-### Windows — MSYS2 UCRT64
-
-Produces a GCC-compiled `.pyd` against UCRT64 Python.
-
-```bash
-# 1. Install deps via pacman (open UCRT64 shell)
-pacman -S mingw-w64-ucrt-x86_64-python \
-           mingw-w64-ucrt-x86_64-gcc \
-           mingw-w64-ucrt-x86_64-meson \
-           mingw-w64-ucrt-x86_64-ninja
-
-# 2. Create a dedicated venv (note: bin/ not Scripts/ — Linux convention)
-/ucrt64/bin/python -m venv ~/venv-ucrt64
-source ~/venv-ucrt64/bin/activate
-
-# 3. Install build backend (--no-build-isolation uses pacman's meson+ninja)
-pip install meson-python meson --no-build-isolation
-
-# 4. Build
-pip install -e . --no-build-isolation
-```
-
-> Don't install ninja via pip under MSYS2 — it fails to build against GCC 16.
-> The pacman ninja is the right one.
-
-### Windows — MSVC
-
-Produces an MSVC-compiled `.pyd` against python.org Python.
-Requires Visual Studio 2022 Build Tools with "Desktop development with C++".
-
-```bat
-python -m venv venv
-venv\Scripts\activate
-pip install meson-python meson ninja
-pip install -e . --no-build-isolation
-```
-
-## Troubleshooting
-
-**`externally-managed-environment` on MSYS2** — use a venv, don't pip-install into system Python.
-
-**`Scripts/activate: No such file or directory` on MSYS2** — UCRT64 Python uses
-`bin/activate`, not `Scripts/activate`.
-
-**`RDSEED exhausted`** — reduce request size, increase `max_retries`, or add a
-delay between calls. On Zen 5, update CPU microcode.
-
-
-Examples for testing the basic working:
-
-# Basic smoke test
-python -c "import hwrng; print(hwrng.has_rdseed())"
-
-# Entropy output
-python -c "import hwrng; print(hwrng.rdseed_raw_bytes(64).hex())"
-
-# Verify it's the UCRT64 build, not Windows venv
-python -c "import hwrng, importlib.util; print(importlib.util.find_spec('hwrng').origin)"
+`os.urandom()` is almost always the right choice for application-level
+randomness — it goes through the OS CSPRNG, which is well-tested,
+properly mixed, and fast. `hwrng` exists for the narrower case where you
+specifically need unconditioned hardware entropy itself, rather than a
+general-purpose secure random source.
 
 ## License
 
-MIT
+See [LICENSE](LICENSE).
