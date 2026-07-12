@@ -1,4 +1,4 @@
-﻿# =====================================================
+# =====================================================
 # PowerShell Profile - All 4 Toolchains with Explicit Aliases
 # =====================================================
 # Philosophy: 
@@ -594,13 +594,6 @@ function Patch-MysqlclientSrc {
         SET(SSL_MSVC_ARCH_SUFFIX "-x64")
       ENDIF()'
     $content = $content.Replace($old2b, $new2b)
-
-    # Patch 2c: Fix OPENSSL_FIX_VERSION extraction for OpenSSL 3.x/4.x+
-    # (OPENSSL_VERSION_PATCH macro no longer exists; parse from OPENSSL_VERSION_STR instead)
-    $oldFix = 'SET(OPENSSL_FIX_VERSION "${OPENSSL_VERSION_PATCH}")'
-    $newFix = 'FILE(STRINGS "${OPENSSL_INCLUDE_DIR}/openssl/opensslv.h" OPENSSL_VERSION_STR_LINE REGEX "^#[\t ]*define[\t ]+OPENSSL_VERSION_STR[\t ]+\"[0-9]+\.[0-9]+\.[0-9]+\"")
-    STRING(REGEX REPLACE "^.*OPENSSL_VERSION_STR[\t ]+\"[0-9]+\.[0-9]+\.([0-9]+)\".*$" "\\1" OPENSSL_FIX_VERSION "${OPENSSL_VERSION_STR_LINE}")'
-    $content = $content.Replace($oldFix, $newFix)
 
     [System.IO.File]::WriteAllText($sslCmake.FullName, $content, [System.Text.Encoding]::UTF8)
     Write-Host "✓ Patched ssl.cmake: $($sslCmake.FullName)" -ForegroundColor Green
