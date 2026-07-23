@@ -16,7 +16,7 @@ from io import StringIO
 from javascript import require
 from pathlib import Path
 from py4j.java_gateway import JavaGateway
-from randomgen import RDRAND
+#from randomgen import RDRAND
 from rdrand import RdRandom
 from rdrand import RdSeedom
 from scipy.optimize import newton
@@ -280,18 +280,18 @@ def check_duplicates(numbers):
         return "No duplicates found."
     else:
         return "Duplicates found."
-@xw.func
-def RandomGennp(n):
+#@xw.func
+#def RandomGennp(n):
     # Convert n to an integer
-    n = int(n)
+#    n = int(n)
     # Create a new RDRAND generator
-    rg = RDRAND()
+#    rg = RDRAND()
     # Generate n random numbers, each composed of three 5-digit numbers
-    numbers = [int((rg.random_raw() % 90000 + 10000) * 1e10 + (rg.random_raw() % 90000 + 10000) * 1e5 + (rg.random_raw() % 90000 + 10000)) for _ in range(n)]
+#    numbers = [int((rg.random_raw() % 90000 + 10000) * 1e10 + (rg.random_raw() % 90000 + 10000) * 1e5 + (rg.random_raw() % 90000 + 10000)) for _ in range(n)]
     # Convert the list to a list of lists for xlwings
-    numbers_list = [[number] for number in numbers]
+#    numbers_list = [[number] for number in numbers]
     # Return the list of lists
-    return numbers_list
+#    return numbers_list
 rng = rdrand.RdRandom()
 @xw.func
 def generate_random_numbers_rdrand(num):
@@ -486,35 +486,37 @@ def quarter_buckets(dates):
 @xw.arg('excel_range', ndim=2)
 @xw.arg('patterns', ndim=1)
 def REGEXFINDM(excel_range, patterns):
+    import re
+
+    compiled = [re.compile(p, flags=re.UNICODE) for p in patterns if p]
+
     result = []
     has_any_match = False
-    
+
     for row in excel_range:
         row_result = []
         for cell in row:
-            if cell is None or str(cell).strip() == "":
+            if cell is None:
                 row_result.append("")
                 continue
-                
-            cell_str = str(cell)
-            cell_result = []
-            for pattern in patterns:
-                match = re.search(pattern, cell_str, flags=re.UNICODE)
-                if match:
-                    cell_result.append(cell_str)
-            
-            if len(cell_result) == len(patterns):
-                row_result.append(" ".join(cell_result))
+
+            # AMFI data often has leading/trailing spaces from text import
+            cell_str = str(cell).strip()
+
+            if not cell_str:
+                row_result.append("")
+                continue
+
+            # Must match ALL patterns
+            if all(p.match(cell_str) for p in compiled):   # .match() not .search()
+                row_result.append(cell_str)
                 has_any_match = True
             else:
                 row_result.append("")
+
         result.append(row_result)
-    
-    # Return empty if no matches found
-    if not has_any_match:
-        return [[""]]
-    
-    return result
+
+    return result if has_any_match else [[""]]
 @xw.func
 def fetch_crude_data(start_date, end_date):
     # Convert the dates from "dd/mm/yyyy" to "yyyy-mm-dd"

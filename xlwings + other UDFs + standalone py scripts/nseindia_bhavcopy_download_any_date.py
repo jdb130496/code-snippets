@@ -86,7 +86,7 @@ def download_nse_bhavcopy_selenium(date_str: str, output_dir: str = r"D:\bhavcop
 
 
 if __name__ == "__main__":
-    f = download_nse_bhavcopy_selenium("30-06-2026", output_dir=r"D:\bhavcopy_data")
+    f = download_nse_bhavcopy_selenium("17-07-2026", output_dir=r"D:\bhavcopy_data")
     if f and f.endswith(".zip"):
         import zipfile
         with zipfile.ZipFile(f) as z:

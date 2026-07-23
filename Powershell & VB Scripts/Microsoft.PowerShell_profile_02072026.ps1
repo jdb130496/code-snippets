@@ -1,22 +1,4 @@
-﻿# Added: $jomRoot   = "D:\Programs\jom"
-# Added: if (Test-Path "$jomRoot\jom.exe") {
-# Added:     $basePaths += $jomRoot
-# Added: }
-# Changed: OpenSSL lib directory to: $env:OPENSSL_LIB_DIR     = "$opensslRoot\lib"
-# Added: --- Perl PCRE2 function (re::engine::PCRE2 10.47) ---
-# Added:if (Test-Path "$perlRoot\perl\bin\perl.exe") {
-# Added:    function perl-pcre2 {
-# Added:        & "$perlRoot\perl\bin\perl.exe" -Mre::engine::PCRE2 @args
-# Added:    }
-# Added: }
-# Added: if (Test-Path "$jomRoot\jom.exe") {
-# Added:     Write-Host "  ✓ jom:        found at $jomRoot" -ForegroundColor Green
-# Added: } else {
-# Added:     Write-Host "  ⚠ jom:        not found at $jomRoot" -ForegroundColor Red
-# Added: }
-# Changed: Write-Host "    perl-win, perl-pcre2 (PCRE2 10.47)" -ForegroundColor White from Write-Host "    perl-win" -ForegroundColor White
-#
-# =====================================================
+﻿# =====================================================
 # PowerShell Profile - All 4 Toolchains with Explicit Aliases
 # =====================================================
 # Philosophy: 
@@ -41,7 +23,6 @@ $mysqlRoot   = "D:\Programs\mysql"
 $postgresRoot = "D:\Programs\postgre"
 $sqliteRoot = "D:\Programs\sqlite"
 $bisonRoot = "D:\Programs\winflexbison"
-$jomRoot   = "D:\Programs\jom"
 
 # Auto-detect Python 3.14
 $pythonRoot = $null
@@ -79,7 +60,7 @@ $targetArch = "x64"
 # Auto-detect MSVC tools version (highest installed)
 $vcToolsVersion = Get-ChildItem "$msvcRoot\VC\Tools\MSVC" -Directory -ErrorAction SilentlyContinue |
                   Sort-Object Name -Descending | Select-Object -First 1 -ExpandProperty Name
-if (-not $vcToolsVersion) { $vcToolsVersion = "14.52.36530" }  # fallback
+if (-not $vcToolsVersion) { $vcToolsVersion = "14.52.36510" }  # fallback
 
 # Auto-detect Windows Kits root (11 takes priority over 10)
 $windowsKitsRoot = $null
@@ -134,10 +115,6 @@ if (Test-Path "$bisonRoot\win_bison.exe") {
     $basePaths += $bisonRoot
 }
 
-if (Test-Path "$jomRoot\jom.exe") {
-    $basePaths += $jomRoot
-}
-
 # Make nmake always available for cargo build scripts (e.g. openssl-src)
 if (Test-Path "$msvcBinPath\nmake.exe") {
     $env:NMAKE = "$msvcBinPath\nmake.exe"
@@ -163,7 +140,7 @@ if (Test-Path "$opensslRoot\include\openssl\ssl.h") {
     $env:OPENSSL_DIR         = $opensslRoot
     $env:OPENSSL_NO_VENDOR   = "1"
     $env:OPENSSL_INCLUDE_DIR = "$opensslRoot\include"
-    $env:OPENSSL_LIB_DIR     = "$opensslRoot\lib"
+    $env:OPENSSL_LIB_DIR     = "$opensslRoot\lib\VC\x64\MD"
     $env:WITH_SSL            = $opensslRoot
     $env:CMAKE_PREFIX_PATH   = $opensslRoot
     $basePaths += "$opensslRoot\bin"    # <-- this line is missing
@@ -287,13 +264,6 @@ if (Test-Path "$msys64Root\ucrt64\bin\python.exe") {
 # --- Perl Alias ---
 if (Test-Path "$perlRoot\perl\bin\perl.exe") {
     Set-Alias -Name perl-win -Value "$perlRoot\perl\bin\perl.exe" -Force
-}
-
-# --- Perl PCRE2 function (re::engine::PCRE2 10.47) ---
-if (Test-Path "$perlRoot\perl\bin\perl.exe") {
-    function perl-pcre2 {
-        & "$perlRoot\perl\bin\perl.exe" -Mre::engine::PCRE2 @args
-    }
 }
 
 # --- NASM Alias ---
@@ -750,12 +720,6 @@ if (Test-Path "$bisonRoot\win_bison.exe") {
     Write-Host "  ⚠ Bison:   not found at $bisonRoot" -ForegroundColor Red
 }
 
-if (Test-Path "$jomRoot\jom.exe") {
-    Write-Host "  ✓ jom:        found at $jomRoot" -ForegroundColor Green
-} else {
-    Write-Host "  ⚠ jom:        not found at $jomRoot" -ForegroundColor Red
-}
-
 if (Test-Path "$opensslRoot\include\openssl\ssl.h") {
     $opensslVer = (Get-Content "$opensslRoot\include\openssl\opensslv.h" -ErrorAction SilentlyContinue |
                    Select-String 'OPENSSL_VERSION_STR') -replace '.*"(.*)".*', '$1'
@@ -799,7 +763,7 @@ Write-Host "  Python:" -ForegroundColor Cyan
 Write-Host "    python314, py314, pip314" -ForegroundColor White
 Write-Host "    python-msys, pip-msys" -ForegroundColor White
 Write-Host "  Perl:" -ForegroundColor Cyan
-Write-Host "    perl-win, perl-pcre2 (PCRE2 10.47)" -ForegroundColor White
+Write-Host "    perl-win" -ForegroundColor White
 Write-Host "  NASM:" -ForegroundColor Cyan
 Write-Host "    nasm-win" -ForegroundColor White
 Write-Host "  Bison/Flex:" -ForegroundColor Cyan
