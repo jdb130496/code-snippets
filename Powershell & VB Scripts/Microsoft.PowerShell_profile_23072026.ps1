@@ -79,7 +79,7 @@ $targetArch = "x64"
 # Auto-detect MSVC tools version (highest installed)
 $vcToolsVersion = Get-ChildItem "$msvcRoot\VC\Tools\MSVC" -Directory -ErrorAction SilentlyContinue |
                   Sort-Object Name -Descending | Select-Object -First 1 -ExpandProperty Name
-if (-not $vcToolsVersion) { $vcToolsVersion = "14.52.36615" }  # fallback
+if (-not $vcToolsVersion) { $vcToolsVersion = "14.52.36530" }  # fallback
 
 # Auto-detect Windows Kits root (11 takes priority over 10)
 $windowsKitsRoot = $null
@@ -177,39 +177,13 @@ if (Test-Path "$perlRoot\perl\bin\perl.exe") {
 }
 
 # MySQL - official Oracle connector
-
-# MySQL - official Oracle connector
 if (Test-Path "$mysqlRoot\lib\libmysql.lib") {
-    $basePaths += @("$mysqlRoot\bin", "$mysqlRoot\lib")   # lib added, since libmysql.dll lives there, not bin
+    $basePaths += "$mysqlRoot\bin"
     $env:MYSQLCLIENT_LIB_DIR  = "$mysqlRoot\lib"
-    $env:MYSQLCLIENT_LIBNAME  = "libmysql"
+    $env:MYSQLCLIENT_LIB_NAME = "libmysql"
+    $env:MYSQLCLIENT_VERSION  = "9.0.0"
     $env:MYSQLCLIENT_NO_PKG_CONFIG = "1"
     $env:MYSQL_INCLUDE_DIR    = "$mysqlRoot\include"
-
-    # Auto-detect version — primary source: mysql_version.h header
-    $mysqlVersionHeader = "$mysqlRoot\include\mysql_version.h"
-    $detectedVersion = $null
-
-    if (Test-Path $mysqlVersionHeader) {
-        $verLine = Select-String -Path $mysqlVersionHeader -Pattern 'MYSQL_SERVER_VERSION\s+"([\d.]+)"'
-        if ($verLine) {
-            $detectedVersion = $verLine.Matches[0].Groups[1].Value
-        }
-    }
-
-    # Fallback: ask mysql.exe directly if the header didn't give us a version
-    if (-not $detectedVersion -and (Test-Path "$mysqlRoot\bin\mysql.exe")) {
-        $verOutput = & "$mysqlRoot\bin\mysql.exe" --version 2>$null
-        if ($verOutput -match '(\d+\.\d+\.\d+)') {
-            $detectedVersion = $Matches[1]
-        }
-    }
-
-    if ($detectedVersion) {
-        $env:MYSQLCLIENT_VERSION = $detectedVersion
-    } else {
-        Write-Warning "Could not auto-detect MySQL version from header or mysql.exe — MYSQLCLIENT_VERSION not set"
-    }
 }
 
 # PostgreSQL
@@ -498,17 +472,10 @@ function Use-WindowsClang {
     Write-Host "`n==> Switching to Windows Clang-cl toolchain..." -ForegroundColor Cyan
     Remove-ToolchainPaths
     $clangPaths = @(
-    "$cmakeRoot\bin",
-    "$clangRoot\bin",
-    "$msvcBinPath",
-    "$windowsKitsRoot\bin\$windowsSDKVersion\$targetArch",
-    "$windowsKitsRoot\bin\$windowsSDKVersion\$targetArch\ucrt"
+        "$cmakeRoot\bin",
+        "$clangRoot\bin",
+        "$windowsKitsRoot\bin\$windowsSDKVersion\$targetArch"
     )
-    #$clangPaths = @(
-    #    "$cmakeRoot\bin",
-    #    "$clangRoot\bin",
-    #    "$windowsKitsRoot\bin\$windowsSDKVersion\$targetArch"
-    #)
     foreach ($path in $clangPaths) {
         if (Test-Path $path) { $env:PATH = "$path;$env:PATH" }
     }
@@ -668,58 +635,6 @@ function Patch-MysqlclientSrc {
     [System.IO.File]::WriteAllText($sslCmake.FullName, $content, [System.Text.Encoding]::UTF8)
     Write-Host "✓ Patched ssl.cmake: $($sslCmake.FullName)" -ForegroundColor Green
 }
-
-# =====================================================
-# Patch-MysqlclientSysVersionCheck Patch Function
-# =====================================================
-
-function Patch-MysqlclientSysVersionCheck {
-    $buildRs = Get-ChildItem "D:\Programs\cargo\registry\src" -Recurse -Filter "build.rs" |
-        Where-Object { $_.FullName -like "*mysqlclient-sys-*" } |
-        Select-Object -First 1
-
-    if (-not $buildRs) {
-        Write-Host "mysqlclient-sys build.rs not found - may not be downloaded yet" -ForegroundColor Red
-        Write-Host "Run: cargo install diesel_cli --features mysql (let it fail once first)" -ForegroundColor Yellow
-        return
-    }
-
-    $content = Get-Content $buildRs.FullName -Raw
-
-    if ($content -match 'PATCHED: clamp any MySQL 9\.x version') {
-        Write-Host "✓ Already patched build.rs: $($buildRs.FullName)" -ForegroundColor Cyan
-        return
-    }
-
-    $old = "fn parse_version(version_str: &str) {`n    for v in MysqlVersion::ALL {"
-    $new = @"
-fn parse_version(version_str: &str) {
-    // PATCHED: clamp any MySQL 9.x version newer than 9.5.x down to 9.5.0,
-    // since mysqlclient-sys only ships pregenerated bindings up to 9.5.x
-    // and the C client ABI is stable across 9.x minors.
-    let version_str = {
-        let parts: Vec<&str> = version_str.split('.').collect();
-        if parts.len() >= 2 && parts[0] == "9" {
-            match parts[1].parse::<u32>() {
-                Ok(minor) if minor > 5 => "9.5.0",
-                _ => version_str,
-            }
-        } else {
-            version_str
-        }
-    };
-    for v in MysqlVersion::ALL {
-"@
-
-    if ($content -match [regex]::Escape($old)) {
-        $content = $content.Replace($old, $new)
-        [System.IO.File]::WriteAllText($buildRs.FullName, $content, [System.Text.Encoding]::UTF8)
-        Write-Host "✓ Patched build.rs: $($buildRs.FullName)" -ForegroundColor Green
-    } else {
-        Write-Host "⚠ Could not find expected anchor text in build.rs — crate version may have changed the function signature. Manual patch needed." -ForegroundColor Red
-    }
-}
-Set-Alias -Name patch-mysqlsys -Value Patch-MysqlclientSysVersionCheck
 
 # =====================================================
 # npm Global Package Update Function
