@@ -1,4 +1,4 @@
-Excel 365 new functions examples / explorations - includes interfaces of excel to python / java / java script / c++ / c / rust / standalone python scrips, etc. - updated till 31-07-2026 (dd-mm-yyyy).
+Excel 365 new functions examples / explorations - includes interfaces of excel to python / java / java script / c++ / c / rust / standalone python scrips, etc. - updated till 01-08-2026 (dd-mm-yyyy).
 
 Excel to other languages interfaces (C / C++ / Java / Rust, etc.) are through python libraries as bridge.
 

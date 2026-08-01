@@ -9,6 +9,11 @@ function Is-GitRelated($path) {
     return $path -match '(^|\\)\.git(\\|$)'
 }
 
+function Is-ProtectedFile($path) {
+    # Never delete README.md from destination, regardless of which folder it's in
+    return (Split-Path $path -Leaf) -ieq "README.md"
+}
+
 function Get-Snapshot($root) {
     Get-ChildItem -Recurse -File $root -ErrorAction SilentlyContinue | ForEach-Object {
         [PSCustomObject]@{
@@ -29,10 +34,11 @@ $bMap = @{}; $b | ForEach-Object { $bMap[$_.RelPath] = $_ }
 
 $allPaths = ($aMap.Keys + $bMap.Keys) | Select-Object -Unique
 
-$copied  = @()
-$deleted = @()
-$skipped = @()
-$errors  = @()
+$copied    = @()
+$deleted   = @()
+$skipped   = @()
+$protected = @()
+$errors    = @()
 
 foreach ($path in $allPaths) {
 
@@ -63,7 +69,11 @@ foreach ($path in $allPaths) {
         }
     }
     elseif (-not $inA -and $inB) {
-        # Missing in source -> delete from target (backup)
+        # Missing in source -> would normally delete from target
+        if (Is-ProtectedFile $path) {
+            $protected += $path
+            continue
+        }
         if ($DryRun) {
             Write-Host "[DRY-RUN] Would DELETE: $path"
         } else {
@@ -76,7 +86,7 @@ foreach ($path in $allPaths) {
         }
     }
     elseif ($aMap[$path].Length -ne $bMap[$path].Length -or $aMap[$path].Modified -ne $bMap[$path].Modified) {
-        # Changed -> copy to target
+        # Changed -> copy to target (this applies even to README.md - updates are fine, only deletion is blocked)
         if ($DryRun) {
             Write-Host "[DRY-RUN] Would COPY (changed): $path"
         } else {
@@ -97,10 +107,11 @@ foreach ($path in $allPaths) {
 $summary = @()
 $summary += "===== SYNC SUMMARY ====="
 $summary += "Mode: $(if ($DryRun) { 'DRY RUN (no changes made)' } else { 'LIVE' })"
-$summary += "Copied/Updated: $($copied.Count)"
-$summary += "Deleted:        $($deleted.Count)"
-$summary += "Skipped (.git): $($skipped.Count)"
-$summary += "Errors:         $($errors.Count)"
+$summary += "Copied/Updated:  $($copied.Count)"
+$summary += "Deleted:         $($deleted.Count)"
+$summary += "Skipped (.git):  $($skipped.Count)"
+$summary += "Protected (kept):$($protected.Count)"
+$summary += "Errors:          $($errors.Count)"
 $summary += ""
 $summary += "--- Copied/Updated files ---"
 $summary += $copied
@@ -111,6 +122,9 @@ $summary += ""
 $summary += "--- Skipped .git-related paths ---"
 $summary += $skipped
 $summary += ""
+$summary += "--- Protected files (missing in source, NOT deleted) ---"
+$summary += $protected
+$summary += ""
 $summary += "--- Errors ---"
 $summary += $errors
 
@@ -118,8 +132,9 @@ $summary | Out-File -FilePath $LogFile -Encoding UTF8
 
 Write-Host ""
 Write-Host "===== DONE ====="
-Write-Host "Copied/Updated: $($copied.Count)"
-Write-Host "Deleted:        $($deleted.Count)"
-Write-Host "Skipped (.git): $($skipped.Count)"
-Write-Host "Errors:         $($errors.Count)"
+Write-Host "Copied/Updated:   $($copied.Count)"
+Write-Host "Deleted:          $($deleted.Count)"
+Write-Host "Skipped (.git):   $($skipped.Count)"
+Write-Host "Protected (kept): $($protected.Count)"
+Write-Host "Errors:           $($errors.Count)"
 Write-Host "Full log written to: $LogFile"

@@ -685,45 +685,38 @@ function Patch-MysqlclientSysVersionCheck {
     }
 
     $content = Get-Content $buildRs.FullName -Raw
-    $changed = $false
 
-    # --- Patch A: explicit 9.x fallback (9.6, 9.7, 9.8, ...) -> 9.5.x bindings ---
-    if ($content -notmatch 'PATCHED: any MySQL 9\.x newer than 9\.5') {
-        $oldA = "        } else if version.starts_with(`"9.5`") {`n            Some(Self::Mysql95)`n        } else if version.starts_with(`"3.1`")"
-        $newA = "        } else if version.starts_with(`"9.5`") {`n            Some(Self::Mysql95)`n        } else if version.starts_with(`"9.`") {`n            // PATCHED: any MySQL 9.x newer than 9.5 (9.6, 9.7, 9.8, ...) falls back`n            // to the 9.5.x bindings. The libmysqlclient C ABI is stable across 9.x`n            // minors, so this holds until mysqlclient-sys ships real bindings for them.`n            Some(Self::Mysql95)`n        } else if version.starts_with(`"3.1`")"
-
-        if ($content -match [regex]::Escape($oldA)) {
-            $content = $content.Replace($oldA, $newA)
-            Write-Host "✓ Applied patch A (explicit 9.x fallback)" -ForegroundColor Green
-            $changed = $true
-        } else {
-            Write-Host "⚠ Anchor for patch A not found — skipping (may already differ)" -ForegroundColor Yellow
-        }
-    } else {
-        Write-Host "✓ Patch A already applied" -ForegroundColor Cyan
+    if ($content -match 'PATCHED: clamp any MySQL 9\.x version') {
+        Write-Host "✓ Already patched build.rs: $($buildRs.FullName)" -ForegroundColor Cyan
+        return
     }
 
-    # --- Patch B: universal fallback for anything unrecognized (26.x, future schemes, ...) ---
-    if ($content -notmatch 'PATCHED: unrecognized version') {
-        $oldB = "        } else if version.starts_with(`"3.4`") || version.starts_with(`"11`") {`n            Some(Self::MariaDb34)`n        } else {`n            None`n        }`n    }"
-        $newB = "        } else if version.starts_with(`"3.4`") || version.starts_with(`"11`") {`n            Some(Self::MariaDb34)`n        } else {`n            // PATCHED: unrecognized version (e.g. a new MySQL numbering scheme like`n            // 26.x, or a future MariaDB release) - fall back to the newest known`n            // MySQL bindings rather than panicking.`n            Some(Self::Mysql95)`n        }`n    }"
-
-        if ($content -match [regex]::Escape($oldB)) {
-            $content = $content.Replace($oldB, $newB)
-            Write-Host "✓ Applied patch B (universal fallback)" -ForegroundColor Green
-            $changed = $true
+    $old = "fn parse_version(version_str: &str) {`n    for v in MysqlVersion::ALL {"
+    $new = @"
+fn parse_version(version_str: &str) {
+    // PATCHED: clamp any MySQL 9.x version newer than 9.5.x down to 9.5.0,
+    // since mysqlclient-sys only ships pregenerated bindings up to 9.5.x
+    // and the C client ABI is stable across 9.x minors.
+    let version_str = {
+        let parts: Vec<&str> = version_str.split('.').collect();
+        if parts.len() >= 2 && parts[0] == "9" {
+            match parts[1].parse::<u32>() {
+                Ok(minor) if minor > 5 => "9.5.0",
+                _ => version_str,
+            }
         } else {
-            Write-Host "⚠ Anchor for patch B not found — skipping (may already differ)" -ForegroundColor Yellow
+            version_str
         }
-    } else {
-        Write-Host "✓ Patch B already applied" -ForegroundColor Cyan
-    }
+    };
+    for v in MysqlVersion::ALL {
+"@
 
-    if ($changed) {
+    if ($content -match [regex]::Escape($old)) {
+        $content = $content.Replace($old, $new)
         [System.IO.File]::WriteAllText($buildRs.FullName, $content, [System.Text.Encoding]::UTF8)
-        Write-Host "`n✓ build.rs updated: $($buildRs.FullName)" -ForegroundColor Green
+        Write-Host "✓ Patched build.rs: $($buildRs.FullName)" -ForegroundColor Green
     } else {
-        Write-Host "`nNo changes made — already patched or anchors not found." -ForegroundColor Gray
+        Write-Host "⚠ Could not find expected anchor text in build.rs — crate version may have changed the function signature. Manual patch needed." -ForegroundColor Red
     }
 }
 Set-Alias -Name patch-mysqlsys -Value Patch-MysqlclientSysVersionCheck
