@@ -1,4 +1,4 @@
-﻿# Added: $jomRoot   = "D:\Programs\jom"
+# Added: $jomRoot   = "D:\Programs\jom"
 # Added: if (Test-Path "$jomRoot\jom.exe") {
 # Added:     $basePaths += $jomRoot
 # Added: }
@@ -43,35 +43,10 @@ $sqliteRoot = "D:\Programs\sqlite"
 $bisonRoot = "D:\Programs\winflexbison"
 $jomRoot   = "D:\Programs\jom"
 
-# Auto-detect Python 3.14
-$pythonRoot = $null
-$possiblePaths = @(
-    "D:\Programs\Python314",
-    "D:\Programs\Python\Python314",
-    "C:\Program Files\Python314",
-    "$env:LOCALAPPDATA\Programs\Python\Python314"
-)
-
-foreach ($path in $possiblePaths) {
-    if (Test-Path "$path\python.exe") {
-        $version = & "$path\python.exe" --version 2>&1
-        if ($version -match "3\.14") {
-            $pythonRoot = $path
-            break
-        }
-    }
-}
-
-if (-not $pythonRoot) {
-    try {
-        $pyPath = & py -3.14 -c "import sys; print(sys.executable)" 2>$null
-        if ($pyPath -and (Test-Path $pyPath)) {
-            $pythonRoot = Split-Path -Parent $pyPath
-        }
-    } catch {
-        Write-Warning "Python 3.14 not found."
-    }
-}
+# =====================================================
+# Python - Direct path
+# =====================================================
+$pythonRoot = "D:\Programs\Python"
 
 $hostArch   = "x64"
 $targetArch = "x64"
@@ -191,7 +166,7 @@ if (Test-Path "$mysqlRoot\lib\libmysql.lib") {
     $detectedVersion = $null
 
     if (Test-Path $mysqlVersionHeader) {
-        $verLine = Select-String -Path $mysqlVersionHeader -Pattern 'MYSQL_SERVER_VERSION\s+"([\d.]+)"'
+        $verLine = Select-String -Path $mysqlVersionHeader -Pattern 'MYSQL_SERVER_VERSION\s+"([\d.][\d.\-\w]*)"'
         if ($verLine) {
             $detectedVersion = $verLine.Matches[0].Groups[1].Value
         }
@@ -300,14 +275,16 @@ if (Test-Path "$msys64Root\ucrt64\bin\make.exe") {
 }
 
 # --- Python Aliases ---
-if ($pythonRoot -and (Test-Path "$pythonRoot\python.exe")) {
-    Set-Alias -Name python314 -Value "$pythonRoot\python.exe"        -Force
-    Set-Alias -Name py314     -Value "$pythonRoot\python.exe"        -Force
-    Set-Alias -Name pip314    -Value "$pythonRoot\Scripts\pip.exe"   -Force
-}
-if (Test-Path "$msys64Root\ucrt64\bin\python.exe") {
-    Set-Alias -Name python-msys -Value "$msys64Root\ucrt64\bin\python.exe" -Force
-    Set-Alias -Name pip-msys    -Value "$msys64Root\ucrt64\bin\pip.exe"    -Force
+# --- Python Aliases ---
+if (Test-Path "$pythonRoot\python.exe") {
+    Set-Alias -Name python    -Value "$pythonRoot\python.exe"      -Force
+    Set-Alias -Name python3   -Value "$pythonRoot\python.exe"      -Force
+    Set-Alias -Name python314 -Value "$pythonRoot\python.exe"      -Force
+    Set-Alias -Name py        -Value "$pythonRoot\python.exe"      -Force
+    Set-Alias -Name py314     -Value "$pythonRoot\python.exe"      -Force
+    Set-Alias -Name pip       -Value "$pythonRoot\Scripts\pip.exe" -Force
+    Set-Alias -Name pip3      -Value "$pythonRoot\Scripts\pip.exe" -Force
+    Set-Alias -Name pip314    -Value "$pythonRoot\Scripts\pip.exe" -Force
 }
 
 # --- Perl Alias ---
@@ -906,3 +883,4 @@ Write-Host "  clang-msys++ -o test test.cpp" -ForegroundColor White
 
 Write-Host "`n=====================================================" -ForegroundColor Cyan
 Write-Host ""
+
