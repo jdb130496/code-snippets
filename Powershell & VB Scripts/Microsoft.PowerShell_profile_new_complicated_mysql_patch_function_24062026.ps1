@@ -1,21 +1,3 @@
-# Added: $jomRoot   = "D:\Programs\jom"
-# Added: if (Test-Path "$jomRoot\jom.exe") {
-# Added:     $basePaths += $jomRoot
-# Added: }
-# Changed: OpenSSL lib directory to: $env:OPENSSL_LIB_DIR     = "$opensslRoot\lib"
-# Added: --- Perl PCRE2 function (re::engine::PCRE2 10.47) ---
-# Added:if (Test-Path "$perlRoot\perl\bin\perl.exe") {
-# Added:    function perl-pcre2 {
-# Added:        & "$perlRoot\perl\bin\perl.exe" -Mre::engine::PCRE2 @args
-# Added:    }
-# Added: }
-# Added: if (Test-Path "$jomRoot\jom.exe") {
-# Added:     Write-Host "  ✓ jom:        found at $jomRoot" -ForegroundColor Green
-# Added: } else {
-# Added:     Write-Host "  ⚠ jom:        not found at $jomRoot" -ForegroundColor Red
-# Added: }
-# Changed: Write-Host "    perl-win, perl-pcre2 (PCRE2 10.47)" -ForegroundColor White from Write-Host "    perl-win" -ForegroundColor White
-#
 # =====================================================
 # PowerShell Profile - All 4 Toolchains with Explicit Aliases
 # =====================================================
@@ -41,12 +23,36 @@ $mysqlRoot   = "D:\Programs\mysql"
 $postgresRoot = "D:\Programs\postgre"
 $sqliteRoot = "D:\Programs\sqlite"
 $bisonRoot = "D:\Programs\winflexbison"
-$jomRoot   = "D:\Programs\jom"
 
-# =====================================================
-# Python - Direct path
-# =====================================================
-$pythonRoot = "D:\Programs\Python"
+# Auto-detect Python 3.14
+$pythonRoot = $null
+$possiblePaths = @(
+    "D:\Programs\Python314",
+    "D:\Programs\Python\Python314",
+    "C:\Program Files\Python314",
+    "$env:LOCALAPPDATA\Programs\Python\Python314"
+)
+
+foreach ($path in $possiblePaths) {
+    if (Test-Path "$path\python.exe") {
+        $version = & "$path\python.exe" --version 2>&1
+        if ($version -match "3\.14") {
+            $pythonRoot = $path
+            break
+        }
+    }
+}
+
+if (-not $pythonRoot) {
+    try {
+        $pyPath = & py -3.14 -c "import sys; print(sys.executable)" 2>$null
+        if ($pyPath -and (Test-Path $pyPath)) {
+            $pythonRoot = Split-Path -Parent $pyPath
+        }
+    } catch {
+        Write-Warning "Python 3.14 not found."
+    }
+}
 
 $hostArch   = "x64"
 $targetArch = "x64"
@@ -54,7 +60,7 @@ $targetArch = "x64"
 # Auto-detect MSVC tools version (highest installed)
 $vcToolsVersion = Get-ChildItem "$msvcRoot\VC\Tools\MSVC" -Directory -ErrorAction SilentlyContinue |
                   Sort-Object Name -Descending | Select-Object -First 1 -ExpandProperty Name
-if (-not $vcToolsVersion) { $vcToolsVersion = "14.52.36615" }  # fallback
+if (-not $vcToolsVersion) { $vcToolsVersion = "14.52.36510" }  # fallback
 
 # Auto-detect Windows Kits root (11 takes priority over 10)
 $windowsKitsRoot = $null
@@ -109,10 +115,6 @@ if (Test-Path "$bisonRoot\win_bison.exe") {
     $basePaths += $bisonRoot
 }
 
-if (Test-Path "$jomRoot\jom.exe") {
-    $basePaths += $jomRoot
-}
-
 # Make nmake always available for cargo build scripts (e.g. openssl-src)
 if (Test-Path "$msvcBinPath\nmake.exe") {
     $env:NMAKE = "$msvcBinPath\nmake.exe"
@@ -138,7 +140,7 @@ if (Test-Path "$opensslRoot\include\openssl\ssl.h") {
     $env:OPENSSL_DIR         = $opensslRoot
     $env:OPENSSL_NO_VENDOR   = "1"
     $env:OPENSSL_INCLUDE_DIR = "$opensslRoot\include"
-    $env:OPENSSL_LIB_DIR     = "$opensslRoot\lib"
+    $env:OPENSSL_LIB_DIR     = "$opensslRoot\lib\VC\x64\MD"
     $env:WITH_SSL            = $opensslRoot
     $env:CMAKE_PREFIX_PATH   = $opensslRoot
     $basePaths += "$opensslRoot\bin"    # <-- this line is missing
@@ -152,39 +154,13 @@ if (Test-Path "$perlRoot\perl\bin\perl.exe") {
 }
 
 # MySQL - official Oracle connector
-
-# MySQL - official Oracle connector
 if (Test-Path "$mysqlRoot\lib\libmysql.lib") {
-    $basePaths += @("$mysqlRoot\bin", "$mysqlRoot\lib")   # lib added, since libmysql.dll lives there, not bin
+    $basePaths += "$mysqlRoot\bin"
     $env:MYSQLCLIENT_LIB_DIR  = "$mysqlRoot\lib"
-    $env:MYSQLCLIENT_LIBNAME  = "libmysql"
+    $env:MYSQLCLIENT_LIB_NAME = "libmysql"
+    $env:MYSQLCLIENT_VERSION  = "9.0.0"
     $env:MYSQLCLIENT_NO_PKG_CONFIG = "1"
     $env:MYSQL_INCLUDE_DIR    = "$mysqlRoot\include"
-
-    # Auto-detect version — primary source: mysql_version.h header
-    $mysqlVersionHeader = "$mysqlRoot\include\mysql_version.h"
-    $detectedVersion = $null
-
-    if (Test-Path $mysqlVersionHeader) {
-        $verLine = Select-String -Path $mysqlVersionHeader -Pattern 'MYSQL_SERVER_VERSION\s+"([\d.][\d.\-\w]*)"'
-        if ($verLine) {
-            $detectedVersion = $verLine.Matches[0].Groups[1].Value
-        }
-    }
-
-    # Fallback: ask mysql.exe directly if the header didn't give us a version
-    if (-not $detectedVersion -and (Test-Path "$mysqlRoot\bin\mysql.exe")) {
-        $verOutput = & "$mysqlRoot\bin\mysql.exe" --version 2>$null
-        if ($verOutput -match '(\d+\.\d+\.\d+)') {
-            $detectedVersion = $Matches[1]
-        }
-    }
-
-    if ($detectedVersion) {
-        $env:MYSQLCLIENT_VERSION = $detectedVersion
-    } else {
-        Write-Warning "Could not auto-detect MySQL version from header or mysql.exe — MYSQLCLIENT_VERSION not set"
-    }
 }
 
 # PostgreSQL
@@ -275,28 +251,19 @@ if (Test-Path "$msys64Root\ucrt64\bin\make.exe") {
 }
 
 # --- Python Aliases ---
-# --- Python Aliases ---
-if (Test-Path "$pythonRoot\python.exe") {
-    Set-Alias -Name python    -Value "$pythonRoot\python.exe"      -Force
-    Set-Alias -Name python3   -Value "$pythonRoot\python.exe"      -Force
-    Set-Alias -Name python314 -Value "$pythonRoot\python.exe"      -Force
-    Set-Alias -Name py        -Value "$pythonRoot\python.exe"      -Force
-    Set-Alias -Name py314     -Value "$pythonRoot\python.exe"      -Force
-    Set-Alias -Name pip       -Value "$pythonRoot\Scripts\pip.exe" -Force
-    Set-Alias -Name pip3      -Value "$pythonRoot\Scripts\pip.exe" -Force
-    Set-Alias -Name pip314    -Value "$pythonRoot\Scripts\pip.exe" -Force
+if ($pythonRoot -and (Test-Path "$pythonRoot\python.exe")) {
+    Set-Alias -Name python314 -Value "$pythonRoot\python.exe"        -Force
+    Set-Alias -Name py314     -Value "$pythonRoot\python.exe"        -Force
+    Set-Alias -Name pip314    -Value "$pythonRoot\Scripts\pip.exe"   -Force
+}
+if (Test-Path "$msys64Root\ucrt64\bin\python.exe") {
+    Set-Alias -Name python-msys -Value "$msys64Root\ucrt64\bin\python.exe" -Force
+    Set-Alias -Name pip-msys    -Value "$msys64Root\ucrt64\bin\pip.exe"    -Force
 }
 
 # --- Perl Alias ---
 if (Test-Path "$perlRoot\perl\bin\perl.exe") {
     Set-Alias -Name perl-win -Value "$perlRoot\perl\bin\perl.exe" -Force
-}
-
-# --- Perl PCRE2 function (re::engine::PCRE2 10.47) ---
-if (Test-Path "$perlRoot\perl\bin\perl.exe") {
-    function perl-pcre2 {
-        & "$perlRoot\perl\bin\perl.exe" -Mre::engine::PCRE2 @args
-    }
 }
 
 # --- NASM Alias ---
@@ -475,17 +442,10 @@ function Use-WindowsClang {
     Write-Host "`n==> Switching to Windows Clang-cl toolchain..." -ForegroundColor Cyan
     Remove-ToolchainPaths
     $clangPaths = @(
-    "$cmakeRoot\bin",
-    "$clangRoot\bin",
-    "$msvcBinPath",
-    "$windowsKitsRoot\bin\$windowsSDKVersion\$targetArch",
-    "$windowsKitsRoot\bin\$windowsSDKVersion\$targetArch\ucrt"
+        "$cmakeRoot\bin",
+        "$clangRoot\bin",
+        "$windowsKitsRoot\bin\$windowsSDKVersion\$targetArch"
     )
-    #$clangPaths = @(
-    #    "$cmakeRoot\bin",
-    #    "$clangRoot\bin",
-    #    "$windowsKitsRoot\bin\$windowsSDKVersion\$targetArch"
-    #)
     foreach ($path in $clangPaths) {
         if (Test-Path $path) { $env:PATH = "$path;$env:PATH" }
     }
@@ -517,8 +477,6 @@ function Use-WindowsClang {
     $env:CMAKE_C_COMPILER    = "$clangRoot\bin\clang-cl.exe"
     $env:CMAKE_CXX_COMPILER  = "$clangRoot\bin\clang-cl.exe"
     $env:CMAKE_LINKER        = "$clangRoot\bin\lld-link.exe"
-    $env:DISTUTILS_USE_SDK = "1"
-    $env:MSSdk             = "1"
     Remove-Item Env:\LINKER          -ErrorAction SilentlyContinue
     Remove-Item Env:\LINK            -ErrorAction SilentlyContinue
     Remove-Item Env:\VCToolsInstallDir -ErrorAction SilentlyContinue
@@ -577,135 +535,149 @@ function Update-Cargo {
 # =====================================================
 
 function Patch-MysqlclientSrc {
-    # ── Patch 1: build.rs (Release folder path fix) ──────────────────
-    $buildRs = Get-ChildItem "D:\Programs\cargo\registry\src" -Recurse -Filter "build.rs" |
-        Where-Object { $_.FullName -like "*mysqlclient-src*" } |
+    $registryBase = "D:\Programs\cargo\registry\src"
+    $opensslPath  = "D:/Programs/OpenSSL"
+    $marker       = "PATCH5-OPENSSL4-PATH-FORCED"
+
+    $srcDir = Get-ChildItem $registryBase -Depth 1 -Directory |
+        Where-Object { $_.Name -like "mysqlclient-src-*" } |
+        Select-Object -First 1
+
+    if (-not $srcDir) {
+        Write-Host "✗ mysqlclient-src not found in registry." -ForegroundColor Red
+        Write-Host "  Run: cargo install diesel_cli --force --all-features (let it fail once)" -ForegroundColor Yellow
+        return
+    }
+    Write-Host "  Found: $($srcDir.FullName)" -ForegroundColor Gray
+
+    # ════════════════════════════════════════════════════════════════════
+    # Patch 1 — build.rs: stop looking in Release\ subfolder for .lib
+    # ════════════════════════════════════════════════════════════════════
+    $buildRs = Get-ChildItem $srcDir.FullName -Recurse -Filter "build.rs" |
         Select-Object -First 1
 
     if (-not $buildRs) {
-        Write-Host "mysqlclient-src build.rs not found - may not be downloaded yet" -ForegroundColor Red
-        Write-Host "Run: cargo install diesel_cli --all-features (let it fail once first)" -ForegroundColor Yellow
+        Write-Host "  ⚠ Patch 1: build.rs not found" -ForegroundColor Yellow
     } else {
+        attrib -r $buildRs.FullName 2>$null
         $content = Get-Content $buildRs.FullName -Raw
-        if ($content -match 'dst\.push\("Release"\);') {
-            $old = "    // on windows the library is in a different folder`n    if std::env::var(""CARGO_CFG_TARGET_ENV"").as_deref() == Ok(""msvc"") {`n        dst.push(""Release"");`n    }"
-            $new = "    // on windows the library is in a different folder`n    // NOTE: patched - mysqlclient.lib lands directly in archive_output_directory`n    // if std::env::var(""CARGO_CFG_TARGET_ENV"").as_deref() == Ok(""msvc"") {`n    //     dst.push(""Release"");`n    // }"
-            $content = $content.Replace($old, $new)
+        if ($content -match [regex]::Escape('dst.push("Release");')) {
+            $old1 = "    // on windows the library is in a different folder`n    if std::env::var(""CARGO_CFG_TARGET_ENV"").as_deref() == Ok(""msvc"") {`n        dst.push(""Release"");`n    }"
+            $new1 = "    // on windows the library is in a different folder`n    // PATCH1: mysqlclient.lib lands directly in archive_output_directory`n    // if std::env::var(""CARGO_CFG_TARGET_ENV"").as_deref() == Ok(""msvc"") {`n    //     dst.push(""Release"");`n    // }"
+            $content = $content.Replace($old1, $new1)
             [System.IO.File]::WriteAllText($buildRs.FullName, $content, [System.Text.Encoding]::UTF8)
-            Write-Host "✓ Patched build.rs: $($buildRs.FullName)" -ForegroundColor Green
+            Write-Host "  ✓ Patch 1: build.rs Release\ path removed" -ForegroundColor Green
         } else {
-            Write-Host "✓ Already patched build.rs: $($buildRs.FullName)" -ForegroundColor Cyan
+            Write-Host "  ✓ Patch 1: Already applied (build.rs)" -ForegroundColor Cyan
         }
     }
 
-    # ── Patch 2: ssl.cmake (OpenSSL 4.x support) ─────────────────────
-    $sslCmake = Get-ChildItem "D:\Programs\cargo\registry\src" -Recurse -Filter "ssl.cmake" |
-        Where-Object { $_.FullName -like "*mysqlclient-src*" } |
+    # ════════════════════════════════════════════════════════════════════
+    # Patches 2-5 — ssl.cmake  (LF-only file, spaces not tabs)
+    # ════════════════════════════════════════════════════════════════════
+    $sslCmake = Get-ChildItem $srcDir.FullName -Recurse -Filter "ssl.cmake" |
         Select-Object -First 1
 
     if (-not $sslCmake) {
-        Write-Host "ssl.cmake not found - may not be downloaded yet" -ForegroundColor Red
-        Write-Host "Run: cargo install diesel_cli --all-features (let it fail once first)" -ForegroundColor Yellow
+        Write-Host "  ⚠ ssl.cmake not found" -ForegroundColor Yellow
         return
     }
 
-    attrib -r $sslCmake.FullName
-    $content = Get-Content $sslCmake.FullName -Raw
-
-    if ($content -match 'VERSION_EQUAL 4') {
-        Write-Host "✓ Already patched ssl.cmake: $($sslCmake.FullName)" -ForegroundColor Cyan
-        return
-    }
-
-    # Patch 2a: Version detection in FIND_OPENSSL_VERSION macro
-    $old2a = 'IF(OPENSSL_VERSION_MAJOR VERSION_EQUAL 3)'
-    $new2a = 'IF(OPENSSL_VERSION_MAJOR VERSION_EQUAL 3 OR OPENSSL_VERSION_MAJOR VERSION_EQUAL 4)'
-    $content = $content.Replace($old2a, $new2a)
-
-    # Patch 2b: DLL naming in MYSQL_CHECK_SSL_DLLS macro
-    $old2b = '      IF(OPENSSL_VERSION_MAJOR VERSION_EQUAL 3)
-        SET(SSL_MSVC_VERSION_SUFFIX "-3")
-        SET(SSL_MSVC_ARCH_SUFFIX "-x64")
-      ENDIF()'
-    $new2b = '      IF(OPENSSL_VERSION_MAJOR VERSION_EQUAL 3)
-        SET(SSL_MSVC_VERSION_SUFFIX "-3")
-        SET(SSL_MSVC_ARCH_SUFFIX "-x64")
-      ENDIF()
-      IF(OPENSSL_VERSION_MAJOR VERSION_EQUAL 4)
-        SET(SSL_MSVC_VERSION_SUFFIX "-4")
-        SET(SSL_MSVC_ARCH_SUFFIX "-x64")
-      ENDIF()'
-    $content = $content.Replace($old2b, $new2b)
-
-    # Patch 2c: Fix OPENSSL_FIX_VERSION extraction for OpenSSL 3.x/4.x+
-    # (OPENSSL_VERSION_PATCH macro no longer exists; parse from OPENSSL_VERSION_STR instead)
-    $oldFix = 'SET(OPENSSL_FIX_VERSION "${OPENSSL_VERSION_PATCH}")'
-    $newFix = 'FILE(STRINGS "${OPENSSL_INCLUDE_DIR}/openssl/opensslv.h" OPENSSL_VERSION_STR_LINE REGEX "^#[\t ]*define[\t ]+OPENSSL_VERSION_STR[\t ]+\"[0-9]+\.[0-9]+\.[0-9]+\"")
-    STRING(REGEX REPLACE "^.*OPENSSL_VERSION_STR[\t ]+\"[0-9]+\.[0-9]+\.([0-9]+)\".*$" "\\1" OPENSSL_FIX_VERSION "${OPENSSL_VERSION_STR_LINE}")'
-    $content = $content.Replace($oldFix, $newFix)
-
-    [System.IO.File]::WriteAllText($sslCmake.FullName, $content, [System.Text.Encoding]::UTF8)
-    Write-Host "✓ Patched ssl.cmake: $($sslCmake.FullName)" -ForegroundColor Green
-}
-
-# =====================================================
-# Patch-MysqlclientSysVersionCheck Patch Function
-# =====================================================
-
-function Patch-MysqlclientSysVersionCheck {
-    $buildRs = Get-ChildItem "D:\Programs\cargo\registry\src" -Recurse -Filter "build.rs" |
-        Where-Object { $_.FullName -like "*mysqlclient-sys-*" } |
-        Select-Object -First 1
-
-    if (-not $buildRs) {
-        Write-Host "mysqlclient-sys build.rs not found - may not be downloaded yet" -ForegroundColor Red
-        Write-Host "Run: cargo install diesel_cli --features mysql (let it fail once first)" -ForegroundColor Yellow
-        return
-    }
-
-    $content = Get-Content $buildRs.FullName -Raw
+    attrib -r $sslCmake.FullName 2>$null
+    # Read as bytes and decode as UTF8 to preserve LF-only line endings
+    $bytes   = [System.IO.File]::ReadAllBytes($sslCmake.FullName)
+    $content = [System.Text.Encoding]::UTF8.GetString($bytes)
     $changed = $false
+    $LF      = "`n"   # single LF — matches the file's actual line endings
 
-    # --- Patch A: explicit 9.x fallback (9.6, 9.7, 9.8, ...) -> 9.5.x bindings ---
-    if ($content -notmatch 'PATCHED: any MySQL 9\.x newer than 9\.5') {
-        $oldA = "        } else if version.starts_with(`"9.5`") {`n            Some(Self::Mysql95)`n        } else if version.starts_with(`"3.1`")"
-        $newA = "        } else if version.starts_with(`"9.5`") {`n            Some(Self::Mysql95)`n        } else if version.starts_with(`"9.`") {`n            // PATCHED: any MySQL 9.x newer than 9.5 (9.6, 9.7, 9.8, ...) falls back`n            // to the 9.5.x bindings. The libmysqlclient C ABI is stable across 9.x`n            // minors, so this holds until mysqlclient-sys ships real bindings for them.`n            Some(Self::Mysql95)`n        } else if version.starts_with(`"3.1`")"
-
-        if ($content -match [regex]::Escape($oldA)) {
-            $content = $content.Replace($oldA, $newA)
-            Write-Host "✓ Applied patch A (explicit 9.x fallback)" -ForegroundColor Green
-            $changed = $true
-        } else {
-            Write-Host "⚠ Anchor for patch A not found — skipping (may already differ)" -ForegroundColor Yellow
-        }
+    # ── Patch 2: version gate accepts OpenSSL major=4 ────────────────────
+    $old2 = "IF(OPENSSL_VERSION_MAJOR VERSION_EQUAL 3)"
+    $new2 = "IF(OPENSSL_VERSION_MAJOR VERSION_EQUAL 3 OR OPENSSL_VERSION_MAJOR VERSION_EQUAL 4)"
+    if ($content -match [regex]::Escape($old2)) {
+        $content = $content.Replace($old2, $new2)
+        $changed = $true
+        Write-Host "  ✓ Patch 2: Version gate extended to OpenSSL major=4" -ForegroundColor Green
     } else {
-        Write-Host "✓ Patch A already applied" -ForegroundColor Cyan
+        Write-Host "  ✓ Patch 2: Already applied" -ForegroundColor Cyan
     }
 
-    # --- Patch B: universal fallback for anything unrecognized (26.x, future schemes, ...) ---
-    if ($content -notmatch 'PATCHED: unrecognized version') {
-        $oldB = "        } else if version.starts_with(`"3.4`") || version.starts_with(`"11`") {`n            Some(Self::MariaDb34)`n        } else {`n            None`n        }`n    }"
-        $newB = "        } else if version.starts_with(`"3.4`") || version.starts_with(`"11`") {`n            Some(Self::MariaDb34)`n        } else {`n            // PATCHED: unrecognized version (e.g. a new MySQL numbering scheme like`n            // 26.x, or a future MariaDB release) - fall back to the newest known`n            // MySQL bindings rather than panicking.`n            Some(Self::Mysql95)`n        }`n    }"
+    # ── Patch 3: FIND_OPENSSL_VERSION — fix for OpenSSL 4.x header ───────
+    # File uses LF only. Indentation: 2 spaces outer, 4 spaces inner, 6 deep.
+    $old3 = "MACRO(FIND_OPENSSL_VERSION)${LF}  FOREACH(version_part${LF}      OPENSSL_VERSION_MAJOR${LF}      OPENSSL_VERSION_MINOR${LF}      OPENSSL_VERSION_PATCH${LF}      )${LF}    FILE(STRINGS `"`${OPENSSL_INCLUDE_DIR}/openssl/opensslv.h`" `${version_part}${LF}      REGEX `"^#[\t ]*define[\t ]+`${version_part}[\t ]+([0-9]+).*`")${LF}    STRING(REGEX REPLACE${LF}      `"^.*`${version_part}[\t ]+([0-9]+).*`" `"\\1`"${LF}      `${version_part} `"`${`${version_part}}`")${LF}  ENDFOREACH()"
+    $new3 = "MACRO(FIND_OPENSSL_VERSION)${LF}  # PATCH3: handle OpenSSL 4.x '# define NAME  VALUE' format${LF}  FOREACH(version_part${LF}      OPENSSL_VERSION_MAJOR${LF}      OPENSSL_VERSION_MINOR${LF}      OPENSSL_VERSION_PATCH${LF}      )${LF}    FILE(STRINGS `"`${OPENSSL_INCLUDE_DIR}/openssl/opensslv.h`" _version_line${LF}      REGEX `"^#[ \t]*define[ \t]+`${version_part}[ \t]+[0-9]+`")${LF}    IF(_version_line)${LF}      STRING(REGEX REPLACE${LF}        `"^.*define[ \t]+`${version_part}[ \t]+([0-9]+).*$`" `"\\1`"${LF}        `${version_part} `"`${_version_line}`")${LF}    ELSE()${LF}      SET(`${version_part} `"0`")${LF}    ENDIF()${LF}  ENDFOREACH()"
 
-        if ($content -match [regex]::Escape($oldB)) {
-            $content = $content.Replace($oldB, $newB)
-            Write-Host "✓ Applied patch B (universal fallback)" -ForegroundColor Green
-            $changed = $true
-        } else {
-            Write-Host "⚠ Anchor for patch B not found — skipping (may already differ)" -ForegroundColor Yellow
-        }
+    if ($content -match 'PATCH3') {
+        Write-Host "  ✓ Patch 3: Already applied (FIND_OPENSSL_VERSION)" -ForegroundColor Cyan
+    } elseif ($content.Contains($old3)) {
+        $content = $content.Replace($old3, $new3)
+        $changed = $true
+        Write-Host "  ✓ Patch 3: FIND_OPENSSL_VERSION fixed for OpenSSL 4.x" -ForegroundColor Green
     } else {
-        Write-Host "✓ Patch B already applied" -ForegroundColor Cyan
+        Write-Host "  ⚠ Patch 3: block not matched — trying alternate approach" -ForegroundColor Yellow
+        # Alternate: use regex replace on the FOREACH block directly
+        $pattern3 = '(?s)(MACRO\(FIND_OPENSSL_VERSION\)\n  FOREACH\(version_part.*?ENDFOREACH\(\))'
+        if ($content -match $pattern3) {
+            $old3block = $Matches[1]
+            $new3block = $old3block `
+                -replace 'FILE\(STRINGS "\$\{OPENSSL_INCLUDE_DIR\}/openssl/opensslv\.h" \$\{version_part\}\n      REGEX "\^#\[\\t \]\*define\[\\t \]\+\$\{version_part\}\[\\t \]\+\(\[0-9\]\+\)\.\*"\)', `
+                         "FILE(STRINGS `"`${OPENSSL_INCLUDE_DIR}/openssl/opensslv.h`" _version_line${LF}      REGEX `"^#[ \t]*define[ \t]+`${version_part}[ \t]+[0-9]+`")" `
+                -replace 'STRING\(REGEX REPLACE\n      "\^\.\*\$\{version_part\}\[\\t \]\+\(\[0-9\]\+\)\.\*" "\\\\1"\n      \$\{version_part\} "\$\{\$\{version_part\}\}"\)', `
+                         "IF(_version_line)${LF}      STRING(REGEX REPLACE${LF}        `"^.*define[ \t]+`${version_part}[ \t]+([0-9]+).*$`" `"\\1`"${LF}        `${version_part} `"`${_version_line}`")${LF}    ELSE()${LF}      SET(`${version_part} `"0`")${LF}    ENDIF()"
+            if ($old3block -ne $new3block) {
+                $content = $content.Replace($old3block, $new3block)
+                $changed = $true
+                Write-Host "  ✓ Patch 3: Applied via regex alternate" -ForegroundColor Green
+            } else {
+                Write-Host "  ✗ Patch 3: Could not apply — manual edit required" -ForegroundColor Red
+            }
+        }
+    }
+
+    # ── Patch 4: DLL suffix -4-x64 for OpenSSL 4.x ───────────────────────
+    # Actual indentation from file: 6 spaces before IF, 8 spaces before SET
+    $old4 = "      IF(OPENSSL_VERSION_MAJOR VERSION_EQUAL 1 AND${LF}         OPENSSL_VERSION_MINOR VERSION_EQUAL 1)${LF}        SET(SSL_MSVC_VERSION_SUFFIX `"-1_1`")${LF}        SET(SSL_MSVC_ARCH_SUFFIX `"-x64`")${LF}      ENDIF()"
+    $new4 = "      IF(OPENSSL_VERSION_MAJOR VERSION_EQUAL 1 AND${LF}         OPENSSL_VERSION_MINOR VERSION_EQUAL 1)${LF}        SET(SSL_MSVC_VERSION_SUFFIX `"-1_1`")${LF}        SET(SSL_MSVC_ARCH_SUFFIX `"-x64`")${LF}      ENDIF()${LF}      IF(OPENSSL_VERSION_MAJOR VERSION_EQUAL 3)${LF}        SET(SSL_MSVC_VERSION_SUFFIX `"-3`")${LF}        SET(SSL_MSVC_ARCH_SUFFIX `"-x64`")${LF}      ENDIF()${LF}      IF(OPENSSL_VERSION_MAJOR VERSION_EQUAL 4)${LF}        SET(SSL_MSVC_VERSION_SUFFIX `"-4`")${LF}        SET(SSL_MSVC_ARCH_SUFFIX `"-x64`")${LF}      ENDIF()"
+
+    if ($content -match 'VERSION_SUFFIX "-4"') {
+        Write-Host "  ✓ Patch 4: Already applied (DLL suffix -4-x64)" -ForegroundColor Cyan
+    } elseif ($content.Contains($old4)) {
+        $content = $content.Replace($old4, $new4)
+        $changed = $true
+        Write-Host "  ✓ Patch 4: DLL suffix -4-x64 added" -ForegroundColor Green
+    } else {
+        Write-Host "  ⚠ Patch 4: block not matched" -ForegroundColor Yellow
+    }
+
+    # ── Patch 5: Force OPENSSL_ROOT_DIR in FIND_CUSTOM_OPENSSL ───────────
+    # Inject at top of function, before WITH_SSL_PATH block
+    # Exact text from raw dump: FUNCTION(FIND_CUSTOM_OPENSSL)[LF][LF][SP][SP]IF(WITH_SSL_PATH)
+    if ($content -match [regex]::Escape($marker)) {
+        Write-Host "  ✓ Patch 5: Already applied (OPENSSL_ROOT_DIR forced)" -ForegroundColor Cyan
+    } else {
+        $old5 = "FUNCTION(FIND_CUSTOM_OPENSSL)${LF}${LF}  IF(WITH_SSL_PATH)"
+        $new5 = "FUNCTION(FIND_CUSTOM_OPENSSL)${LF}  # ${marker}${LF}  SET(OPENSSL_ROOT_DIR `"${opensslPath}`" CACHE PATH `"Forced portable OpenSSL 4.x`" FORCE)${LF}  SET(WITH_SSL_PATH `"${opensslPath}`" CACHE PATH `"Forced portable OpenSSL 4.x`" FORCE)${LF}${LF}  IF(WITH_SSL_PATH)"
+        if ($content.Contains($old5)) {
+            $content = $content.Replace($old5, $new5)
+            $changed = $true
+            Write-Host "  ✓ Patch 5: OPENSSL_ROOT_DIR forced to $opensslPath" -ForegroundColor Green
+        } else {
+            Write-Host "  ⚠ Patch 5: FIND_CUSTOM_OPENSSL opening not matched" -ForegroundColor Yellow
+        }
     }
 
     if ($changed) {
-        [System.IO.File]::WriteAllText($buildRs.FullName, $content, [System.Text.Encoding]::UTF8)
-        Write-Host "`n✓ build.rs updated: $($buildRs.FullName)" -ForegroundColor Green
+        $outBytes = [System.Text.Encoding]::UTF8.GetBytes($content)
+        [System.IO.File]::WriteAllBytes($sslCmake.FullName, $outBytes)
+        Write-Host "✓ ssl.cmake written: $($sslCmake.FullName)" -ForegroundColor Green
     } else {
-        Write-Host "`nNo changes made — already patched or anchors not found." -ForegroundColor Gray
+        Write-Host "✓ ssl.cmake: All patches already applied, no changes written" -ForegroundColor Cyan
     }
+
+    Write-Host ""
+    Write-Host "Now run: cargo install diesel_cli --force --all-features" -ForegroundColor Yellow
 }
-Set-Alias -Name patch-mysqlsys -Value Patch-MysqlclientSysVersionCheck
+
+
 
 # =====================================================
 # npm Global Package Update Function
@@ -785,17 +757,6 @@ function Update-GlobalNpm {
 }
 Set-Alias -Name npmupdate -Value Update-GlobalNpm
 
-#======================================================
-#Build-Pcre from source: https://github.com/ModelCloud/PyPcre (using meson build system)
-#======================================================
-function Build-PyPcre {
-    use-clang-win
-    Set-Location D:\dev\PyPcre
-    pip install . --no-build-isolation `
-      --config-settings=setup-args="-Dpcre2_include_dir=D:\Programs\pcre2-clang-win\include" `
-      --config-settings=setup-args="-Dpcre2_library=D:\Programs\pcre2-clang-win\lib\pcre2-8-static.lib"
-}
-
 # =====================================================
 # Profile Load Message
 # =====================================================
@@ -830,12 +791,6 @@ if (Test-Path "$bisonRoot\win_bison.exe") {
     Write-Host "  ✓ Bison:   $bisonVer" -ForegroundColor Green
 } else {
     Write-Host "  ⚠ Bison:   not found at $bisonRoot" -ForegroundColor Red
-}
-
-if (Test-Path "$jomRoot\jom.exe") {
-    Write-Host "  ✓ jom:        found at $jomRoot" -ForegroundColor Green
-} else {
-    Write-Host "  ⚠ jom:        not found at $jomRoot" -ForegroundColor Red
 }
 
 if (Test-Path "$opensslRoot\include\openssl\ssl.h") {
@@ -881,7 +836,7 @@ Write-Host "  Python:" -ForegroundColor Cyan
 Write-Host "    python314, py314, pip314" -ForegroundColor White
 Write-Host "    python-msys, pip-msys" -ForegroundColor White
 Write-Host "  Perl:" -ForegroundColor Cyan
-Write-Host "    perl-win, perl-pcre2 (PCRE2 10.47)" -ForegroundColor White
+Write-Host "    perl-win" -ForegroundColor White
 Write-Host "  NASM:" -ForegroundColor Cyan
 Write-Host "    nasm-win" -ForegroundColor White
 Write-Host "  Bison/Flex:" -ForegroundColor Cyan
@@ -896,4 +851,3 @@ Write-Host "  clang-msys++ -o test test.cpp" -ForegroundColor White
 
 Write-Host "`n=====================================================" -ForegroundColor Cyan
 Write-Host ""
-

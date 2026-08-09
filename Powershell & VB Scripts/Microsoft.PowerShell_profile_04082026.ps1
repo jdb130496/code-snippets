@@ -517,8 +517,6 @@ function Use-WindowsClang {
     $env:CMAKE_C_COMPILER    = "$clangRoot\bin\clang-cl.exe"
     $env:CMAKE_CXX_COMPILER  = "$clangRoot\bin\clang-cl.exe"
     $env:CMAKE_LINKER        = "$clangRoot\bin\lld-link.exe"
-    $env:DISTUTILS_USE_SDK = "1"
-    $env:MSSdk             = "1"
     Remove-Item Env:\LINKER          -ErrorAction SilentlyContinue
     Remove-Item Env:\LINK            -ErrorAction SilentlyContinue
     Remove-Item Env:\VCToolsInstallDir -ErrorAction SilentlyContinue
@@ -784,17 +782,6 @@ function Update-GlobalNpm {
     }
 }
 Set-Alias -Name npmupdate -Value Update-GlobalNpm
-
-#======================================================
-#Build-Pcre from source: https://github.com/ModelCloud/PyPcre (using meson build system)
-#======================================================
-function Build-PyPcre {
-    use-clang-win
-    Set-Location D:\dev\PyPcre
-    pip install . --no-build-isolation `
-      --config-settings=setup-args="-Dpcre2_include_dir=D:\Programs\pcre2-clang-win\include" `
-      --config-settings=setup-args="-Dpcre2_library=D:\Programs\pcre2-clang-win\lib\pcre2-8-static.lib"
-}
 
 # =====================================================
 # Profile Load Message
