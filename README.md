@@ -1,6 +1,6 @@
 # code-snippets
 
-Last updated: 09-08-2026 (dd-mm-yyyy)
+Last updated: 11-08-2026 (dd-mm-yyyy)
 
 Excel 365 new functions examples / explorations - includes interfaces of excel to 
 python / java / java script / c++ / c / rust / standalone python scripts, etc. - 

@@ -796,30 +796,6 @@ function Build-PyPcre {
       --config-settings=setup-args="-Dpcre2_library=D:\Programs\pcre2-clang-win\lib\pcre2-8-static.lib"
 }
 
-#====================================================
-# Building pcre2 from github source
-# ===================================================
-
-function Build-Pcre2 {
-    use-clang-win
-    Set-Location D:\dev\pcre2.py
-    
-    # Fix ownership warning for submodule
-    git config --global --add safe.directory D:/dev/pcre2.py/src/libpcre2
-    
-    # Update PCRE2 submodule to latest dev
-    Set-Location src\libpcre2
-    git fetch origin
-    git checkout origin/main
-    
-    # Return to repo root and build
-    Set-Location D:\dev\pcre2.py
-    pip install . --no-build-isolation --no-cache-dir
-    
-    # Confirm versions
-    python -c "import pcre2; print('pcre2 Python:', pcre2.__version__, '| PCRE2 C:', pcre2.__libpcre2_version__)"
-}
-
 # =====================================================
 # Profile Load Message
 # =====================================================

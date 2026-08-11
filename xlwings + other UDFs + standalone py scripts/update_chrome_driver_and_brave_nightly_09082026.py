@@ -253,6 +253,13 @@ $Shortcut.Save()
 def main():
     print("=== Brave Nightly Portable Updater ===\n")
 
+    print("--- Chromedriver Check ---")
+    try:
+        ensure_chromedriver()
+    except Exception as e:
+        print(f"Warning: Could not update chromedriver: {e}")
+
+    print("\n--- Brave Nightly Check ---")
     current = get_current_version()
     print(f"Current version : {current or 'unknown'}")
 
@@ -284,12 +291,6 @@ def main():
             if os.path.exists(DOWNLOAD_DIR):
                 shutil.rmtree(DOWNLOAD_DIR, ignore_errors=True)
                 print("Cleaned up temp download folder.")
-
-    print("\n--- Chromedriver Check ---")
-    try:
-        ensure_chromedriver()
-    except Exception as e:
-        print(f"Warning: Could not update chromedriver: {e}")
 
     print("\n=== Done ===")
 
