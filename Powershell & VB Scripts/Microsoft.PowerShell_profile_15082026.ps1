@@ -34,7 +34,6 @@ $postgresRoot = "D:\Programs\postgre"
 $sqliteRoot  = "D:\Programs\sqlite"
 $bisonRoot   = "D:\Programs\winflexbison"
 $jomRoot     = "D:\Programs\jom"
-$mingitRoot  = "D:\Programs\MinGit"
 
 # =====================================================
 # Python - Direct path
@@ -95,66 +94,28 @@ $msvcBinPath = "$msvcRoot\VC\Tools\MSVC\$vcToolsVersion\bin\Host$hostArch\$targe
 # MSYS2 toolchains always use their own ucrt64\bin\ninja.exe (unchanged)
 # =====================================================
 function Get-WinNinja {
-    param([switch]$Update)
-    if ($Update) {
-        use-clang-win
-        Set-Location D:\dev\ninja-src
-        git pull
-        cmake -B build -G Ninja `
-          -DCMAKE_BUILD_TYPE=Release `
-          -DCMAKE_C_COMPILER="$clangRoot\bin\clang-cl.exe" `
-          -DCMAKE_CXX_COMPILER="$clangRoot\bin\clang-cl.exe" `
-          -DCMAKE_LINKER="$clangRoot\bin\lld-link.exe"
-        cmake --build build --config Release
-        Copy-Item "build\ninja.exe" "$ninjaRoot\bin\ninja.exe" -Force
-        Write-Host "✓ Ninja updated to $(& "$ninjaRoot\bin\ninja.exe" --version)" -ForegroundColor Green
-        Set-Location D:\
-    }
     if (Test-Path "$ninjaRoot\bin\ninja.exe") { return "$ninjaRoot\bin\ninja.exe" }
     if (Test-Path "$cmakeRoot\bin\ninja.exe") { return "$cmakeRoot\bin\ninja.exe" }
     return $null
 }
+
 # Resolve preferred meson path
 # Priority: standalone D:\Programs\meson > pip D:\Programs\Python\Scripts
 function Get-WinMeson {
-    param([switch]$Update)
-    if ($Update) {
-        Set-Location D:\dev\meson-src
-        git pull
-        python packaging\create_zipapp.py --outfile "$mesonRoot\meson.pyz" --compress
-        Write-Host "✓ Meson updated to $(& "$pythonRoot\python.exe" "$mesonRoot\meson.pyz" --version)" -ForegroundColor Green
-        Set-Location D:\
-    }
     if (Test-Path "$mesonRoot\meson.cmd") { return "$mesonRoot\meson.cmd" }
     if (Test-Path "$mesonRoot\meson.pyz") { return "$mesonRoot\meson.pyz" }
     if (Test-Path "$mesonRoot\meson.exe") { return "$mesonRoot\meson.exe" }
     if (Test-Path "$pythonRoot\Scripts\meson.exe") { return "$pythonRoot\Scripts\meson.exe" }
     return $null
 }
-
-#======================================================
-#Mingit Building From Source
-#======================================================
-function Get-WinGit {
-    param([switch]$Update)
-    if ($Update) {
-        $release = Invoke-RestMethod "https://api.github.com/repos/git-for-windows/git/releases/latest"
-        $asset = $release.assets | Where-Object { $_.name -like "*MinGit*64-bit*" } | Select-Object -First 1
-        if ($asset) {
-            $zip = "$env:TEMP\mingit.zip"
-            Invoke-WebRequest $asset.browser_download_url -OutFile $zip
-            Expand-Archive $zip -DestinationPath "D:\Programs\MinGit" -Force
-            Remove-Item $zip
-            Write-Host "✓ MinGit updated to $(& "D:\Programs\MinGit\cmd\git.exe" --version)" -ForegroundColor Green
-        } else {
-            Write-Host "⚠ No MinGit asset found in latest release" -ForegroundColor Red
-        }
-    }
-    if (Test-Path "D:\Programs\MinGit\cmd\git.exe") { return "D:\Programs\MinGit\cmd\git.exe" }
-    if (Get-Command git -ErrorAction SilentlyContinue) { return (Get-Command git).Source }
-    return $null
+$_mesonExe = Get-WinMeson
+if ($_mesonExe) {
+    $env:MESON = $_mesonExe
 }
-
+$_ninjaExe = Get-WinNinja
+if ($_ninjaExe) {
+    $env:NINJA = $_ninjaExe
+}
 # =====================================================
 # BASE PATH - Universal tools always in PATH
 # =====================================================
@@ -265,11 +226,6 @@ if (Test-Path "$sqliteRoot\sqlite3.lib") {
     $env:SQLITE3_LIB_DIR  = $sqliteRoot
     $env:SQLITE3_LIB_NAME = "sqlite3"
     $basePaths += $sqliteRoot
-}
-
-# MinGit - prefer over MSYS2 git which gets dragged in via usr\bin below
-if (Test-Path "$mingitRoot\cmd\git.exe") {
-    $basePaths += "$mingitRoot\cmd"
 }
 
 # libclang for bindgen (required by libsqlite3-sys, librocksdb-sys, etc.)
@@ -1091,4 +1047,3 @@ Write-Host "  clang-msys++ -o test test.cpp" -ForegroundColor White
 
 Write-Host "`n=====================================================" -ForegroundColor Cyan
 Write-Host ""
-

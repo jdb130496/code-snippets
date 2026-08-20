@@ -34,7 +34,6 @@ $postgresRoot = "D:\Programs\postgre"
 $sqliteRoot  = "D:\Programs\sqlite"
 $bisonRoot   = "D:\Programs\winflexbison"
 $jomRoot     = "D:\Programs\jom"
-$mingitRoot  = "D:\Programs\MinGit"
 
 # =====================================================
 # Python - Direct path
@@ -95,63 +94,17 @@ $msvcBinPath = "$msvcRoot\VC\Tools\MSVC\$vcToolsVersion\bin\Host$hostArch\$targe
 # MSYS2 toolchains always use their own ucrt64\bin\ninja.exe (unchanged)
 # =====================================================
 function Get-WinNinja {
-    param([switch]$Update)
-    if ($Update) {
-        use-clang-win
-        Set-Location D:\dev\ninja-src
-        git pull
-        cmake -B build -G Ninja `
-          -DCMAKE_BUILD_TYPE=Release `
-          -DCMAKE_C_COMPILER="$clangRoot\bin\clang-cl.exe" `
-          -DCMAKE_CXX_COMPILER="$clangRoot\bin\clang-cl.exe" `
-          -DCMAKE_LINKER="$clangRoot\bin\lld-link.exe"
-        cmake --build build --config Release
-        Copy-Item "build\ninja.exe" "$ninjaRoot\bin\ninja.exe" -Force
-        Write-Host "✓ Ninja updated to $(& "$ninjaRoot\bin\ninja.exe" --version)" -ForegroundColor Green
-        Set-Location D:\
-    }
     if (Test-Path "$ninjaRoot\bin\ninja.exe") { return "$ninjaRoot\bin\ninja.exe" }
     if (Test-Path "$cmakeRoot\bin\ninja.exe") { return "$cmakeRoot\bin\ninja.exe" }
     return $null
 }
+
 # Resolve preferred meson path
 # Priority: standalone D:\Programs\meson > pip D:\Programs\Python\Scripts
 function Get-WinMeson {
-    param([switch]$Update)
-    if ($Update) {
-        Set-Location D:\dev\meson-src
-        git pull
-        python packaging\create_zipapp.py --outfile "$mesonRoot\meson.pyz" --compress
-        Write-Host "✓ Meson updated to $(& "$pythonRoot\python.exe" "$mesonRoot\meson.pyz" --version)" -ForegroundColor Green
-        Set-Location D:\
-    }
-    if (Test-Path "$mesonRoot\meson.cmd") { return "$mesonRoot\meson.cmd" }
     if (Test-Path "$mesonRoot\meson.pyz") { return "$mesonRoot\meson.pyz" }
     if (Test-Path "$mesonRoot\meson.exe") { return "$mesonRoot\meson.exe" }
     if (Test-Path "$pythonRoot\Scripts\meson.exe") { return "$pythonRoot\Scripts\meson.exe" }
-    return $null
-}
-
-#======================================================
-#Mingit Building From Source
-#======================================================
-function Get-WinGit {
-    param([switch]$Update)
-    if ($Update) {
-        $release = Invoke-RestMethod "https://api.github.com/repos/git-for-windows/git/releases/latest"
-        $asset = $release.assets | Where-Object { $_.name -like "*MinGit*64-bit*" } | Select-Object -First 1
-        if ($asset) {
-            $zip = "$env:TEMP\mingit.zip"
-            Invoke-WebRequest $asset.browser_download_url -OutFile $zip
-            Expand-Archive $zip -DestinationPath "D:\Programs\MinGit" -Force
-            Remove-Item $zip
-            Write-Host "✓ MinGit updated to $(& "D:\Programs\MinGit\cmd\git.exe" --version)" -ForegroundColor Green
-        } else {
-            Write-Host "⚠ No MinGit asset found in latest release" -ForegroundColor Red
-        }
-    }
-    if (Test-Path "D:\Programs\MinGit\cmd\git.exe") { return "D:\Programs\MinGit\cmd\git.exe" }
-    if (Get-Command git -ErrorAction SilentlyContinue) { return (Get-Command git).Source }
     return $null
 }
 
@@ -265,11 +218,6 @@ if (Test-Path "$sqliteRoot\sqlite3.lib") {
     $env:SQLITE3_LIB_DIR  = $sqliteRoot
     $env:SQLITE3_LIB_NAME = "sqlite3"
     $basePaths += $sqliteRoot
-}
-
-# MinGit - prefer over MSYS2 git which gets dragged in via usr\bin below
-if (Test-Path "$mingitRoot\cmd\git.exe") {
-    $basePaths += "$mingitRoot\cmd"
 }
 
 # libclang for bindgen (required by libsqlite3-sys, librocksdb-sys, etc.)
@@ -889,26 +837,12 @@ Set-Alias -Name npmupdate -Value Update-GlobalNpm
 #======================================================
 # Build-Pcre from source: https://github.com/ModelCloud/PyPcre (using meson build system)
 #======================================================
-
 function Build-PyPcre {
     use-clang-win
     Set-Location D:\dev\PyPcre
-
-    # Fetch upstream changes and rebase our meson commit on top
-    git fetch upstream
-    git rebase upstream/main
-
-    # Fix tracking for this branch
-    git branch --set-upstream-to=origin/local-meson-build-v2 local-meson-build-v2
-    git push origin local-meson-build-v2
-
-    pip install . --no-build-isolation --no-cache-dir --force-reinstall `
+    pip install . --no-build-isolation `
       --config-settings=setup-args="-Dpcre2_include_dir=D:\Programs\pcre2-clang-win\include" `
       --config-settings=setup-args="-Dpcre2_library=D:\Programs\pcre2-clang-win\lib\pcre2-8-static.lib"
-
-    # Move away so Python imports from site-packages, not local source
-    Set-Location D:\
-    python -c "import pcre_ext_c; import pcre; print('PyPcre Python:', pcre.__version__, '| PCRE2 C:', pcre_ext_c.get_library_version())"
 }
 
 #====================================================
@@ -918,9 +852,6 @@ function Build-Pcre2 {
     use-clang-win
     Set-Location D:\dev\pcre2.py
 
-    # Pull latest outer repo (advances submodule pointer)
-    git pull
-
     # Fix ownership warning for submodule
     git config --global --add safe.directory D:/dev/pcre2.py/src/libpcre2
 
@@ -929,9 +860,8 @@ function Build-Pcre2 {
     git fetch origin
     git checkout origin/main
 
-    # Return to repo root and build (no-cache to always use fresh submodule)
+    # Return to repo root and build
     Set-Location D:\dev\pcre2.py
-    pip cache purge
     pip install . --no-build-isolation --no-cache-dir
 
     # Confirm versions
@@ -996,16 +926,9 @@ if (Test-Path "$ninjaRoot\bin\ninja.exe") {
 
 # Meson status: show which binary is active
 $_mesonResolved = Get-WinMeson
-if (Test-Path "$mesonRoot\meson.cmd") {
-    $mesonVer = & "$mesonRoot\meson.cmd" --version 2>&1
-    Write-Host "  ✓ Meson:      $mesonVer (standalone cmd at $mesonRoot)" -ForegroundColor Green
-    if (Test-Path "$pythonRoot\Scripts\meson.exe") {
-        $mesonPipVer = & "$pythonRoot\Scripts\meson.exe" --version 2>&1
-        Write-Host "    pip meson also available: $mesonPipVer (meson-pip alias)" -ForegroundColor Gray
-    }
-} elseif (Test-Path "$mesonRoot\meson.pyz") {
+if (Test-Path "$mesonRoot\meson.pyz") {
     $mesonVer = & "$pythonRoot\python.exe" "$mesonRoot\meson.pyz" --version 2>&1
-    Write-Host "  ✓ Meson:      $mesonVer (standalone pyz at $mesonRoot)" -ForegroundColor Green
+    Write-Host "  ✓ Meson:      $mesonVer (standalone at $mesonRoot)" -ForegroundColor Green
     if (Test-Path "$pythonRoot\Scripts\meson.exe") {
         $mesonPipVer = & "$pythonRoot\Scripts\meson.exe" --version 2>&1
         Write-Host "    pip meson also available: $mesonPipVer (meson-pip alias)" -ForegroundColor Gray
@@ -1022,13 +945,6 @@ if (Test-Path "$mesonRoot\meson.cmd") {
     Write-Host "  ✓ Meson:      $mesonVer (pip — install standalone to $mesonRoot for upgrade)" -ForegroundColor Yellow
 } else {
     Write-Host "  ⚠ Meson:      not found (pip install meson or install standalone to $mesonRoot)" -ForegroundColor Red
-}
-
-# Set MESON env var so meson-python always uses standalone meson explicitly
-# This bypasses PATH lookup in subprocess calls (pip, meson-python builds)
-$_mesonExe = Get-WinMeson
-if ($_mesonExe) {
-    $env:MESON = $_mesonExe
 }
 
 if (Test-Path "$opensslRoot\include\openssl\ssl.h") {
@@ -1091,4 +1007,3 @@ Write-Host "  clang-msys++ -o test test.cpp" -ForegroundColor White
 
 Write-Host "`n=====================================================" -ForegroundColor Cyan
 Write-Host ""
-

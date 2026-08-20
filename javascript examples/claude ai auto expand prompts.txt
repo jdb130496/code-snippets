@@ -9,8 +9,8 @@ Longer Version - automation using tempermonkey extension in brave browser:
 // ==UserScript==
 // @name         Claude Auto-Expand Show More
 // @namespace    http://tampermonkey.net/
-// @version      1.6
-// @description  Automatically expand all "Show more" buttons in Claude
+// @version      1.9
+// @description  Automatically expand all "Show more" buttons and tool-use blocks in Claude
 // @match        *://claude.ai/*
 // @match        *://*.claude.ai/*
 // @grant        none
@@ -22,25 +22,37 @@ Longer Version - automation using tempermonkey extension in brave browser:
 
     function expandAll() {
         let count = 0;
+
+        // 1. "Show more" text buttons (original behaviour)
         document.querySelectorAll('button').forEach(btn => {
             if (btn.textContent.trim().toLowerCase() === 'show more') {
                 btn.click();
                 count++;
             }
         });
+
+        // 2. ALL tool-use blocks universally (fetch, view files, skills, search, etc.)
+        //    Strategy: find any tool-status-caret, walk up to its collapsed button parent.
+        //    tool-status-caret ONLY appears inside tool blocks, never on mic/nav/other UI.
+        document.querySelectorAll('[data-testid="tool-status-caret"]').forEach(caret => {
+            const btn = caret.closest('button[aria-expanded="false"]');
+            if (btn) {
+                btn.click();
+                count++;
+            }
+        });
+
         if (count > 0) {
-            console.log(`Claude Auto-Expand: Clicked ${count} "Show more" buttons`);
+            console.log(`Claude Auto-Expand: Clicked ${count} button(s)`);
         }
     }
 
-    // Early attempts to catch buttons rendered during initial page load
     setTimeout(() => { console.log('Claude Auto-Expand: First attempt (2s)');  expandAll(); }, 2000);
     setTimeout(() => { console.log('Claude Auto-Expand: Second attempt (5s)'); expandAll(); }, 5000);
     setTimeout(() => {
         console.log('Claude Auto-Expand: Third attempt (10s)');
         expandAll();
 
-        // Debounced MutationObserver - fires 300ms after DOM settles
         let debounceTimer;
         const observer = new MutationObserver(() => {
             clearTimeout(debounceTimer);

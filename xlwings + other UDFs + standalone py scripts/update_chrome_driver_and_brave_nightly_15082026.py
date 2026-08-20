@@ -19,6 +19,7 @@ BRAVE_EXE         = os.path.join(PORTABLE_DIR, "brave.exe")
 GITHUB_RELEASES_API = "https://api.github.com/repos/brave/brave-browser/releases?per_page=20"
 CFT_API             = "https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json"
 ASSET_SUFFIX        = "win32-x64.zip"
+ASSET_PREFIX        = "brave-v"
 # ───────────────────────────────────────────────────────────────────────────
 
 
@@ -73,28 +74,34 @@ def get_latest_nightly():
 
     nightlies = [
         rel for rel in releases
-        if rel.get("prerelease") and
-        "nightly" in rel.get("name", "").lower()
+        if "nightly" in rel.get("name", "").lower() or
+        "nightly" in rel.get("tag_name", "").lower()
     ]
+
     if not nightlies:
         print("No nightly releases found.")
         return None, None, None
 
-    latest = nightlies[0]  # GitHub returns newest first
-    tag    = latest["tag_name"]
-    assets = latest.get("assets", [])
-
-    win_zip = next(
-        (a for a in assets
-         if a["name"].endswith(ASSET_SUFFIX)
-         and "origin" not in a["name"]),
-        None
-    )
+    # REPLACE with:
+    win_zip = None
+    latest  = None
+    for rel in nightlies:
+        assets = rel.get("assets", [])
+        win_zip = next(
+            (a for a in assets
+             if a["name"].startswith(ASSET_PREFIX)
+             and a["name"].endswith(ASSET_SUFFIX)),
+            None
+        )
+        if win_zip:
+            latest = rel
+            break
     if not win_zip:
         print("Windows x64 ZIP not found in latest release assets.")
         return None, None, None
 
     print(f"Found: {latest['name']} → {win_zip['name']}")
+    tag = latest["tag_name"]
     return tag, win_zip["browser_download_url"], win_zip["name"]
 
 
