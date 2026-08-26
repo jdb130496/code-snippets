@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rdrand"
+version = "1.5.0"
+description = "Python interface to Intel hardware rng"
+readme = {file = "rdrandom.rst", content-type = "text/x-rst"}
+authors = [
+    {name = "Chris Stillson", email = "stillson@gmail.com"}
+]
+license = "BSD-3-Clause"
+keywords = ["rdrand", "rdseed", "intel", "hardware", "random", "number", "generator", "rng"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 2",
+    "Programming Language :: Python :: 3",
+    "Topic :: Security",
+    "Topic :: Security :: Cryptography",
+]
+requires-python = ">=2.7"
+
+[project.urls]
+Homepage = "https://github.com/stillson/rdrand"
+
+[project.optional-dependencies]
+tests = []
+docs = [
+    "sphinx >= 1.4",
+    "sphinx_rtd_theme"
+]
+
+[tool.setuptools]
+py-modules = ["rdrand"]
