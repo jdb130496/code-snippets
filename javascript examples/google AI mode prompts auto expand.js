@@ -1,50 +1,60 @@
 // ==UserScript==
 // @name         Google AI Mode Auto-Expand
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.5
 // @description  Auto-expand all query previews in Google AI Mode
 // @match        https://www.google.com/*
 // @grant        none
+// @run-at       document-start
 // ==/UserScript==
 
 (function() {
     'use strict';
-    console.log('AI Mode Auto-Expand: Script loaded');
 
-    function expandAll() {
-        let count = 0;
-        document.querySelectorAll('div[role="button"][aria-label="Expand query preview"]').forEach(btn => {
-            if (btn.getAttribute('aria-expanded') === 'false') {
-                btn.click();
-                count++;
-            }
-        });
-        if (count > 0) {
-            console.log(`AI Mode Auto-Expand: Clicked ${count} expand buttons`);
+    function expandBtn(btn) {
+        if (btn.getAttribute('aria-expanded') === 'false') {
+            setTimeout(() => btn.click(), 50);
         }
     }
 
-    setTimeout(() => {
-        console.log('AI Mode Auto-Expand: First attempt (2s)');
-        expandAll();
-    }, 2000);
+    function expandAll() {
+        document.querySelectorAll('div[role="button"].l1LGWd[aria-expanded="false"]').forEach(expandBtn);
+    }
 
+    setTimeout(() => expandAll(), 2000);
+    setTimeout(() => expandAll(), 5000);
     setTimeout(() => {
-        console.log('AI Mode Auto-Expand: Second attempt (5s)');
-        expandAll();
-    }, 5000);
-
-    setTimeout(() => {
-        console.log('AI Mode Auto-Expand: Third attempt (10s)');
         expandAll();
 
-        setInterval(expandAll, 3000);
+        // Watch for aria-expanded attribute changes specifically
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach(m => {
+                if (
+                    m.type === 'attributes' &&
+                    m.attributeName === 'aria-expanded' &&
+                    m.target.getAttribute('aria-expanded') === 'false' &&
+                    m.target.matches('div[role="button"].l1LGWd')
+                ) {
+                    setTimeout(() => m.target.click(), 50);
+                }
 
-        const observer = new MutationObserver(expandAll);
+                // Also handle newly added nodes
+                m.addedNodes.forEach(node => {
+                    if (node.nodeType === 1) {
+                        node.querySelectorAll?.('div[role="button"].l1LGWd[aria-expanded="false"]')
+                            .forEach(expandBtn);
+                    }
+                });
+            });
+        });
+
         observer.observe(document.body, {
             childList: true,
-            subtree: true
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['aria-expanded']
         });
-        console.log('AI Mode Auto-Expand: Continuous monitoring started');
+
     }, 10000);
+
 })();
