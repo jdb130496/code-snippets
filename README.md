@@ -1,10 +1,12 @@
 # code-snippets
-Last updated: 26-08-2026 (dd-mm-yyyy)
+Last updated: 04-09-2026 (dd-mm-yyyy)
 
 Excel 365 new functions examples and explorations — includes interfaces to
 Python, Java, JavaScript, C++, C, and Rust. Updated till 26-08-2026.
 Interfaces to other languages (C / C++ / Java / Rust, etc.) are through
 Python libraries as bridge.
+
+New bash scripts and powershell scripts added. Powershell profile further enhanced and optimized.
 
 All rdrand-related folders are builds based on a fork of:
 https://github.com/stillson/rdrand (credit to the original author!)

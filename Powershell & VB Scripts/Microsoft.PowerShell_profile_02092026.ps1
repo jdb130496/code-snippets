@@ -1,29 +1,18 @@
-# Added: $jomRoot   = "D:\Programs\jom"
-# Added: if (Test-Path "$jomRoot\jom.exe") {
-# Added:     $basePaths += $jomRoot
-# Added: }
-# Changed: OpenSSL lib directory to: $env:OPENSSL_LIB_DIR     = "$opensslRoot\lib"
-# Added: --- Perl PCRE2 function (re::engine::PCRE2 10.47) ---
-# Added:if (Test-Path "$perlRoot\perl\bin\perl.exe") {
-# Added:    function perl-pcre2 {
-# Added:        & "$perlRoot\perl\bin\perl.exe" -Mre::engine::PCRE2 @args
-# Added:    }
-# Added: }
-# Added: if (Test-Path "$jomRoot\jom.exe") {
-# Added:     Write-Host "  ✓ jom:        found at $jomRoot" -ForegroundColor Green
-# Added: } else {
-# Added:     Write-Host "  ⚠ jom:        not found at $jomRoot" -ForegroundColor Red
-# Added: }
-# Changed: Write-Host "    perl-win, perl-pcre2 (PCRE2 10.47)" -ForegroundColor White from Write-Host "    perl-win" -ForegroundColor White
+# Added: $ninjaRoot  = "D:\Programs\ninja"
+# Added: $mesonRoot  = "D:\Programs\meson"
+# Changed: use-msvc, use-clang-win now prefer standalone ninja over cmake-bundled ninja
+# Changed: meson-win alias resolves standalone meson first, pip meson as fallback
+# Changed: Remove-ToolchainPaths now also strips ninjaRoot from PATH on switch
+# Changed: ninja-win alias now points to standalone ninja (D:\Programs\ninja\ninja.exe)
+#          ninja-cmake alias added for cmake-bundled ninja (D:\Programs\cmake\bin\ninja.exe)
 #
 # =====================================================
 # PowerShell Profile - All 4 Toolchains with Explicit Aliases
 # =====================================================
-# Philosophy: 
+# Philosophy:
 # 1. Set PATH correctly per toolchain switch (use-msvc, use-gcc, etc.)
 # 2. Create explicit aliases so you can call ANY compiler anytime
 #    Example: clang-msys, gcc-msys, cl-msvc, clang-win, etc.
-
 $MaximumHistoryCount = 10000
 
 # =====================================================
@@ -32,6 +21,8 @@ $MaximumHistoryCount = 10000
 $msvcRoot    = "D:\dev\msvc"
 $clangRoot   = "D:\Programs\clang"
 $cmakeRoot   = "D:\Programs\cmake"
+$ninjaRoot   = "D:\Programs\ninja"
+$mesonRoot   = "D:\Programs\meson"
 $msys64Root  = "D:\Programs\msys64"
 $nodejsRoot  = "D:\Programs\nodejs"
 $perlRoot    = "D:\Programs\Perl"
@@ -39,22 +30,30 @@ $nasmRoot    = "D:\Programs\nasm"
 $opensslRoot = "D:\Programs\OpenSSL"
 $mysqlRoot   = "D:\Programs\mysql"
 $postgresRoot = "D:\Programs\postgre"
-$sqliteRoot = "D:\Programs\sqlite"
-$bisonRoot = "D:\Programs\winflexbison"
-$jomRoot   = "D:\Programs\jom"
+$sqliteRoot  = "D:\Programs\sqlite"
+$bisonRoot   = "D:\Programs\winflexbison"
+$jomRoot     = "D:\Programs\jom"
+$mingitRoot  = "D:\Programs\MinGit"
 
 # =====================================================
 # Python - Direct path
 # =====================================================
 $pythonRoot = "D:\Programs\Python"
-
 $hostArch   = "x64"
 $targetArch = "x64"
+
+# =====================================================
+# Git SSL - point MinGit to Python's certifi CA bundle
+# =====================================================
+$_certBundle = & "$pythonRoot\python.exe" -c "import certifi; print(certifi.where())" 2>$null
+if ($_certBundle -and (Test-Path $_certBundle)) {
+    $env:GIT_SSL_CAINFO = $_certBundle
+}
 
 # Auto-detect MSVC tools version (highest installed)
 $vcToolsVersion = Get-ChildItem "$msvcRoot\VC\Tools\MSVC" -Directory -ErrorAction SilentlyContinue |
                   Sort-Object Name -Descending | Select-Object -First 1 -ExpandProperty Name
-if (-not $vcToolsVersion) { $vcToolsVersion = "14.52.36615" }  # fallback
+if (-not $vcToolsVersion) { $vcToolsVersion = "14.52.36629" }  # fallback
 
 # Auto-detect Windows Kits root (11 takes priority over 10)
 $windowsKitsRoot = $null
@@ -97,6 +96,224 @@ if (-not $windowsSDKVersion) { $windowsSDKVersion = "10.0.26100.0" }  # fallback
 $msvcBinPath = "$msvcRoot\VC\Tools\MSVC\$vcToolsVersion\bin\Host$hostArch\$targetArch"
 
 # =====================================================
+# Resolve preferred standalone ninja path for Windows toolchains
+# Priority: standalone D:\Programs\ninja > cmake-bundled D:\Programs\cmake\bin
+# MSYS2 toolchains always use their own ucrt64\bin\ninja.exe (unchanged)
+# =====================================================
+
+function Get-WinNinja {
+    param([switch]$Update)
+    if ($Update) {
+        # Snapshot both PATH and all env vars that use-clang-win touches
+        $savedPath    = $env:PATH
+        $savedCC      = $env:CC
+        $savedCXX     = $env:CXX
+        $savedINCLUDE = $env:INCLUDE
+        $savedLIB     = $env:LIB
+        $savedCMakeC  = $env:CMAKE_C_COMPILER
+        $savedCMakeCX = $env:CMAKE_CXX_COMPILER
+        $savedCMakeG  = $env:CMAKE_GENERATOR
+        $savedCMakeMk = $env:CMAKE_MAKE_PROGRAM
+        $savedCMakeLn = $env:CMAKE_LINKER
+
+        use-clang-win
+        Set-Location D:\dev\ninja-src
+        git pull
+        cmake -B build -G Ninja `
+          -DCMAKE_BUILD_TYPE=Release `
+          -DCMAKE_C_COMPILER="$clangRoot\bin\clang-cl.exe" `
+          -DCMAKE_CXX_COMPILER="$clangRoot\bin\clang-cl.exe" `
+          -DCMAKE_LINKER="$clangRoot\bin\lld-link.exe"
+        cmake --build build --config Release
+        Copy-Item "build\ninja.exe" "$ninjaRoot\bin\ninja.exe" -Force
+
+        # Restore everything before any further output or commands
+        $env:PATH             = $savedPath
+        $env:CC               = $savedCC
+        $env:CXX              = $savedCXX
+        $env:INCLUDE          = $savedINCLUDE
+        $env:LIB              = $savedLIB
+        $env:CMAKE_C_COMPILER = $savedCMakeC
+        $env:CMAKE_CXX_COMPILER = $savedCMakeCX
+        $env:CMAKE_GENERATOR  = $savedCMakeG
+        $env:CMAKE_MAKE_PROGRAM = $savedCMakeMk
+        if ($savedCMakeLn) { $env:CMAKE_LINKER = $savedCMakeLn }
+        else { Remove-Item Env:\CMAKE_LINKER -ErrorAction SilentlyContinue }
+
+        Write-Host "✓ Ninja updated to $(& "$ninjaRoot\bin\ninja.exe" --version)" -ForegroundColor Green
+        Set-Location D:\
+    }
+    if (Test-Path "$ninjaRoot\bin\ninja.exe") { return "$ninjaRoot\bin\ninja.exe" }
+    if (Test-Path "$cmakeRoot\bin\ninja.exe") { return "$cmakeRoot\bin\ninja.exe" }
+    return $null
+}
+
+# Resolve preferred meson path
+# Priority: standalone D:\Programs\meson > pip D:\Programs\Python\Scripts
+function Get-WinMeson {
+    param([switch]$Update)
+    if ($Update) {
+        # Point git to Python's certifi CA bundle to fix TLS on MinGit
+        $certBundle = & "$pythonRoot\python.exe" -c "import certifi; print(certifi.where())" 2>$null
+        if ($certBundle -and (Test-Path $certBundle)) {
+            $env:GIT_SSL_CAINFO = $certBundle
+        }
+
+        Set-Location D:\dev\meson-src
+        $gitResult = git pull
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning "git pull failed (exit $LASTEXITCODE) — meson.pyz will NOT be updated"
+            Set-Location D:\
+            return
+        }
+        python packaging\create_zipapp.py --outfile "$mesonRoot\meson.pyz" --compress
+        Write-Host "✓ Meson updated to $(& "$pythonRoot\python.exe" "$mesonRoot\meson.pyz" --version)" -ForegroundColor Green
+        Set-Location D:\
+    }
+    if (Test-Path "$mesonRoot\meson.cmd") { return "$mesonRoot\meson.cmd" }
+    if (Test-Path "$mesonRoot\meson.pyz") { return "$mesonRoot\meson.pyz" }
+    if (Test-Path "$mesonRoot\meson.exe") { return "$mesonRoot\meson.exe" }
+    if (Test-Path "$pythonRoot\Scripts\meson.exe") { return "$pythonRoot\Scripts\meson.exe" }
+    return $null
+}
+
+#======================================================
+#Mingit Building From Source
+#======================================================
+function Get-WinGit {
+    param([switch]$Update)
+    if ($Update) {
+        $release = Invoke-RestMethod "https://api.github.com/repos/git-for-windows/git/releases/latest"
+        $asset = $release.assets | Where-Object { $_.name -like "*MinGit*64-bit*" } | Select-Object -First 1
+        if ($asset) {
+            $zip     = "$env:TEMP\mingit.zip"
+            $tempDir = "$env:TEMP\mingit-extract"
+            $destDir = "D:\Programs\MinGit"
+
+            Get-Process -Name "git", "git-remote-https" -ErrorAction SilentlyContinue | Stop-Process -Force
+
+            Invoke-WebRequest $asset.browser_download_url -OutFile $zip
+
+            if (Test-Path $tempDir) { Remove-Item $tempDir -Recurse -Force }
+            Expand-Archive $zip -DestinationPath $tempDir -Force
+            Remove-Item $zip
+
+            robocopy $tempDir $destDir /E /IS /IT /IM /MOVE /NP /NFL /NDL /NJH /NJS | Out-Null
+
+            # Replant libpcre2-8-0.dll which MinGit zip does not include
+            $pcre2Usr  = "D:\Programs\msys64\usr\bin\libpcre2-8-0.dll"
+            $pcre2Ucrt = "D:\Programs\msys64\ucrt64\bin\libpcre2-8-0.dll"
+            if (Test-Path $pcre2Usr) {
+                Copy-Item $pcre2Usr "$destDir\bin\libpcre2-8-0.dll" -Force
+                Write-Host "  ✓ Planted libpcre2-8-0.dll into MinGit\bin" -ForegroundColor Green
+            }
+            if (Test-Path $pcre2Ucrt) {
+                Copy-Item $pcre2Ucrt "$destDir\libexec\git-core\libpcre2-8-0.dll" -Force
+                Write-Host "  ✓ Planted libpcre2-8-0.dll into MinGit\libexec\git-core" -ForegroundColor Green
+            }
+
+            Write-Host "✓ MinGit updated to $(& "$destDir\cmd\git.exe" --version)" -ForegroundColor Green
+        } else {
+            Write-Host "⚠ No MinGit asset found in latest release" -ForegroundColor Red
+        }
+    }
+    if (Test-Path "D:\Programs\MinGit\cmd\git.exe") { return "D:\Programs\MinGit\cmd\git.exe" }
+    if (Get-Command git -ErrorAction SilentlyContinue) { return (Get-Command git).Source }
+    return $null
+}
+
+function Get-WinGitPreRelease {
+    param(
+        [switch]$Update,
+        [switch]$PreRelease
+    )
+    if ($Update) {
+        $release = if ($PreRelease) {
+            Invoke-RestMethod "https://api.github.com/repos/git-for-windows/git/releases" |
+                Select-Object -First 1
+        } else {
+            Invoke-RestMethod "https://api.github.com/repos/git-for-windows/git/releases/latest"
+        }
+        $asset = $release.assets | Where-Object { $_.name -like "*MinGit*64-bit*" } | Select-Object -First 1
+        if ($asset) {
+            $zip     = "$env:TEMP\mingit.zip"
+            $tempDir = "$env:TEMP\mingit-extract"
+
+            Get-Process -Name "git", "git-remote-https" -ErrorAction SilentlyContinue | Stop-Process -Force
+
+            Invoke-WebRequest $asset.browser_download_url -OutFile $zip
+
+            if (Test-Path $tempDir) { Remove-Item $tempDir -Recurse -Force }
+            Expand-Archive $zip -DestinationPath $tempDir -Force
+            Remove-Item $zip
+
+            robocopy $tempDir $mingitRoot /E /IS /IT /IM /MOVE /NP /NFL /NDL /NJH /NJS | Out-Null
+
+            # Replant libpcre2-8-0.dll which MinGit zip does not include
+            $pcre2Usr  = "D:\Programs\msys64\usr\bin\libpcre2-8-0.dll"
+            $pcre2Ucrt = "D:\Programs\msys64\ucrt64\bin\libpcre2-8-0.dll"
+            if (Test-Path $pcre2Usr) {
+                Copy-Item $pcre2Usr "$mingitRoot\bin\libpcre2-8-0.dll" -Force
+                Write-Host "  ✓ Planted libpcre2-8-0.dll into MinGit\bin" -ForegroundColor Green
+            }
+            if (Test-Path $pcre2Ucrt) {
+                Copy-Item $pcre2Ucrt "$mingitRoot\libexec\git-core\libpcre2-8-0.dll" -Force
+                Write-Host "  ✓ Planted libpcre2-8-0.dll into MinGit\libexec\git-core" -ForegroundColor Green
+            }
+
+            Write-Host "✓ MinGit updated to $(& "$mingitRoot\cmd\git.exe" --version) (tag: $($release.tag_name))" -ForegroundColor Green
+        }
+    }
+    if (Test-Path "$mingitRoot\cmd\git.exe") { return "$mingitRoot\cmd\git.exe" }
+    if (Get-Command git -ErrorAction SilentlyContinue) { return (Get-Command git).Source }
+    return $null
+}
+
+function Get-WinGit-Msys {
+    Write-Host "Building git from source via MSYS2 ucrt64..." -ForegroundColor Cyan
+
+    $backupDir = "$mingitRoot-backup"
+    if (Test-Path "$mingitRoot\bin\git.exe") {
+        New-Item -ItemType Directory -Force $backupDir | Out-Null
+        Copy-Item "$mingitRoot\bin\git.exe" "$backupDir\git.exe" -Force
+        Copy-Item "$mingitRoot\cmd\git.exe" "$backupDir\git-cmd.exe" -Force
+        $backupVersion = & "$backupDir\git.exe" --version
+        Write-Host "  Backed up: $backupVersion" -ForegroundColor Yellow
+    }
+
+    Get-Process -Name "git", "git-remote-https" -ErrorAction SilentlyContinue | Stop-Process -Force
+
+    & "$msys64Root\usr\bin\bash.exe" --login "/d/dev/build-git.sh"
+
+    if ($LASTEXITCODE -eq 0) {
+        # Replant libpcre2-8-0.dll after MSYS2 build overwrites MinGit layout
+        $pcre2Usr  = "D:\Programs\msys64\usr\bin\libpcre2-8-0.dll"
+        $pcre2Ucrt = "D:\Programs\msys64\ucrt64\bin\libpcre2-8-0.dll"
+        if (Test-Path $pcre2Usr) {
+            Copy-Item $pcre2Usr "$mingitRoot\bin\libpcre2-8-0.dll" -Force
+            Write-Host "  ✓ Planted libpcre2-8-0.dll into MinGit\bin" -ForegroundColor Green
+        }
+        if (Test-Path $pcre2Ucrt) {
+            Copy-Item $pcre2Ucrt "$mingitRoot\libexec\git-core\libpcre2-8-0.dll" -Force
+            Write-Host "  ✓ Planted libpcre2-8-0.dll into MinGit\libexec\git-core" -ForegroundColor Green
+        }
+
+        $builtVersion = & "$mingitRoot\cmd\git.exe" --version
+        Write-Host "✓ Git built and installed to $mingitRoot" -ForegroundColor Green
+        Write-Host "  Version: $builtVersion" -ForegroundColor Green
+        Write-Host "  Previous: $backupVersion (at $backupDir)" -ForegroundColor Yellow
+    } else {
+        Write-Host "✗ Build failed — restoring backup..." -ForegroundColor Red
+        if (Test-Path "$backupDir\git.exe") {
+            Copy-Item "$backupDir\git.exe" "$mingitRoot\bin\git.exe" -Force
+            Copy-Item "$backupDir\git-cmd.exe" "$mingitRoot\cmd\git.exe" -Force
+            Write-Host "  Restored: $((& "$mingitRoot\cmd\git.exe" --version))" -ForegroundColor Yellow
+        }
+        Write-Host "  Check /d/dev/build-git.log for details" -ForegroundColor Red
+    }
+}
+
+# =====================================================
 # BASE PATH - Universal tools always in PATH
 # =====================================================
 $basePaths = @()
@@ -111,6 +328,16 @@ if (Test-Path "$bisonRoot\win_bison.exe") {
 
 if (Test-Path "$jomRoot\jom.exe") {
     $basePaths += $jomRoot
+}
+
+# Standalone ninja always in PATH (both Windows and MSYS2 toolchains benefit from having it visible)
+if (Test-Path "$ninjaRoot\bin\ninja.exe") {
+    $basePaths += "$ninjaRoot\bin"
+}
+
+# Standalone meson always in PATH
+if (Test-Path "$mesonRoot\meson.exe") {
+    $basePaths += $mesonRoot
 }
 
 # Make nmake always available for cargo build scripts (e.g. openssl-src)
@@ -141,7 +368,7 @@ if (Test-Path "$opensslRoot\include\openssl\ssl.h") {
     $env:OPENSSL_LIB_DIR     = "$opensslRoot\lib"
     $env:WITH_SSL            = $opensslRoot
     $env:CMAKE_PREFIX_PATH   = $opensslRoot
-    $basePaths += "$opensslRoot\bin"    # <-- this line is missing
+    $basePaths += "$opensslRoot\bin"
 }
 
 if (Test-Path "$perlRoot\perl\bin\perl.exe") {
@@ -152,14 +379,12 @@ if (Test-Path "$perlRoot\perl\bin\perl.exe") {
 }
 
 # MySQL - official Oracle connector
-
-# MySQL - official Oracle connector
 if (Test-Path "$mysqlRoot\lib\libmysql.lib") {
-    $basePaths += @("$mysqlRoot\bin", "$mysqlRoot\lib")   # lib added, since libmysql.dll lives there, not bin
-    $env:MYSQLCLIENT_LIB_DIR  = "$mysqlRoot\lib"
-    $env:MYSQLCLIENT_LIBNAME  = "libmysql"
+    $basePaths += @("$mysqlRoot\bin", "$mysqlRoot\lib")
+    $env:MYSQLCLIENT_LIB_DIR       = "$mysqlRoot\lib"
+    $env:MYSQLCLIENT_LIBNAME       = "libmysql"
     $env:MYSQLCLIENT_NO_PKG_CONFIG = "1"
-    $env:MYSQL_INCLUDE_DIR    = "$mysqlRoot\include"
+    $env:MYSQL_INCLUDE_DIR         = "$mysqlRoot\include"
 
     # Auto-detect version — primary source: mysql_version.h header
     $mysqlVersionHeader = "$mysqlRoot\include\mysql_version.h"
@@ -194,12 +419,16 @@ if (Test-Path "$postgresRoot\lib\libpq.lib") {
     $env:PQ_LIB_STATIC = "0"
 }
 
-
-
 if (Test-Path "$sqliteRoot\sqlite3.lib") {
     $env:SQLITE3_LIB_DIR  = $sqliteRoot
     $env:SQLITE3_LIB_NAME = "sqlite3"
     $basePaths += $sqliteRoot
+}
+
+# MinGit - prefer over MSYS2 git which gets dragged in via usr\bin below
+if (Test-Path "$mingitRoot\cmd\git.exe") {
+    $basePaths += "$mingitRoot\bin"    # ← DLLs (libpcre2, libiconv, zlib) findable in PATH
+    $basePaths += "$mingitRoot\cmd"
 }
 
 # libclang for bindgen (required by libsqlite3-sys, librocksdb-sys, etc.)
@@ -217,6 +446,8 @@ if (Test-Path "$msys64Root\usr\bin\bash.exe") {
 }
 
 $env:PATH = ($basePaths -join ";") + ";$env:PATH"
+# Unicode fix for Python on Windows cp1252 terminals
+$env:PYTHONUTF8 = "1"
 
 # =====================================================
 # EXPLICIT TOOL ALIASES - All 4 Toolchains
@@ -262,11 +493,40 @@ if (Test-Path "$msys64Root\ucrt64\bin\cmake.exe") {
 }
 
 # --- Ninja Aliases ---
-if (Test-Path "$cmakeRoot\bin\ninja.exe") {
+# ninja-win  → standalone ninja (D:\Programs\ninja), preferred for Windows toolchains
+# ninja-cmake → cmake-bundled ninja (D:\Programs\cmake\bin), explicit fallback alias
+# ninja-msys  → MSYS2 ucrt64 ninja, unchanged
+if (Test-Path "$ninjaRoot\bin\ninja.exe") {
+    Set-Alias -Name ninja-win -Value "$ninjaRoot\bin\ninja.exe" -Force
+} elseif (Test-Path "$cmakeRoot\bin\ninja.exe") {
     Set-Alias -Name ninja-win -Value "$cmakeRoot\bin\ninja.exe" -Force
+}
+if (Test-Path "$cmakeRoot\bin\ninja.exe") {
+    Set-Alias -Name ninja-cmake -Value "$cmakeRoot\bin\ninja.exe" -Force
 }
 if (Test-Path "$msys64Root\ucrt64\bin\ninja.exe") {
     Set-Alias -Name ninja-msys -Value "$msys64Root\ucrt64\bin\ninja.exe" -Force
+}
+
+# --- Meson function (wraps .pyz or .exe transparently) ---
+# meson-win  → preferred: D:\Programs\meson\meson.pyz (git zipapp) or meson.exe
+# meson-pip  → pip-installed meson (D:\Programs\Python\Scripts), explicit fallback
+$_mesonExe = Get-WinMeson
+if ($_mesonExe) {
+    $script:_mesonExePath = $_mesonExe
+    function meson-win {
+        if ($script:_mesonExePath -like "*.pyz") {
+            & "$pythonRoot\python.exe" $script:_mesonExePath @args
+        } else {
+            & $script:_mesonExePath @args
+        }
+    }
+    if (Test-Path "$mesonRoot\meson.pyz") {
+        Set-Alias -Name meson-standalone -Value "$mesonRoot\meson.pyz" -Force -ErrorAction SilentlyContinue
+    }
+}
+if (Test-Path "$pythonRoot\Scripts\meson.exe") {
+    Set-Alias -Name meson-pip -Value "$pythonRoot\Scripts\meson.exe" -Force
 }
 
 # --- Make Aliases ---
@@ -274,7 +534,6 @@ if (Test-Path "$msys64Root\ucrt64\bin\make.exe") {
     Set-Alias -Name make-msys -Value "$msys64Root\ucrt64\bin\make.exe" -Force
 }
 
-# --- Python Aliases ---
 # --- Python Aliases ---
 if (Test-Path "$pythonRoot\python.exe") {
     Set-Alias -Name python    -Value "$pythonRoot\python.exe"      -Force
@@ -304,6 +563,7 @@ if (Test-Path "$nasmRoot\nasm.exe") {
     Set-Alias -Name nasm-win -Value "$nasmRoot\nasm.exe" -Force
 }
 
+# --- Bison/Flex Aliases ---
 if (Test-Path "$bisonRoot\win_bison.exe") {
     Set-Alias -Name bison-win -Value "$bisonRoot\win_bison.exe" -Force
     Set-Alias -Name flex-win  -Value "$bisonRoot\win_flex.exe"  -Force
@@ -319,7 +579,8 @@ function Remove-ToolchainPaths {
         "*\msvc\*\bin*",
         "*\msys64\ucrt64\bin*",
         "*\msys64\usr\bin*",
-        "*Windows Kits*\bin*"
+        "*Windows Kits*\bin*",
+        "*\ninja*"           # covers standalone D:\Programs\ninja prepended by toolchain switches
     )
     $currentPath = $env:PATH -split ';'
     $cleanPath = $currentPath | Where-Object {
@@ -369,6 +630,10 @@ function Use-WindowsMSVC {
     foreach ($path in $msvcPaths) {
         if (Test-Path $path) { $env:PATH = "$path;$env:PATH" }
     }
+    # Prepend standalone ninja on top so it wins over cmake-bundled ninja
+    if (Test-Path "$ninjaRoot\ninja.exe") {
+        $env:PATH = "$ninjaRoot;$env:PATH"
+    }
     $env:VSCMD_ARG_HOST_ARCH  = $hostArch
     $env:VSCMD_ARG_TGT_ARCH   = $targetArch
     $env:VCToolsVersion       = $vcToolsVersion
@@ -389,23 +654,23 @@ function Use-WindowsMSVC {
         "$windowsKitsRoot\Lib\$windowsSDKVersion\um\$targetArch"
     ) -join ";"
     $env:CMAKE_GENERATOR = "Ninja"
-    $windowsNinja = "$cmakeRoot\bin\ninja.exe"
-    if (Test-Path $windowsNinja) {
-        $env:CMAKE_MAKE_PROGRAM = $windowsNinja
+    $resolvedNinja = Get-WinNinja
+    if ($resolvedNinja) {
+        $env:CMAKE_MAKE_PROGRAM = $resolvedNinja
     } else {
         $env:CMAKE_GENERATOR    = "NMake Makefiles"
         $env:CMAKE_MAKE_PROGRAM = "$msvcBinPath\nmake.exe"
     }
-    $env:CC                = "$msvcBinPath\cl.exe"
-    $env:CXX               = "$msvcBinPath\cl.exe"
-    $env:CMAKE_C_COMPILER  = "$msvcBinPath\cl.exe"
-    $env:CMAKE_CXX_COMPILER = "$msvcBinPath\cl.exe"
+    $env:CC                  = "$msvcBinPath\cl.exe"
+    $env:CXX                 = "$msvcBinPath\cl.exe"
+    $env:CMAKE_C_COMPILER    = "$msvcBinPath\cl.exe"
+    $env:CMAKE_CXX_COMPILER  = "$msvcBinPath\cl.exe"
     Remove-Item Env:\CMAKE_LINKER -ErrorAction SilentlyContinue
     Write-Host "✓ MSVC toolchain active" -ForegroundColor Green
     Write-Host "  Compiler:  $msvcBinPath\cl.exe" -ForegroundColor White
     Write-Host "  Linker:    $msvcBinPath\link.exe" -ForegroundColor White
     Write-Host "  CMake:     $cmakeRoot\bin\cmake.exe" -ForegroundColor White
-    Write-Host "  Ninja:     $cmakeRoot\bin\ninja.exe" -ForegroundColor White
+    Write-Host "  Ninja:     $($env:CMAKE_MAKE_PROGRAM)" -ForegroundColor White
 }
 
 # =====================================================
@@ -426,11 +691,11 @@ function Use-MSYS2GCC {
     $env:CXX                = "$msys64Root\ucrt64\bin\g++.exe"
     $env:CMAKE_C_COMPILER   = "$msys64Root\ucrt64\bin\gcc.exe"
     $env:CMAKE_CXX_COMPILER = "$msys64Root\ucrt64\bin\g++.exe"
-    Remove-Item Env:\LINKER          -ErrorAction SilentlyContinue
-    Remove-Item Env:\LINK            -ErrorAction SilentlyContinue
-    Remove-Item Env:\CMAKE_LINKER    -ErrorAction SilentlyContinue
+    Remove-Item Env:\LINKER            -ErrorAction SilentlyContinue
+    Remove-Item Env:\LINK              -ErrorAction SilentlyContinue
+    Remove-Item Env:\CMAKE_LINKER      -ErrorAction SilentlyContinue
     Remove-Item Env:\VCToolsInstallDir -ErrorAction SilentlyContinue
-    Remove-Item Env:\WindowsSDKDir   -ErrorAction SilentlyContinue
+    Remove-Item Env:\WindowsSDKDir     -ErrorAction SilentlyContinue
     Write-Host "✓ MSYS2 GCC toolchain active" -ForegroundColor Green
     Write-Host "  Compiler:  $msys64Root\ucrt64\bin\gcc.exe" -ForegroundColor White
     Write-Host "  Linker:    $msys64Root\ucrt64\bin\ld.exe (GNU ld)" -ForegroundColor White
@@ -456,11 +721,11 @@ function Use-MSYS2Clang {
     $env:CXX                = "$msys64Root\ucrt64\bin\clang++.exe"
     $env:CMAKE_C_COMPILER   = "$msys64Root\ucrt64\bin\clang.exe"
     $env:CMAKE_CXX_COMPILER = "$msys64Root\ucrt64\bin\clang++.exe"
-    Remove-Item Env:\LINKER          -ErrorAction SilentlyContinue
-    Remove-Item Env:\LINK            -ErrorAction SilentlyContinue
-    Remove-Item Env:\CMAKE_LINKER    -ErrorAction SilentlyContinue
+    Remove-Item Env:\LINKER            -ErrorAction SilentlyContinue
+    Remove-Item Env:\LINK              -ErrorAction SilentlyContinue
+    Remove-Item Env:\CMAKE_LINKER      -ErrorAction SilentlyContinue
     Remove-Item Env:\VCToolsInstallDir -ErrorAction SilentlyContinue
-    Remove-Item Env:\WindowsSDKDir   -ErrorAction SilentlyContinue
+    Remove-Item Env:\WindowsSDKDir     -ErrorAction SilentlyContinue
     Write-Host "✓ MSYS2 Clang toolchain active" -ForegroundColor Green
     Write-Host "  Compiler:  $msys64Root\ucrt64\bin\clang++.exe" -ForegroundColor White
     Write-Host "  Linker:    $msys64Root\ucrt64\bin\lld.exe (LLVM lld)" -ForegroundColor White
@@ -475,19 +740,18 @@ function Use-WindowsClang {
     Write-Host "`n==> Switching to Windows Clang-cl toolchain..." -ForegroundColor Cyan
     Remove-ToolchainPaths
     $clangPaths = @(
-    "$cmakeRoot\bin",
-    "$clangRoot\bin",
-    "$msvcBinPath",
-    "$windowsKitsRoot\bin\$windowsSDKVersion\$targetArch",
-    "$windowsKitsRoot\bin\$windowsSDKVersion\$targetArch\ucrt"
+        "$cmakeRoot\bin",
+        "$clangRoot\bin",
+        "$msvcBinPath",
+        "$windowsKitsRoot\bin\$windowsSDKVersion\$targetArch",
+        "$windowsKitsRoot\bin\$windowsSDKVersion\$targetArch\ucrt"
     )
-    #$clangPaths = @(
-    #    "$cmakeRoot\bin",
-    #    "$clangRoot\bin",
-    #    "$windowsKitsRoot\bin\$windowsSDKVersion\$targetArch"
-    #)
     foreach ($path in $clangPaths) {
         if (Test-Path $path) { $env:PATH = "$path;$env:PATH" }
+    }
+    # Prepend standalone ninja — fixed path to bin\ninja.exe
+    if (Test-Path "$ninjaRoot\bin\ninja.exe") {
+        $env:PATH = "$ninjaRoot\bin;$env:PATH"
     }
     $env:WindowsSDKVersion = "$windowsSDKVersion\"
     $env:WindowsSDKDir     = $windowsKitsRoot
@@ -504,29 +768,35 @@ function Use-WindowsClang {
         "$windowsKitsRoot\Lib\$windowsSDKVersion\ucrt\$targetArch",
         "$windowsKitsRoot\Lib\$windowsSDKVersion\um\$targetArch"
     ) -join ";"
-    $env:CMAKE_GENERATOR    = "Ninja"
-    $windowsNinja = "$cmakeRoot\bin\ninja.exe"
-    if (Test-Path $windowsNinja) {
-        $env:CMAKE_MAKE_PROGRAM = $windowsNinja
+    $env:CMAKE_GENERATOR = "Ninja"
+
+    # Resolve ninja directly — avoids circular call back into Get-WinNinja
+    # which would trigger a second Use-WindowsClang call
+    if (Test-Path "$ninjaRoot\bin\ninja.exe") {
+        $env:CMAKE_MAKE_PROGRAM = "$ninjaRoot\bin\ninja.exe"
+    } elseif (Test-Path "$cmakeRoot\bin\ninja.exe") {
+        $env:CMAKE_MAKE_PROGRAM = "$cmakeRoot\bin\ninja.exe"
     } else {
         $env:CMAKE_GENERATOR    = "NMake Makefiles"
         $env:CMAKE_MAKE_PROGRAM = "$msvcBinPath\nmake.exe"
     }
+
     $env:CC                  = "$clangRoot\bin\clang-cl.exe"
     $env:CXX                 = "$clangRoot\bin\clang-cl.exe"
     $env:CMAKE_C_COMPILER    = "$clangRoot\bin\clang-cl.exe"
     $env:CMAKE_CXX_COMPILER  = "$clangRoot\bin\clang-cl.exe"
     $env:CMAKE_LINKER        = "$clangRoot\bin\lld-link.exe"
-    Remove-Item Env:\LINKER          -ErrorAction SilentlyContinue
-    Remove-Item Env:\LINK            -ErrorAction SilentlyContinue
+    $env:DISTUTILS_USE_SDK   = "1"
+    $env:MSSdk               = "1"
+    Remove-Item Env:\LINKER            -ErrorAction SilentlyContinue
+    Remove-Item Env:\LINK              -ErrorAction SilentlyContinue
     Remove-Item Env:\VCToolsInstallDir -ErrorAction SilentlyContinue
     Write-Host "✓ Windows Clang-cl toolchain active" -ForegroundColor Green
     Write-Host "  Compiler:  $clangRoot\bin\clang-cl.exe" -ForegroundColor White
     Write-Host "  Linker:    $clangRoot\bin\lld-link.exe" -ForegroundColor White
     Write-Host "  CMake:     $cmakeRoot\bin\cmake.exe" -ForegroundColor White
-    Write-Host "  Ninja:     $cmakeRoot\bin\ninja.exe" -ForegroundColor White
+    Write-Host "  Ninja:     $($env:CMAKE_MAKE_PROGRAM)" -ForegroundColor White
 }
-
 # =====================================================
 # Convenient Aliases
 # =====================================================
@@ -573,7 +843,6 @@ function Update-Cargo {
 # =====================================================
 # MysqlclientSrc Patch Function
 # =====================================================
-
 function Patch-MysqlclientSrc {
     # ── Patch 1: build.rs (Release folder path fix) ──────────────────
     $buildRs = Get-ChildItem "D:\Programs\cargo\registry\src" -Recurse -Filter "build.rs" |
@@ -649,7 +918,6 @@ function Patch-MysqlclientSrc {
 # =====================================================
 # Patch-MysqlclientSysVersionCheck Patch Function
 # =====================================================
-
 function Patch-MysqlclientSysVersionCheck {
     $buildRs = Get-ChildItem "D:\Programs\cargo\registry\src" -Recurse -Filter "build.rs" |
         Where-Object { $_.FullName -like "*mysqlclient-sys-*" } |
@@ -783,6 +1051,175 @@ function Update-GlobalNpm {
 }
 Set-Alias -Name npmupdate -Value Update-GlobalNpm
 
+#======================================================
+# Build-Pcre from source: https://github.com/ModelCloud/PyPcre (using meson build system)
+#======================================================
+
+function Build-PyPcre {
+    # All git work BEFORE toolchain switch so MinGit never runs with polluted PATH
+    Set-Location D:\dev\PyPcre
+
+    # Snapshot env
+    $savedPath      = $env:PATH
+    $savedCC        = $env:CC
+    $savedCXX       = $env:CXX
+    $savedINCLUDE   = $env:INCLUDE
+    $savedLIB       = $env:LIB
+    $savedCMakeC    = $env:CMAKE_C_COMPILER
+    $savedCMakeCX   = $env:CMAKE_CXX_COMPILER
+    $savedCMakeG    = $env:CMAKE_GENERATOR
+    $savedCMakeMk   = $env:CMAKE_MAKE_PROGRAM
+    $savedCMakeLn   = $env:CMAKE_LINKER
+    $savedWinSDKVer = $env:WindowsSDKVersion
+    $savedWinSDKDir = $env:WindowsSDKDir
+
+    use-clang-win
+
+    pip install . --no-build-isolation --no-cache-dir --force-reinstall `
+      --config-settings=setup-args="-Dpcre2_include_dir=D:\Programs\pcre2-clang-win\include" `
+      --config-settings=setup-args="-Dpcre2_library=D:\Programs\pcre2-clang-win\lib\pcre2-8-static.lib"
+
+    # Restore env
+    $env:PATH               = $savedPath
+    $env:INCLUDE            = $savedINCLUDE
+    $env:LIB                = $savedLIB
+    $env:CMAKE_GENERATOR    = $savedCMakeG
+    $env:CMAKE_MAKE_PROGRAM = $savedCMakeMk
+    if ($savedCC)        { $env:CC                  = $savedCC        } else { Remove-Item Env:\CC                  -ErrorAction SilentlyContinue }
+    if ($savedCXX)       { $env:CXX                 = $savedCXX       } else { Remove-Item Env:\CXX                 -ErrorAction SilentlyContinue }
+    if ($savedCMakeC)    { $env:CMAKE_C_COMPILER    = $savedCMakeC    } else { Remove-Item Env:\CMAKE_C_COMPILER    -ErrorAction SilentlyContinue }
+    if ($savedCMakeCX)   { $env:CMAKE_CXX_COMPILER  = $savedCMakeCX   } else { Remove-Item Env:\CMAKE_CXX_COMPILER  -ErrorAction SilentlyContinue }
+    if ($savedCMakeLn)   { $env:CMAKE_LINKER        = $savedCMakeLn   } else { Remove-Item Env:\CMAKE_LINKER        -ErrorAction SilentlyContinue }
+    if ($savedWinSDKVer) { $env:WindowsSDKVersion   = $savedWinSDKVer } else { Remove-Item Env:\WindowsSDKVersion   -ErrorAction SilentlyContinue }
+    if ($savedWinSDKDir) { $env:WindowsSDKDir       = $savedWinSDKDir } else { Remove-Item Env:\WindowsSDKDir       -ErrorAction SilentlyContinue }
+
+    # Move away so Python imports from site-packages, not local source
+    Set-Location D:\
+    python -c "import pcre_ext_c; import pcre; print('PyPcre Python:', pcre.__version__, '| PCRE2 C:', pcre_ext_c.get_library_version())"
+}
+
+#====================================================
+# Building PCRE2 C static lib from source (clang-win)
+# Output: D:\Programs\pcre2-clang-win\lib\pcre2-8-static.lib
+#====================================================
+function Build-Pcre2Win {
+    # All git work BEFORE toolchain switch
+    Set-Location D:\dev\pcre2
+    git pull
+    git submodule update --init --recursive
+
+    # Snapshot env
+    $savedPath      = $env:PATH
+    $savedCC        = $env:CC
+    $savedCXX       = $env:CXX
+    $savedINCLUDE   = $env:INCLUDE
+    $savedLIB       = $env:LIB
+    $savedCMakeC    = $env:CMAKE_C_COMPILER
+    $savedCMakeCX   = $env:CMAKE_CXX_COMPILER
+    $savedCMakeG    = $env:CMAKE_GENERATOR
+    $savedCMakeMk   = $env:CMAKE_MAKE_PROGRAM
+    $savedCMakeLn   = $env:CMAKE_LINKER
+    $savedWinSDKVer = $env:WindowsSDKVersion
+    $savedWinSDKDir = $env:WindowsSDKDir
+
+    use-clang-win
+
+    # Configure — static lib only, no shared DLL, install to pcre2-clang-win
+    cmake -B build -G Ninja `
+      -DCMAKE_BUILD_TYPE=Release `
+      -DCMAKE_INSTALL_PREFIX="D:\Programs\pcre2-clang-win" `
+      -DCMAKE_C_COMPILER="$clangRoot\bin\clang-cl.exe" `
+      -DCMAKE_CXX_COMPILER="$clangRoot\bin\clang-cl.exe" `
+      -DCMAKE_LINKER="$clangRoot\bin\lld-link.exe" `
+      -DBUILD_SHARED_LIBS=OFF `
+      -DPCRE2_BUILD_PCRE2_8=ON `
+      -DPCRE2_BUILD_PCRE2_16=OFF `
+      -DPCRE2_BUILD_PCRE2_32=OFF `
+      -DPCRE2_SUPPORT_JIT=ON `
+      -DPCRE2_SUPPORT_UNICODE=ON `
+      -DPCRE2_BUILD_TESTS=OFF `
+      -DPCRE2_BUILD_PCRE2GREP=OFF `
+      -DPCRE2_BUILD_PCRE2TEST=OFF
+
+    cmake --build build --config Release
+    cmake --install build
+
+    # Restore env
+    $env:PATH               = $savedPath
+    $env:INCLUDE            = $savedINCLUDE
+    $env:LIB                = $savedLIB
+    $env:CMAKE_GENERATOR    = $savedCMakeG
+    $env:CMAKE_MAKE_PROGRAM = $savedCMakeMk
+    if ($savedCC)        { $env:CC                  = $savedCC        } else { Remove-Item Env:\CC                  -ErrorAction SilentlyContinue }
+    if ($savedCXX)       { $env:CXX                 = $savedCXX       } else { Remove-Item Env:\CXX                 -ErrorAction SilentlyContinue }
+    if ($savedCMakeC)    { $env:CMAKE_C_COMPILER    = $savedCMakeC    } else { Remove-Item Env:\CMAKE_C_COMPILER    -ErrorAction SilentlyContinue }
+    if ($savedCMakeCX)   { $env:CMAKE_CXX_COMPILER  = $savedCMakeCX   } else { Remove-Item Env:\CMAKE_CXX_COMPILER  -ErrorAction SilentlyContinue }
+    if ($savedCMakeLn)   { $env:CMAKE_LINKER        = $savedCMakeLn   } else { Remove-Item Env:\CMAKE_LINKER        -ErrorAction SilentlyContinue }
+    if ($savedWinSDKVer) { $env:WindowsSDKVersion   = $savedWinSDKVer } else { Remove-Item Env:\WindowsSDKVersion   -ErrorAction SilentlyContinue }
+    if ($savedWinSDKDir) { $env:WindowsSDKDir       = $savedWinSDKDir } else { Remove-Item Env:\WindowsSDKDir       -ErrorAction SilentlyContinue }
+
+    Set-Location D:\
+
+    # Confirm — check file was freshly written not stale from previous build
+    $lib = "D:\Programs\pcre2-clang-win\lib\pcre2-8-static.lib"
+    if ((Test-Path $lib) -and ((Get-Item $lib).LastWriteTime -gt (Get-Date).AddMinutes(-5))) {
+        Write-Host "✓ PCRE2 static lib freshly built: $lib" -ForegroundColor Green
+    } elseif (Test-Path $lib) {
+        Write-Host "✗ Build failed — lib exists but was not updated (stale)" -ForegroundColor Red
+    } else {
+        Write-Host "✗ Build failed — pcre2-8-static.lib not found" -ForegroundColor Red
+        Get-ChildItem "D:\Programs\pcre2-clang-win\lib" -ErrorAction SilentlyContinue
+    }
+}
+#====================================================
+# Building pcre2 from github source
+# ===================================================
+function Build-Pcre2 {
+    # All git work BEFORE toolchain switch so MinGit never runs with polluted PATH
+    Set-Location D:\dev\pcre2.py
+    git pull
+    git config --global --add safe.directory D:/dev/pcre2.py/src/libpcre2
+    Set-Location src\libpcre2
+    git fetch origin
+    git checkout origin/main
+    Set-Location D:\dev\pcre2.py
+
+    # Snapshot env
+    $savedPath      = $env:PATH
+    $savedCC        = $env:CC
+    $savedCXX       = $env:CXX
+    $savedINCLUDE   = $env:INCLUDE
+    $savedLIB       = $env:LIB
+    $savedCMakeC    = $env:CMAKE_C_COMPILER
+    $savedCMakeCX   = $env:CMAKE_CXX_COMPILER
+    $savedCMakeG    = $env:CMAKE_GENERATOR
+    $savedCMakeMk   = $env:CMAKE_MAKE_PROGRAM
+    $savedCMakeLn   = $env:CMAKE_LINKER
+    $savedWinSDKVer = $env:WindowsSDKVersion
+    $savedWinSDKDir = $env:WindowsSDKDir
+
+    use-clang-win
+    pip cache purge
+    pip install . --no-build-isolation --no-cache-dir
+
+    # Restore env
+    $env:PATH               = $savedPath
+    $env:INCLUDE            = $savedINCLUDE
+    $env:LIB                = $savedLIB
+    $env:CMAKE_GENERATOR    = $savedCMakeG
+    $env:CMAKE_MAKE_PROGRAM = $savedCMakeMk
+    if ($savedCC)        { $env:CC                  = $savedCC        } else { Remove-Item Env:\CC                  -ErrorAction SilentlyContinue }
+    if ($savedCXX)       { $env:CXX                 = $savedCXX       } else { Remove-Item Env:\CXX                 -ErrorAction SilentlyContinue }
+    if ($savedCMakeC)    { $env:CMAKE_C_COMPILER    = $savedCMakeC    } else { Remove-Item Env:\CMAKE_C_COMPILER    -ErrorAction SilentlyContinue }
+    if ($savedCMakeCX)   { $env:CMAKE_CXX_COMPILER  = $savedCMakeCX   } else { Remove-Item Env:\CMAKE_CXX_COMPILER  -ErrorAction SilentlyContinue }
+    if ($savedCMakeLn)   { $env:CMAKE_LINKER        = $savedCMakeLn   } else { Remove-Item Env:\CMAKE_LINKER        -ErrorAction SilentlyContinue }
+    if ($savedWinSDKVer) { $env:WindowsSDKVersion   = $savedWinSDKVer } else { Remove-Item Env:\WindowsSDKVersion   -ErrorAction SilentlyContinue }
+    if ($savedWinSDKDir) { $env:WindowsSDKDir       = $savedWinSDKDir } else { Remove-Item Env:\WindowsSDKDir       -ErrorAction SilentlyContinue }
+
+    Set-Location D:\
+    python -c "import pcre2; print('pcre2 Python:', pcre2.__version__, '| PCRE2 C:', pcre2.__libpcre2_version__)"
+}
+
 # =====================================================
 # Profile Load Message
 # =====================================================
@@ -811,18 +1248,69 @@ if (Test-Path "$nasmRoot\nasm.exe") {
 } else {
     Write-Host "  ⚠ NASM:       not found at $nasmRoot" -ForegroundColor Red
 }
-
 if (Test-Path "$bisonRoot\win_bison.exe") {
     $bisonVer = & "$bisonRoot\win_bison.exe" --version 2>&1 | Select-Object -First 1
-    Write-Host "  ✓ Bison:   $bisonVer" -ForegroundColor Green
+    Write-Host "  ✓ Bison:      $bisonVer" -ForegroundColor Green
 } else {
-    Write-Host "  ⚠ Bison:   not found at $bisonRoot" -ForegroundColor Red
+    Write-Host "  ⚠ Bison:      not found at $bisonRoot" -ForegroundColor Red
 }
-
 if (Test-Path "$jomRoot\jom.exe") {
     Write-Host "  ✓ jom:        found at $jomRoot" -ForegroundColor Green
 } else {
     Write-Host "  ⚠ jom:        not found at $jomRoot" -ForegroundColor Red
+}
+
+# Ninja status: show which binary is the active one for Windows toolchains
+$_ninjaResolved = Get-WinNinja
+if (Test-Path "$ninjaRoot\bin\ninja.exe") {
+    $ninjaVer = & "$ninjaRoot\bin\ninja.exe" --version 2>&1
+    Write-Host "  ✓ Ninja:      $ninjaVer (standalone at $ninjaRoot)" -ForegroundColor Green
+    if (Test-Path "$cmakeRoot\bin\ninja.exe") {
+        $ninjaCmakeVer = & "$cmakeRoot\bin\ninja.exe" --version 2>&1
+        Write-Host "    cmake-bundled also available: $ninjaCmakeVer (ninja-cmake alias)" -ForegroundColor Gray
+    }
+} elseif (Test-Path "$cmakeRoot\bin\ninja.exe") {
+    $ninjaVer = & "$cmakeRoot\bin\ninja.exe" --version 2>&1
+    Write-Host "  ✓ Ninja:      $ninjaVer (cmake-bundled — install standalone to $ninjaRoot for upgrade)" -ForegroundColor Yellow
+} else {
+    Write-Host "  ⚠ Ninja:      not found (install to $ninjaRoot or $cmakeRoot\bin)" -ForegroundColor Red
+}
+
+# Meson status: show which binary is active
+$_mesonResolved = Get-WinMeson
+if (Test-Path "$mesonRoot\meson.cmd") {
+    $mesonVer = & "$mesonRoot\meson.cmd" --version 2>&1
+    Write-Host "  ✓ Meson:      $mesonVer (standalone cmd at $mesonRoot)" -ForegroundColor Green
+    if (Test-Path "$pythonRoot\Scripts\meson.exe") {
+        $mesonPipVer = & "$pythonRoot\Scripts\meson.exe" --version 2>&1
+        Write-Host "    pip meson also available: $mesonPipVer (meson-pip alias)" -ForegroundColor Gray
+    }
+} elseif (Test-Path "$mesonRoot\meson.pyz") {
+    $mesonVer = & "$pythonRoot\python.exe" "$mesonRoot\meson.pyz" --version 2>&1
+    Write-Host "  ✓ Meson:      $mesonVer (standalone pyz at $mesonRoot)" -ForegroundColor Green
+    if (Test-Path "$pythonRoot\Scripts\meson.exe") {
+        $mesonPipVer = & "$pythonRoot\Scripts\meson.exe" --version 2>&1
+        Write-Host "    pip meson also available: $mesonPipVer (meson-pip alias)" -ForegroundColor Gray
+    }
+} elseif (Test-Path "$mesonRoot\meson.exe") {
+    $mesonVer = & "$mesonRoot\meson.exe" --version 2>&1
+    Write-Host "  ✓ Meson:      $mesonVer (standalone at $mesonRoot)" -ForegroundColor Green
+    if (Test-Path "$pythonRoot\Scripts\meson.exe") {
+        $mesonPipVer = & "$pythonRoot\Scripts\meson.exe" --version 2>&1
+        Write-Host "    pip meson also available: $mesonPipVer (meson-pip alias)" -ForegroundColor Gray
+    }
+} elseif (Test-Path "$pythonRoot\Scripts\meson.exe") {
+    $mesonVer = & "$pythonRoot\Scripts\meson.exe" --version 2>&1
+    Write-Host "  ✓ Meson:      $mesonVer (pip — install standalone to $mesonRoot for upgrade)" -ForegroundColor Yellow
+} else {
+    Write-Host "  ⚠ Meson:      not found (pip install meson or install standalone to $mesonRoot)" -ForegroundColor Red
+}
+
+# Set MESON env var so meson-python always uses standalone meson explicitly
+# This bypasses PATH lookup in subprocess calls (pip, meson-python builds)
+$_mesonExe = Get-WinMeson
+if ($_mesonExe) {
+    $env:MESON = $_mesonExe
 }
 
 if (Test-Path "$opensslRoot\include\openssl\ssl.h") {
@@ -848,11 +1336,12 @@ Write-Host "  use-msvc         → MSVC (D:\dev\msvc\...)" -ForegroundColor Whit
 Write-Host "  use-gcc          → MSYS2 GCC (D:\Programs\msys64\ucrt64\...)" -ForegroundColor White
 Write-Host "  use-clang-msys   → MSYS2 Clang (D:\Programs\msys64\ucrt64\...)" -ForegroundColor White
 Write-Host "  use-clang-win    → Windows Clang (D:\Programs\clang\... + D:\Programs\cmake\...)" -ForegroundColor White
+Write-Host "  use-none         → Reset (no toolchain active)" -ForegroundColor White
 
 Write-Host "`nUpdate Commands:" -ForegroundColor Yellow
-Write-Host "  Update-Cargo     → Update Rust/Cargo packages" -ForegroundColor White
+Write-Host "  Update-Cargo          → Update Rust/Cargo packages" -ForegroundColor White
 Write-Host "  Patch-MysqlclientSrc  → Patch mysqlclient-src build.rs for Windows MSVC" -ForegroundColor White
-Write-Host "  npmupdate        → Update all global npm packages to @latest" -ForegroundColor White
+Write-Host "  npmupdate             → Update all global npm packages to @latest" -ForegroundColor White
 
 Write-Host "`nExplicit Aliases (always available):" -ForegroundColor Yellow
 Write-Host "  Compilers:" -ForegroundColor Cyan
@@ -862,7 +1351,8 @@ Write-Host "    clang-msys, clang++-msys, lld-msys" -ForegroundColor White
 Write-Host "    clang-win, clang++-win, clang-cl-win, lld-link-win" -ForegroundColor White
 Write-Host "  Build Tools:" -ForegroundColor Cyan
 Write-Host "    cmake-win, cmake-msys" -ForegroundColor White
-Write-Host "    ninja-win, ninja-msys" -ForegroundColor White
+Write-Host "    ninja-win (standalone), ninja-cmake (cmake-bundled), ninja-msys" -ForegroundColor White
+Write-Host "    meson-win (preferred), meson-pip (pip fallback), meson-standalone" -ForegroundColor White
 Write-Host "    make-msys" -ForegroundColor White
 Write-Host "  Python:" -ForegroundColor Cyan
 Write-Host "    python314, py314, pip314" -ForegroundColor White
