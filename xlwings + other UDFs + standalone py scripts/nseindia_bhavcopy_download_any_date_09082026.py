@@ -66,7 +66,7 @@ def download_nse_bhavcopy(date_str: str, output_dir: str = OUTPUT_DIR):
 
 def main():
     import sys
-    date_str = sys.argv[1] if len(sys.argv) > 1 else "06-08-2026"
+    date_str = sys.argv[1] if len(sys.argv) > 1 else "04-09-2026"
 
     f = download_nse_bhavcopy(date_str, output_dir=OUTPUT_DIR)
 
