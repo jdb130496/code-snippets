@@ -1,0 +1,7 @@
+rclone sync ~/OneDrive onedrive: --progress \
+  --transfers 2 \
+  --onedrive-chunk-size 10M \
+  --tpslimit 4 \
+  --bwlimit 500k \
+  --create-empty-src-dirs \
+  --checksum
