@@ -261,18 +261,22 @@ echo ""
 echo "===================================================================="
 echo "Building exiv2 in isolation..."
 echo "===================================================================="
+# Dynamically find latest stable exiv2 tag (v0.28.x) compatible with gexiv2
+EXIV2_TAG=$(git ls-remote --tags https://github.com/Exiv2/exiv2.git \
+    | grep -oP 'refs/tags/v0\.28\.[0-9]+' \
+    | sed 's|refs/tags/||g' \
+    | sort -V | tail -1)
+echo "Using exiv2 tag: $EXIV2_TAG (latest stable v0.28.x)"
+
 if [[ ! -d exiv2 ]]; then
-    git clone https://github.com/Exiv2/exiv2.git
+    git clone --depth 1 --branch "$EXIV2_TAG" https://github.com/Exiv2/exiv2.git
+else
+    cd exiv2
+    git fetch --tags
+    git checkout "$EXIV2_TAG"
+    cd ..
 fi
 cd exiv2
-git fetch --tags
-
-# Use latest release tag (not main — main has pre-release API breaks)
-EXIV2_TAG=$(git tag -l 'v*' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
-echo "Using exiv2 tag: $EXIV2_TAG"
-git checkout "$EXIV2_TAG"
-git clean -fd
-
 rm -rf build && mkdir build && cd build
 cmake .. \
     -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" \
@@ -293,10 +297,11 @@ echo "===================================================================="
 echo "Building gexiv2 in isolation..."
 echo "===================================================================="
 if [[ ! -d gexiv2 ]]; then
-    git clone https://gitlab.gnome.org/GNOME/gexiv2.git
+    git clone --depth 1 https://github.com/GNOME/gexiv2.git
+else
+    cd gexiv2 && git pull && cd ..
 fi
 cd gexiv2
-git checkout master
 git pull
 rm -rf build
 meson setup build --prefix="$INSTALL_PREFIX"
@@ -332,10 +337,11 @@ echo "===================================================================="
 echo "Building BABL in isolation..."
 echo "===================================================================="
 if [[ ! -d babl ]]; then
-    git clone --depth 1 https://gitlab.gnome.org/GNOME/babl.git
+    git clone --depth 1 https://github.com/GNOME/babl.git
+else
+    cd babl && git pull && cd ..
 fi
 cd babl
-git pull
 rm -rf build
 meson setup build --prefix="$INSTALL_PREFIX" -Denable-gir=true -Denable-vapi=true
 
@@ -377,7 +383,7 @@ echo "===================================================================="
 echo "Building GEGL in isolation..."
 echo "===================================================================="
 if [[ ! -d gegl ]]; then
-    git clone --depth 1 https://gitlab.gnome.org/GNOME/gegl.git
+    git clone --depth 1 https://github.com/GNOME/gegl.git
 else
     cd gegl && git clean -fd && git pull && cd ..
 fi
@@ -425,7 +431,7 @@ echo "===================================================================="
 echo "Building GIMP in isolation..."
 echo "===================================================================="
 if [[ ! -d gimp ]]; then
-    git clone --depth 1 https://gitlab.gnome.org/GNOME/gimp.git
+    git clone --depth 1 https://github.com/GNOME/gimp.git
 fi
 
 cd gimp
@@ -439,6 +445,9 @@ rm -rf build
 git pull
 
 echo "Initializing gimp-data submodule..."
+echo "Fixing submodule URL to use GitHub mirror..."
+sed -i 's|https://gitlab.gnome.org/GNOME/gimp-data|https://github.com/GNOME/gimp-data|g' .gitmodules
+git config submodule.gimp-data.url https://github.com/GNOME/gimp-data.git
 git submodule sync
 git submodule update --init --depth 1 --progress gimp-data
 echo "✓ gimp-data submodule initialized"

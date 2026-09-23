@@ -190,6 +190,7 @@ play_alert_sound() {
     fi
 }
 
+
 show_notification() {
     local message="$1"
     local title="$2"
