@@ -59,7 +59,7 @@ if ($_certBundle -and (Test-Path $_certBundle)) {
 # Auto-detect MSVC tools version (highest installed)
 $vcToolsVersion = Get-ChildItem "$msvcRoot\VC\Tools\MSVC" -Directory -ErrorAction SilentlyContinue |
                   Sort-Object Name -Descending | Select-Object -First 1 -ExpandProperty Name
-if (-not $vcToolsVersion) { $vcToolsVersion = "14.52.36725" }  # fallback
+if (-not $vcToolsVersion) { $vcToolsVersion = "14.52.36807" }  # fallback
 
 # Auto-detect Windows Kits root (11 takes priority over 10)
 $windowsKitsRoot = $null
@@ -278,40 +278,75 @@ function Get-WinGitPreRelease {
 function Get-WinGit-Msys {
     Write-Host "Building git from source via MSYS2 ucrt64..." -ForegroundColor Cyan
 
+    # Backup existing install
     $backupDir = "$mingitRoot-backup"
     if (Test-Path "$mingitRoot\bin\git.exe") {
         New-Item -ItemType Directory -Force $backupDir | Out-Null
-        Copy-Item "$mingitRoot\bin\git.exe" "$backupDir\git.exe" -Force
-        Copy-Item "$mingitRoot\cmd\git.exe" "$backupDir\git-cmd.exe" -Force
+        Copy-Item "$mingitRoot\bin\git.exe"     "$backupDir\git.exe"     -Force
+        Copy-Item "$mingitRoot\cmd\git.exe"     "$backupDir\git-cmd.exe" -Force
         $backupVersion = & "$backupDir\git.exe" --version
         Write-Host "  Backed up: $backupVersion" -ForegroundColor Yellow
     }
 
-    Get-Process -Name "git", "git-remote-https" -ErrorAction SilentlyContinue | Stop-Process -Force
+    # Kill git processes that would lock files
+    Get-Process -Name "git","git-remote-https" -ErrorAction SilentlyContinue | Stop-Process -Force
 
-    & "$msys64Root\usr\bin\bash.exe" --login "/d/dev/build-git.sh"
+    # Pre-clean from PS side (handles locked files bash can't remove)
+    $srcDir = "D:\dev\git-src"
+    Write-Host "  Cleaning previous build artifacts..." -ForegroundColor Yellow
+    foreach ($f in @("$srcDir\GIT-VERSION-FILE")) {
+        if (Test-Path $f) { Remove-Item $f -Force; Write-Host "    Removed $f" -ForegroundColor DarkGray }
+    }
+    foreach ($d in @("$srcDir\target", $mingitRoot)) {
+        if (Test-Path $d) { Remove-Item $d -Recurse -Force; Write-Host "    Removed $d" -ForegroundColor DarkGray }
+    }
 
-    if ($LASTEXITCODE -eq 0) {
-        # Replant libpcre2-8-0.dll after MSYS2 build overwrites MinGit layout
-        $pcre2Usr  = "D:\Programs\msys64\usr\bin\libpcre2-8-0.dll"
-        $pcre2Ucrt = "D:\Programs\msys64\ucrt64\bin\libpcre2-8-0.dll"
-        if (Test-Path $pcre2Usr) {
-            Copy-Item $pcre2Usr "$mingitRoot\bin\libpcre2-8-0.dll" -Force
-            Write-Host "  ✓ Planted libpcre2-8-0.dll into MinGit\bin" -ForegroundColor Green
+    # Save and wipe every env var that could poison MSYS2 make/cargo
+    $savedVars = @{}
+    foreach ($v in @("MAKEFLAGS","MFLAGS","MAKELEVEL","CARGO_MAKEFLAGS","MSYS","MSYS2_PATH_TYPE")) {
+        $savedVars[$v] = [System.Environment]::GetEnvironmentVariable($v)
+        [System.Environment]::SetEnvironmentVariable($v, $null)
+    }
+
+    # Isolate MSYS2 from the Windows PATH soup
+    $env:MSYS2_PATH_TYPE = "minimal"
+
+    # Launch bash with a clean slate
+    & "$msys64Root\usr\bin\bash.exe" --login -c `
+        "unset MAKEFLAGS MFLAGS MAKELEVEL CARGO_MAKEFLAGS; exec bash /d/dev/build-git.sh"
+    $buildExit = $LASTEXITCODE
+
+    # Restore all saved env vars
+    foreach ($v in $savedVars.Keys) {
+        if ($savedVars[$v]) { [System.Environment]::SetEnvironmentVariable($v, $savedVars[$v]) }
+        else { [System.Environment]::SetEnvironmentVariable($v, $null) }
+    }
+
+    # Post-build
+    if ($buildExit -eq 0) {
+        foreach ($pair in @(
+            @("D:\Programs\msys64\usr\bin\libpcre2-8-0.dll",         "$mingitRoot\bin\libpcre2-8-0.dll"),
+            @("D:\Programs\msys64\ucrt64\bin\libpcre2-8-0.dll",      "$mingitRoot\libexec\git-core\libpcre2-8-0.dll")
+        )) {
+            if (Test-Path $pair[0]) {
+                Copy-Item $pair[0] $pair[1] -Force
+                Write-Host "  ✓ Planted $(Split-Path $pair[1] -Leaf) into $(Split-Path (Split-Path $pair[1]) -Leaf)" -ForegroundColor Green
+            }
         }
-        if (Test-Path $pcre2Ucrt) {
-            Copy-Item $pcre2Ucrt "$mingitRoot\libexec\git-core\libpcre2-8-0.dll" -Force
-            Write-Host "  ✓ Planted libpcre2-8-0.dll into MinGit\libexec\git-core" -ForegroundColor Green
-        }
-
         $builtVersion = & "$mingitRoot\cmd\git.exe" --version
         Write-Host "✓ Git built and installed to $mingitRoot" -ForegroundColor Green
-        Write-Host "  Version: $builtVersion" -ForegroundColor Green
-        Write-Host "  Previous: $backupVersion (at $backupDir)" -ForegroundColor Yellow
+        Write-Host "  Version:  $builtVersion"  -ForegroundColor Green
+        if ($backupVersion) {
+           Write-Host "  Previous: $backupVersion (at $backupDir)" -ForegroundColor Yellow
+           } else {
+    Write-Host "  Previous: (no backup — install dir was already absent)" -ForegroundColor DarkGray
+        }         
+        $env:PATH = "$mingitRoot\cmd;$mingitRoot\bin;" + ($env:PATH -replace [regex]::Escape("$mingitRoot\cmd;"), '' -replace [regex]::Escape("$mingitRoot\bin;"), '')
+        Write-Host "  ✓ MinGit promoted to front of PATH for this session" -ForegroundColor Green
     } else {
-        Write-Host "✗ Build failed — restoring backup..." -ForegroundColor Red
+        Write-Host "✗ Build failed (exit $buildExit) — restoring backup..." -ForegroundColor Red
         if (Test-Path "$backupDir\git.exe") {
-            Copy-Item "$backupDir\git.exe" "$mingitRoot\bin\git.exe" -Force
+            Copy-Item "$backupDir\git.exe"     "$mingitRoot\bin\git.exe" -Force
             Copy-Item "$backupDir\git-cmd.exe" "$mingitRoot\cmd\git.exe" -Force
             Write-Host "  Restored: $((& "$mingitRoot\cmd\git.exe" --version))" -ForegroundColor Yellow
         }
@@ -457,6 +492,18 @@ if (Test-Path "$msys64Root\usr\bin\bash.exe") {
 }
 
 $env:PATH = ($basePaths -join ";") + ";$env:PATH"
+
+# Force MinGit ahead of any MSYS2 git already in PATH (usr\bin was just appended above)
+if (Test-Path "$mingitRoot\cmd\git.exe") {
+    $env:PATH = "$mingitRoot\cmd;$mingitRoot\bin;" + $env:PATH
+}
+
+# Force standalone meson ahead of Python Scripts meson.exe
+# (.cmd loses to .exe in PATH resolution even when listed first)
+if (Test-Path "$mesonRoot\meson.cmd") {
+    $env:PATH = "$mesonRoot;" + $env:PATH
+}
+
 # Unicode fix for Python on Windows cp1252 terminals
 $env:PYTHONUTF8 = "1"
 
@@ -1379,7 +1426,9 @@ function Build-Pcre2 {
 
     use-clang-win
     pip cache purge
-    pip install . --no-build-isolation --no-cache-dir
+    pip install . --no-build-isolation --no-cache-dir --force-reinstall `
+      --config-settings=setup-args="-Dpcre2_include_dir=D:\Programs\pcre2-clang-win\include" `
+      --config-settings=setup-args="-Dpcre2_library=D:\Programs\pcre2-clang-win\lib\pcre2-8.lib"
 
     # Restore env
     $env:PATH               = $savedPath

@@ -107,7 +107,7 @@ $msvcBinPath = "$msvcRoot\VC\Tools\MSVC\$vcToolsVersion\bin\Host$hostArch\$targe
 # MSYS2 toolchains always use their own ucrt64\bin\ninja.exe (unchanged)
 # =====================================================
 
-function Get-WinNinja {
+function Update-WinNinja {
     param([switch]$Update)
     if ($Update) {
         # Snapshot both PATH and all env vars that use-clang-win touches
@@ -156,7 +156,7 @@ function Get-WinNinja {
 
 # Resolve preferred meson path
 # Priority: standalone D:\Programs\meson > pip D:\Programs\Python\Scripts
-function Get-WinMeson {
+function Update-WinMeson {
     param([switch]$Update)
     if ($Update) {
         # Point git to Python's certifi CA bundle to fix TLS on MinGit
@@ -186,7 +186,7 @@ function Get-WinMeson {
 #======================================================
 #Mingit Building From Source
 #======================================================
-function Get-WinGit {
+function Update-WinGit {
     param([switch]$Update)
     if ($Update) {
         $release = Invoke-RestMethod "https://api.github.com/repos/git-for-windows/git/releases/latest"
@@ -228,7 +228,7 @@ function Get-WinGit {
     return $null
 }
 
-function Get-WinGitPreRelease {
+function Update-WinGitPreRelease {
     param(
         [switch]$Update,
         [switch]$PreRelease
@@ -275,7 +275,7 @@ function Get-WinGitPreRelease {
     return $null
 }
 
-function Get-WinGit-Msys {
+function Update-WinGit-Msys {
     Write-Host "Building git from source via MSYS2 ucrt64..." -ForegroundColor Cyan
 
     # Backup existing install
@@ -569,7 +569,7 @@ if (Test-Path "$msys64Root\ucrt64\bin\ninja.exe") {
 # --- Meson function (wraps .pyz or .exe transparently) ---
 # meson-win  → preferred: D:\Programs\meson\meson.pyz (git zipapp) or meson.exe
 # meson-pip  → pip-installed meson (D:\Programs\Python\Scripts), explicit fallback
-$_mesonExe = Get-WinMeson
+$_mesonExe = Update-WinMeson
 if ($_mesonExe) {
     $script:_mesonExePath = $_mesonExe
     function meson-win {
@@ -712,7 +712,7 @@ function Use-WindowsMSVC {
         "$windowsKitsRoot\Lib\$windowsSDKVersion\um\$targetArch"
     ) -join ";"
     $env:CMAKE_GENERATOR = "Ninja"
-    $resolvedNinja = Get-WinNinja
+    $resolvedNinja = Update-WinNinja
     if ($resolvedNinja) {
         $env:CMAKE_MAKE_PROGRAM = $resolvedNinja
     } else {
@@ -828,7 +828,7 @@ function Use-WindowsClang {
     ) -join ";"
     $env:CMAKE_GENERATOR = "Ninja"
 
-    # Resolve ninja directly — avoids circular call back into Get-WinNinja
+    # Resolve ninja directly — avoids circular call back into Update-WinNinja
     # which would trigger a second Use-WindowsClang call
     if (Test-Path "$ninjaRoot\bin\ninja.exe") {
         $env:CMAKE_MAKE_PROGRAM = "$ninjaRoot\bin\ninja.exe"
@@ -1110,14 +1110,31 @@ function Update-GlobalNpm {
 Set-Alias -Name npmupdate -Value Update-GlobalNpm
 
 #======================================================
-# Build-Pcre from source: https://github.com/ModelCloud/PyPcre (using meson build system)
+# Update-Pcre from source: https://github.com/ModelCloud/PyPcre (using meson build system)
 #======================================================
 
-function Build-PyPcre {
-    # All git work BEFORE toolchain switch so MinGit never runs with polluted PATH
+function Update-PyPcre {
+    $originalLocation = Get-Location          # ← save wherever caller was
     Set-Location D:\dev\PyPcre
 
-    # Snapshot env
+    # ── 1. Pull latest from upstream (ModelCloud) into local clone ──
+    Write-Host "Fetching upstream (ModelCloud/PyPcre)..." -ForegroundColor Cyan
+    git fetch upstream
+    if ($LASTEXITCODE -ne 0) { Write-Warning "git fetch upstream failed"; Set-Location $originalLocation; return }
+
+    git merge upstream/main --ff-only
+    if ($LASTEXITCODE -ne 0) {
+        Write-Warning "Merge from upstream failed (conflicts?) — resolve manually then re-run"
+        Set-Location $originalLocation; return
+    }
+    Write-Host "  ✓ Local clone updated from upstream" -ForegroundColor Green
+
+    # ── 2. Push updated local clone → your fork (jdb130496/PyPcre) ──
+    git push origin main
+    if ($LASTEXITCODE -ne 0) { Write-Warning "git push to your fork failed" }
+    else { Write-Host "  ✓ Your fork (jdb130496/PyPcre) synced" -ForegroundColor Green }
+
+    # ── Snapshot env ──
     $savedPath      = $env:PATH
     $savedCC        = $env:CC
     $savedCXX       = $env:CXX
@@ -1133,27 +1150,27 @@ function Build-PyPcre {
 
     use-clang-win
 
+    # ── 3. Build & install from (now-updated) local source ──
     pip install . --no-build-isolation --no-cache-dir --force-reinstall `
       --config-settings=setup-args="-Dpcre2_include_dir=D:\Programs\pcre2-clang-win\include" `
       --config-settings=setup-args="-Dpcre2_library=D:\Programs\pcre2-clang-win\lib\pcre2-8.lib"
 
-    # Restore env
+    # ── Restore env ──
     $env:PATH               = $savedPath
     $env:INCLUDE            = $savedINCLUDE
     $env:LIB                = $savedLIB
     $env:CMAKE_GENERATOR    = $savedCMakeG
     $env:CMAKE_MAKE_PROGRAM = $savedCMakeMk
-    if ($savedCC)        { $env:CC                  = $savedCC        } else { Remove-Item Env:\CC                  -ErrorAction SilentlyContinue }
-    if ($savedCXX)       { $env:CXX                 = $savedCXX       } else { Remove-Item Env:\CXX                 -ErrorAction SilentlyContinue }
-    if ($savedCMakeC)    { $env:CMAKE_C_COMPILER    = $savedCMakeC    } else { Remove-Item Env:\CMAKE_C_COMPILER    -ErrorAction SilentlyContinue }
-    if ($savedCMakeCX)   { $env:CMAKE_CXX_COMPILER  = $savedCMakeCX   } else { Remove-Item Env:\CMAKE_CXX_COMPILER  -ErrorAction SilentlyContinue }
-    if ($savedCMakeLn)   { $env:CMAKE_LINKER        = $savedCMakeLn   } else { Remove-Item Env:\CMAKE_LINKER        -ErrorAction SilentlyContinue }
-    if ($savedWinSDKVer) { $env:WindowsSDKVersion   = $savedWinSDKVer } else { Remove-Item Env:\WindowsSDKVersion   -ErrorAction SilentlyContinue }
-    if ($savedWinSDKDir) { $env:WindowsSDKDir       = $savedWinSDKDir } else { Remove-Item Env:\WindowsSDKDir       -ErrorAction SilentlyContinue }
+    if ($savedCC)        { $env:CC                 = $savedCC        } else { Remove-Item Env:\CC                  -ErrorAction SilentlyContinue }
+    if ($savedCXX)       { $env:CXX                = $savedCXX       } else { Remove-Item Env:\CXX                 -ErrorAction SilentlyContinue }
+    if ($savedCMakeC)    { $env:CMAKE_C_COMPILER   = $savedCMakeC    } else { Remove-Item Env:\CMAKE_C_COMPILER    -ErrorAction SilentlyContinue }
+    if ($savedCMakeCX)   { $env:CMAKE_CXX_COMPILER = $savedCMakeCX   } else { Remove-Item Env:\CMAKE_CXX_COMPILER  -ErrorAction SilentlyContinue }
+    if ($savedCMakeLn)   { $env:CMAKE_LINKER       = $savedCMakeLn   } else { Remove-Item Env:\CMAKE_LINKER        -ErrorAction SilentlyContinue }
+    if ($savedWinSDKVer) { $env:WindowsSDKVersion  = $savedWinSDKVer } else { Remove-Item Env:\WindowsSDKVersion   -ErrorAction SilentlyContinue }
+    if ($savedWinSDKDir) { $env:WindowsSDKDir      = $savedWinSDKDir } else { Remove-Item Env:\WindowsSDKDir       -ErrorAction SilentlyContinue }
 
-    # Move away so Python imports from site-packages, not local source
-    Set-Location D:\
-    # Ensure pcre2-8.dll is findable by Python (Python 3.8+ ignores PATH for DLL loading)
+    Set-Location $originalLocation              # ← restore wherever caller was
+
     $pth = "D:\Programs\Python\Lib\site-packages\pcre2-clang-win.pth"
     if (-not (Test-Path $pth)) {
         @"
@@ -1169,9 +1186,9 @@ import os; os.add_dll_directory(r'D:\Programs\pcre2-clang-win\bin')
 # PCRE2 at D:\Programs\pcre2-clang-win
 # Output: D:\dev\ripgrep\target\release\rg.exe
 #          D:\Programs\cargo\bin\rg.exe (system-wide)
-# Requires: Build-Pcre2Win to have run first
+# Requires: Update-Pcre2Win to have run first
 #====================================================
-function Build-RipgrepWin {
+function Update-RipgrepWin {
     # All git work BEFORE toolchain switch
     Set-Location D:\dev\ripgrep
     git pull
@@ -1316,7 +1333,7 @@ rustflags = ["-C", "target-feature=+crt-static"]'
 # Building PCRE2 C static lnd dll lib from source (clang-win)
 # Output: D:\Programs\pcre2-clang-win\lib\pcre2-8-static.lib
 #====================================================
-function Build-Pcre2Win {
+function Update-Pcre2Win {
     # All git work BEFORE toolchain switch
     Set-Location D:\dev\pcre2
     git pull
@@ -1400,7 +1417,7 @@ function Build-Pcre2Win {
 #====================================================
 # Building pcre2 from github source
 # ===================================================
-function Build-Pcre2 {
+function Update-Pcre2 {
     # All git work BEFORE toolchain switch so MinGit never runs with polluted PATH
     Set-Location D:\dev\pcre2.py
     git pull
@@ -1490,7 +1507,7 @@ if (Test-Path "$jomRoot\jom.exe") {
 }
 
 # Ninja status: show which binary is the active one for Windows toolchains
-#$_ninjaResolved = Get-WinNinja
+#$_ninjaResolved = Update-WinNinja
 if (Test-Path "$ninjaRoot\bin\ninja.exe") {
     $ninjaVer = & "$ninjaRoot\bin\ninja.exe" --version 2>&1
     Write-Host "  ✓ Ninja:      $ninjaVer (standalone at $ninjaRoot)" -ForegroundColor Green
@@ -1506,7 +1523,7 @@ if (Test-Path "$ninjaRoot\bin\ninja.exe") {
 }
 
 # Meson status: show which binary is active
-#$_mesonResolved = Get-WinMeson
+#$_mesonResolved = Update-WinMeson
 if (Test-Path "$mesonRoot\meson.cmd") {
     $mesonVer = & "$mesonRoot\meson.cmd" --version 2>&1
     Write-Host "  ✓ Meson:      $mesonVer (standalone cmd at $mesonRoot)" -ForegroundColor Green
@@ -1601,7 +1618,7 @@ Write-Host "`n=====================================================" -Foreground
 Write-Host ""
 } # end Show-ProfileInfo
 
-$_mesonExe = Get-WinMeson
+$_mesonExe = Update-WinMeson
 if ($_mesonExe) {
     $env:MESON = $_mesonExe
 }
