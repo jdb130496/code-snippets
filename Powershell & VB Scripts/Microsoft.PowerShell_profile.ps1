@@ -1,3 +1,5 @@
+# Added: $cmakeRoot\bin added to $basePaths (before Python Scripts to prevent pip cmake shadowing)
+# Added: Update-WinCmake — builds cmake from source via clang-win + WARP; handles fresh/broken/update automatically
 # Added: $ninjaRoot  = "D:\Programs\ninja"
 # Added: $mesonRoot  = "D:\Programs\meson"
 # Changed: use-msvc, use-clang-win now prefer standalone ninja over cmake-bundled ninja
@@ -181,6 +183,109 @@ function Update-WinMeson {
     if (Test-Path "$mesonRoot\meson.exe") { return "$mesonRoot\meson.exe" }
     if (Test-Path "$pythonRoot\Scripts\meson.exe") { return "$pythonRoot\Scripts\meson.exe" }
     return $null
+}
+
+# =====================================================
+# Added: Update-WinCmake function to build cmake from source via clang-win
+# Added: cmake-src expected at D:\dev\cmake-src (git clone https://gitlab.kitware.com/cmake/cmake)
+# Changed: cmake --install targets $cmakeRoot (D:\Programs\cmake) — overwrites in place
+# =====================================================
+
+function Update-WinCmake {
+    $warpCli = "C:\Program Files\Cloudflare\Cloudflare WARP\warp-cli.exe"
+    $warpWasConnected = $false
+    if (Test-Path $warpCli) {
+        $trace = & curl.exe -s --max-time 3 https://www.cloudflare.com/cdn-cgi/trace 2>&1
+        if ($trace -match "warp=on") {
+            $warpWasConnected = $true
+            Write-Host "  WARP already active (confirmed warp=on)" -ForegroundColor Cyan
+        } else {
+            & $warpCli disconnect | Out-Null
+            Start-Sleep -Seconds 1
+            & $warpCli connect | Out-Null
+            Write-Host "  WARP connecting..." -ForegroundColor Cyan
+            $elapsed = 0
+            do {
+                Start-Sleep -Seconds 1
+                $elapsed++
+                $trace = & curl.exe -s --max-time 3 https://www.cloudflare.com/cdn-cgi/trace 2>&1
+            } until (($trace -match "warp=on") -or ($elapsed -ge 15))
+            if ($trace -match "warp=on") {
+                Write-Host "  ✓ WARP tunnel confirmed (warp=on)" -ForegroundColor Green
+            } else {
+                Write-Warning "WARP tunnel not confirmed after 15s — proceeding anyway"
+            }
+        }
+    } else {
+        Write-Warning "warp-cli not found at $warpCli"
+    }
+
+    $savedPath    = $env:PATH
+    $savedCC      = $env:CC
+    $savedCXX     = $env:CXX
+    $savedINCLUDE = $env:INCLUDE
+    $savedLIB     = $env:LIB
+    $savedCMakeG  = $env:CMAKE_GENERATOR
+    $savedCMakeMk = $env:CMAKE_MAKE_PROGRAM
+
+    try {
+        if (-not (Test-Path D:\dev\cmake-src)) {
+            Write-Host "  No existing repo found — cloning fresh..." -ForegroundColor Cyan
+            git clone https://gitlab.kitware.com/cmake/cmake D:\dev\cmake-src
+        } else {
+            $isValidRepo = & git -C D:\dev\cmake-src rev-parse --git-dir 2>&1
+            if ($LASTEXITCODE -ne 0) {
+                Write-Host "  Incomplete clone detected — removing and re-cloning..." -ForegroundColor Yellow
+                Remove-Item D:\dev\cmake-src -Recurse -Force
+                git clone https://gitlab.kitware.com/cmake/cmake D:\dev\cmake-src
+            } else {
+                Write-Host "  Existing repo found — pulling latest..." -ForegroundColor Cyan
+                git -C D:\dev\cmake-src pull
+            }
+        }
+
+        use-clang-win
+        Set-Location D:\dev\cmake-src
+
+        cmake -B build -G Ninja `
+          -DCMAKE_BUILD_TYPE=Release `
+          -DCMAKE_C_COMPILER="$clangRoot\bin\clang-cl.exe" `
+          -DCMAKE_CXX_COMPILER="$clangRoot\bin\clang-cl.exe" `
+          -DCMAKE_LINKER="$clangRoot\bin\lld-link.exe" `
+          -DCMAKE_INSTALL_PREFIX="D:\Programs\cmake"
+        cmake --build build --config Release --parallel
+        # Rename old binaries to avoid lock conflicts during install
+        foreach ($exe in @("cmake.exe", "ctest.exe", "cpack.exe", "cmake-gui.exe")) {
+            $target = "$cmakeRoot\bin\$exe"
+            if (Test-Path $target) {
+                Rename-Item $target "$target.bak" -Force -ErrorAction SilentlyContinue
+            }
+        }
+        cmake --install build
+        # Remove backups if install succeeded
+        foreach ($exe in @("cmake.exe", "ctest.exe", "cpack.exe", "cmake-gui.exe")) {
+            $bak = "$cmakeRoot\bin\$exe.bak"
+            if (Test-Path $bak) { Remove-Item $bak -Force -ErrorAction SilentlyContinue }
+        }
+
+        Write-Host "✓ CMake built and installed to $cmakeRoot" -ForegroundColor Green
+        Write-Host "  Version: $(& "$cmakeRoot\bin\cmake.exe" --version | Select-Object -First 1)" -ForegroundColor Green
+    } finally {
+        $env:PATH               = $savedPath
+        $env:CC                 = $savedCC
+        $env:CXX                = $savedCXX
+        $env:INCLUDE            = $savedINCLUDE
+        $env:LIB                = $savedLIB
+        $env:CMAKE_GENERATOR    = $savedCMakeG
+        $env:CMAKE_MAKE_PROGRAM = $savedCMakeMk
+
+        if ((Test-Path $warpCli) -and -not $warpWasConnected) {
+            & $warpCli disconnect | Out-Null
+            Write-Host "  WARP disconnected." -ForegroundColor Cyan
+        }
+
+        Set-Location D:\
+    }
 }
 
 #======================================================
@@ -374,6 +479,11 @@ if (Test-Path "$jomRoot\jom.exe") {
 # Standalone ninja always in PATH (both Windows and MSYS2 toolchains benefit from having it visible)
 if (Test-Path "$ninjaRoot\bin\ninja.exe") {
     $basePaths += "$ninjaRoot\bin"
+}
+
+# cmake always in PATH — before Python Scripts to avoid pip cmake shadowing
+if (Test-Path "$cmakeRoot\bin\cmake.exe") {
+    $basePaths += "$cmakeRoot\bin"
 }
 
 # Standalone meson always in PATH
@@ -1374,7 +1484,20 @@ function Update-Pcre2Win {
       -DPCRE2_BUILD_PCRE2GREP=OFF `
       -DPCRE2_BUILD_PCRE2TEST=OFF
     cmake --build build --config Release
-    cmake --install build
+    #cmake --install build
+    # Rename old binaries to avoid lock conflicts during install
+foreach ($exe in @("cmake.exe", "ctest.exe", "cpack.exe", "cmake-gui.exe")) {
+    $target = "$cmakeRoot\bin\$exe"
+    if (Test-Path $target) {
+        Rename-Item $target "$target.bak" -Force -ErrorAction SilentlyContinue
+    }
+}
+cmake --install build
+# Remove backups if install succeeded
+foreach ($exe in @("cmake.exe", "ctest.exe", "cpack.exe", "cmake-gui.exe")) {
+    $bak = "$cmakeRoot\bin\$exe.bak"
+    if (Test-Path $bak) { Remove-Item $bak -Force -ErrorAction SilentlyContinue }
+}   
 
     # Restore env
     $env:PATH               = $savedPath

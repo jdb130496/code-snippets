@@ -59,7 +59,7 @@ if ($_certBundle -and (Test-Path $_certBundle)) {
 # Auto-detect MSVC tools version (highest installed)
 $vcToolsVersion = Get-ChildItem "$msvcRoot\VC\Tools\MSVC" -Directory -ErrorAction SilentlyContinue |
                   Sort-Object Name -Descending | Select-Object -First 1 -ExpandProperty Name
-if (-not $vcToolsVersion) { $vcToolsVersion = "14.52.36725" }  # fallback
+if (-not $vcToolsVersion) { $vcToolsVersion = "14.52.36807" }  # fallback
 
 # Auto-detect Windows Kits root (11 takes priority over 10)
 $windowsKitsRoot = $null
@@ -107,7 +107,7 @@ $msvcBinPath = "$msvcRoot\VC\Tools\MSVC\$vcToolsVersion\bin\Host$hostArch\$targe
 # MSYS2 toolchains always use their own ucrt64\bin\ninja.exe (unchanged)
 # =====================================================
 
-function Get-WinNinja {
+function Update-WinNinja {
     param([switch]$Update)
     if ($Update) {
         # Snapshot both PATH and all env vars that use-clang-win touches
@@ -156,7 +156,7 @@ function Get-WinNinja {
 
 # Resolve preferred meson path
 # Priority: standalone D:\Programs\meson > pip D:\Programs\Python\Scripts
-function Get-WinMeson {
+function Update-WinMeson {
     param([switch]$Update)
     if ($Update) {
         # Point git to Python's certifi CA bundle to fix TLS on MinGit
@@ -186,7 +186,7 @@ function Get-WinMeson {
 #======================================================
 #Mingit Building From Source
 #======================================================
-function Get-WinGit {
+function Update-WinGit {
     param([switch]$Update)
     if ($Update) {
         $release = Invoke-RestMethod "https://api.github.com/repos/git-for-windows/git/releases/latest"
@@ -228,7 +228,7 @@ function Get-WinGit {
     return $null
 }
 
-function Get-WinGitPreRelease {
+function Update-WinGitPreRelease {
     param(
         [switch]$Update,
         [switch]$PreRelease
@@ -275,117 +275,78 @@ function Get-WinGitPreRelease {
     return $null
 }
 
-function Get-WinGit-Msys {
+function Update-WinGit-Msys {
     Write-Host "Building git from source via MSYS2 ucrt64..." -ForegroundColor Cyan
 
-    # -------------------------------------------------------
-    # Backup existing install before touching anything
-    # -------------------------------------------------------
+    # Backup existing install
     $backupDir = "$mingitRoot-backup"
     if (Test-Path "$mingitRoot\bin\git.exe") {
         New-Item -ItemType Directory -Force $backupDir | Out-Null
-        Copy-Item "$mingitRoot\bin\git.exe" "$backupDir\git.exe" -Force
-        Copy-Item "$mingitRoot\cmd\git.exe" "$backupDir\git-cmd.exe" -Force
+        Copy-Item "$mingitRoot\bin\git.exe"     "$backupDir\git.exe"     -Force
+        Copy-Item "$mingitRoot\cmd\git.exe"     "$backupDir\git-cmd.exe" -Force
         $backupVersion = & "$backupDir\git.exe" --version
         Write-Host "  Backed up: $backupVersion" -ForegroundColor Yellow
     }
 
-    # -------------------------------------------------------
-    # Kill any running git processes that would lock files
-    # -------------------------------------------------------
-    Get-Process -Name "git", "git-remote-https" -ErrorAction SilentlyContinue | Stop-Process -Force
+    # Kill git processes that would lock files
+    Get-Process -Name "git","git-remote-https" -ErrorAction SilentlyContinue | Stop-Process -Force
 
-    # -------------------------------------------------------
-    # Clean up any previous unfinished build artifacts so
-    # make does not resume from a corrupt intermediate state:
-    #   - GIT-VERSION-FILE    : stale version string causes wrong binary label
-    #   - *.o / *.a           : object files from an interrupted compile
-    #   - git.exe in src tree : leftover from an interrupted 'make' (pre-install)
-    #   - $PREFIX             : partially-written install tree (build-git.sh
-    #                           does rm -rf but only if bash reaches that line;
-    #                           a frozen/killed run may not have reached it)
-    # The Rust target/ dir is also wiped by the script, but if the previous
-    # run was killed mid-cargo the incremental cache can be corrupt, so we
-    # remove it here too before bash even starts.
-    # -------------------------------------------------------
+    # Pre-clean from PS side (handles locked files bash can't remove)
     $srcDir = "D:\dev\git-src"
-
     Write-Host "  Cleaning previous build artifacts..." -ForegroundColor Yellow
-
-    # Stale version file forces make to re-evaluate the version on next run
-    $versionFile = "$srcDir\GIT-VERSION-FILE"
-    if (Test-Path $versionFile) {
-        Remove-Item $versionFile -Force
-        Write-Host "    Removed GIT-VERSION-FILE" -ForegroundColor DarkGray
+    foreach ($f in @("$srcDir\GIT-VERSION-FILE")) {
+        if (Test-Path $f) { Remove-Item $f -Force; Write-Host "    Removed $f" -ForegroundColor DarkGray }
+    }
+    foreach ($d in @("$srcDir\target", $mingitRoot)) {
+        if (Test-Path $d) { Remove-Item $d -Recurse -Force; Write-Host "    Removed $d" -ForegroundColor DarkGray }
     }
 
-    # Rust incremental cache — corrupt if cargo was killed mid-build
-    $rustTarget = "$srcDir\target"
-    if (Test-Path $rustTarget) {
-        Remove-Item $rustTarget -Recurse -Force
-        Write-Host "    Removed $rustTarget" -ForegroundColor DarkGray
+    # Save and wipe every env var that could poison MSYS2 make/cargo
+    $savedVars = @{}
+    foreach ($v in @("MAKEFLAGS","MFLAGS","MAKELEVEL","CARGO_MAKEFLAGS","MSYS","MSYS2_PATH_TYPE")) {
+        $savedVars[$v] = [System.Environment]::GetEnvironmentVariable($v)
+        [System.Environment]::SetEnvironmentVariable($v, $null)
     }
 
-    # Partially-written install prefix — robocopy/cp may have left it half-done
-    if (Test-Path $mingitRoot) {
-        Remove-Item $mingitRoot -Recurse -Force
-        Write-Host "    Removed $mingitRoot (stale install)" -ForegroundColor DarkGray
-    }
+    # Isolate MSYS2 from the Windows PATH soup
+    $env:MSYS2_PATH_TYPE = "minimal"
 
-    # Compiled object/archive files in source tree (*.o, *.a, git.exe, scalar.exe, etc.)
-    # Use MSYS2 make clean via bash so it respects the Makefile's own clean rules
-    $hasObjFiles = (Get-ChildItem "$srcDir\*.o" -ErrorAction SilentlyContinue | Select-Object -First 1)
-    if ($hasObjFiles) {
-        Write-Host "    Running make clean in source tree..." -ForegroundColor DarkGray
-        & "$msys64Root\usr\bin\bash.exe" --login -c `
-            "export PATH='/ucrt64/bin:/usr/bin:\$PATH'; cd /d/dev/git-src && make clean 2>/dev/null; true"
-    }
-
-    # -------------------------------------------------------
-    # Clear jobserver vars — MAKEFLAGS with --jobserver-auth=-2,-2
-    # references Windows named-pipe FDs that don't exist inside
-    # MSYS2 bash, causing make install to block forever waiting
-    # for a job token that never arrives.
-    # -------------------------------------------------------
-    $savedMakeFlags = $env:MAKEFLAGS
-    $savedMFlags    = $env:MFLAGS
-    $savedMakeLevel = $env:MAKELEVEL
-    $env:MAKEFLAGS  = $null
-    $env:MFLAGS     = $null
-    $env:MAKELEVEL  = $null
-
-    & "$msys64Root\usr\bin\bash.exe" --login "/d/dev/build-git.sh"
+    # Launch bash with a clean slate
+    & "$msys64Root\usr\bin\bash.exe" --login -c `
+        "unset MAKEFLAGS MFLAGS MAKELEVEL CARGO_MAKEFLAGS; exec bash /d/dev/build-git.sh"
     $buildExit = $LASTEXITCODE
 
-    # Restore make vars so the rest of the PS session is unaffected
-    $env:MAKEFLAGS  = $savedMakeFlags
-    $env:MFLAGS     = $savedMFlags
-    $env:MAKELEVEL  = $savedMakeLevel
+    # Restore all saved env vars
+    foreach ($v in $savedVars.Keys) {
+        if ($savedVars[$v]) { [System.Environment]::SetEnvironmentVariable($v, $savedVars[$v]) }
+        else { [System.Environment]::SetEnvironmentVariable($v, $null) }
+    }
 
-    # -------------------------------------------------------
     # Post-build
-    # -------------------------------------------------------
     if ($buildExit -eq 0) {
-        # Replant libpcre2-8-0.dll after MSYS2 build overwrites MinGit layout
-        $pcre2Usr  = "D:\Programs\msys64\usr\bin\libpcre2-8-0.dll"
-        $pcre2Ucrt = "D:\Programs\msys64\ucrt64\bin\libpcre2-8-0.dll"
-        if (Test-Path $pcre2Usr) {
-            Copy-Item $pcre2Usr "$mingitRoot\bin\libpcre2-8-0.dll" -Force
-            Write-Host "  ✓ Planted libpcre2-8-0.dll into MinGit\bin" -ForegroundColor Green
+        foreach ($pair in @(
+            @("D:\Programs\msys64\usr\bin\libpcre2-8-0.dll",         "$mingitRoot\bin\libpcre2-8-0.dll"),
+            @("D:\Programs\msys64\ucrt64\bin\libpcre2-8-0.dll",      "$mingitRoot\libexec\git-core\libpcre2-8-0.dll")
+        )) {
+            if (Test-Path $pair[0]) {
+                Copy-Item $pair[0] $pair[1] -Force
+                Write-Host "  ✓ Planted $(Split-Path $pair[1] -Leaf) into $(Split-Path (Split-Path $pair[1]) -Leaf)" -ForegroundColor Green
+            }
         }
-        if (Test-Path $pcre2Ucrt) {
-            Copy-Item $pcre2Ucrt "$mingitRoot\libexec\git-core\libpcre2-8-0.dll" -Force
-            Write-Host "  ✓ Planted libpcre2-8-0.dll into MinGit\libexec\git-core" -ForegroundColor Green
-        }
-
         $builtVersion = & "$mingitRoot\cmd\git.exe" --version
         Write-Host "✓ Git built and installed to $mingitRoot" -ForegroundColor Green
-        Write-Host "  Version:  $builtVersion" -ForegroundColor Green
-        Write-Host "  Previous: $backupVersion (at $backupDir)" -ForegroundColor Yellow
+        Write-Host "  Version:  $builtVersion"  -ForegroundColor Green
+        if ($backupVersion) {
+           Write-Host "  Previous: $backupVersion (at $backupDir)" -ForegroundColor Yellow
+           } else {
+    Write-Host "  Previous: (no backup — install dir was already absent)" -ForegroundColor DarkGray
+        }         
+        $env:PATH = "$mingitRoot\cmd;$mingitRoot\bin;" + ($env:PATH -replace [regex]::Escape("$mingitRoot\cmd;"), '' -replace [regex]::Escape("$mingitRoot\bin;"), '')
+        Write-Host "  ✓ MinGit promoted to front of PATH for this session" -ForegroundColor Green
     } else {
         Write-Host "✗ Build failed (exit $buildExit) — restoring backup..." -ForegroundColor Red
         if (Test-Path "$backupDir\git.exe") {
-            Copy-Item "$backupDir\git.exe" "$mingitRoot\bin\git.exe" -Force
+            Copy-Item "$backupDir\git.exe"     "$mingitRoot\bin\git.exe" -Force
             Copy-Item "$backupDir\git-cmd.exe" "$mingitRoot\cmd\git.exe" -Force
             Write-Host "  Restored: $((& "$mingitRoot\cmd\git.exe" --version))" -ForegroundColor Yellow
         }
@@ -608,7 +569,7 @@ if (Test-Path "$msys64Root\ucrt64\bin\ninja.exe") {
 # --- Meson function (wraps .pyz or .exe transparently) ---
 # meson-win  → preferred: D:\Programs\meson\meson.pyz (git zipapp) or meson.exe
 # meson-pip  → pip-installed meson (D:\Programs\Python\Scripts), explicit fallback
-$_mesonExe = Get-WinMeson
+$_mesonExe = Update-WinMeson
 if ($_mesonExe) {
     $script:_mesonExePath = $_mesonExe
     function meson-win {
@@ -751,7 +712,7 @@ function Use-WindowsMSVC {
         "$windowsKitsRoot\Lib\$windowsSDKVersion\um\$targetArch"
     ) -join ";"
     $env:CMAKE_GENERATOR = "Ninja"
-    $resolvedNinja = Get-WinNinja
+    $resolvedNinja = Update-WinNinja
     if ($resolvedNinja) {
         $env:CMAKE_MAKE_PROGRAM = $resolvedNinja
     } else {
@@ -867,7 +828,7 @@ function Use-WindowsClang {
     ) -join ";"
     $env:CMAKE_GENERATOR = "Ninja"
 
-    # Resolve ninja directly — avoids circular call back into Get-WinNinja
+    # Resolve ninja directly — avoids circular call back into Update-WinNinja
     # which would trigger a second Use-WindowsClang call
     if (Test-Path "$ninjaRoot\bin\ninja.exe") {
         $env:CMAKE_MAKE_PROGRAM = "$ninjaRoot\bin\ninja.exe"
@@ -1149,14 +1110,31 @@ function Update-GlobalNpm {
 Set-Alias -Name npmupdate -Value Update-GlobalNpm
 
 #======================================================
-# Build-Pcre from source: https://github.com/ModelCloud/PyPcre (using meson build system)
+# Update-Pcre from source: https://github.com/ModelCloud/PyPcre (using meson build system)
 #======================================================
 
-function Build-PyPcre {
-    # All git work BEFORE toolchain switch so MinGit never runs with polluted PATH
+function Update-PyPcre {
+    $originalLocation = Get-Location          # ← save wherever caller was
     Set-Location D:\dev\PyPcre
 
-    # Snapshot env
+    # ── 1. Pull latest from upstream (ModelCloud) into local clone ──
+    Write-Host "Fetching upstream (ModelCloud/PyPcre)..." -ForegroundColor Cyan
+    git fetch upstream
+    if ($LASTEXITCODE -ne 0) { Write-Warning "git fetch upstream failed"; Set-Location $originalLocation; return }
+
+    git merge upstream/main --ff-only
+    if ($LASTEXITCODE -ne 0) {
+        Write-Warning "Merge from upstream failed (conflicts?) — resolve manually then re-run"
+        Set-Location $originalLocation; return
+    }
+    Write-Host "  ✓ Local clone updated from upstream" -ForegroundColor Green
+
+    # ── 2. Push updated local clone → your fork (jdb130496/PyPcre) ──
+    git push origin main
+    if ($LASTEXITCODE -ne 0) { Write-Warning "git push to your fork failed" }
+    else { Write-Host "  ✓ Your fork (jdb130496/PyPcre) synced" -ForegroundColor Green }
+
+    # ── Snapshot env ──
     $savedPath      = $env:PATH
     $savedCC        = $env:CC
     $savedCXX       = $env:CXX
@@ -1172,27 +1150,27 @@ function Build-PyPcre {
 
     use-clang-win
 
+    # ── 3. Build & install from (now-updated) local source ──
     pip install . --no-build-isolation --no-cache-dir --force-reinstall `
       --config-settings=setup-args="-Dpcre2_include_dir=D:\Programs\pcre2-clang-win\include" `
       --config-settings=setup-args="-Dpcre2_library=D:\Programs\pcre2-clang-win\lib\pcre2-8.lib"
 
-    # Restore env
+    # ── Restore env ──
     $env:PATH               = $savedPath
     $env:INCLUDE            = $savedINCLUDE
     $env:LIB                = $savedLIB
     $env:CMAKE_GENERATOR    = $savedCMakeG
     $env:CMAKE_MAKE_PROGRAM = $savedCMakeMk
-    if ($savedCC)        { $env:CC                  = $savedCC        } else { Remove-Item Env:\CC                  -ErrorAction SilentlyContinue }
-    if ($savedCXX)       { $env:CXX                 = $savedCXX       } else { Remove-Item Env:\CXX                 -ErrorAction SilentlyContinue }
-    if ($savedCMakeC)    { $env:CMAKE_C_COMPILER    = $savedCMakeC    } else { Remove-Item Env:\CMAKE_C_COMPILER    -ErrorAction SilentlyContinue }
-    if ($savedCMakeCX)   { $env:CMAKE_CXX_COMPILER  = $savedCMakeCX   } else { Remove-Item Env:\CMAKE_CXX_COMPILER  -ErrorAction SilentlyContinue }
-    if ($savedCMakeLn)   { $env:CMAKE_LINKER        = $savedCMakeLn   } else { Remove-Item Env:\CMAKE_LINKER        -ErrorAction SilentlyContinue }
-    if ($savedWinSDKVer) { $env:WindowsSDKVersion   = $savedWinSDKVer } else { Remove-Item Env:\WindowsSDKVersion   -ErrorAction SilentlyContinue }
-    if ($savedWinSDKDir) { $env:WindowsSDKDir       = $savedWinSDKDir } else { Remove-Item Env:\WindowsSDKDir       -ErrorAction SilentlyContinue }
+    if ($savedCC)        { $env:CC                 = $savedCC        } else { Remove-Item Env:\CC                  -ErrorAction SilentlyContinue }
+    if ($savedCXX)       { $env:CXX                = $savedCXX       } else { Remove-Item Env:\CXX                 -ErrorAction SilentlyContinue }
+    if ($savedCMakeC)    { $env:CMAKE_C_COMPILER   = $savedCMakeC    } else { Remove-Item Env:\CMAKE_C_COMPILER    -ErrorAction SilentlyContinue }
+    if ($savedCMakeCX)   { $env:CMAKE_CXX_COMPILER = $savedCMakeCX   } else { Remove-Item Env:\CMAKE_CXX_COMPILER  -ErrorAction SilentlyContinue }
+    if ($savedCMakeLn)   { $env:CMAKE_LINKER       = $savedCMakeLn   } else { Remove-Item Env:\CMAKE_LINKER        -ErrorAction SilentlyContinue }
+    if ($savedWinSDKVer) { $env:WindowsSDKVersion  = $savedWinSDKVer } else { Remove-Item Env:\WindowsSDKVersion   -ErrorAction SilentlyContinue }
+    if ($savedWinSDKDir) { $env:WindowsSDKDir      = $savedWinSDKDir } else { Remove-Item Env:\WindowsSDKDir       -ErrorAction SilentlyContinue }
 
-    # Move away so Python imports from site-packages, not local source
-    Set-Location D:\
-    # Ensure pcre2-8.dll is findable by Python (Python 3.8+ ignores PATH for DLL loading)
+    Set-Location $originalLocation              # ← restore wherever caller was
+
     $pth = "D:\Programs\Python\Lib\site-packages\pcre2-clang-win.pth"
     if (-not (Test-Path $pth)) {
         @"
@@ -1208,9 +1186,9 @@ import os; os.add_dll_directory(r'D:\Programs\pcre2-clang-win\bin')
 # PCRE2 at D:\Programs\pcre2-clang-win
 # Output: D:\dev\ripgrep\target\release\rg.exe
 #          D:\Programs\cargo\bin\rg.exe (system-wide)
-# Requires: Build-Pcre2Win to have run first
+# Requires: Update-Pcre2Win to have run first
 #====================================================
-function Build-RipgrepWin {
+function Update-RipgrepWin {
     # All git work BEFORE toolchain switch
     Set-Location D:\dev\ripgrep
     git pull
@@ -1355,7 +1333,7 @@ rustflags = ["-C", "target-feature=+crt-static"]'
 # Building PCRE2 C static lnd dll lib from source (clang-win)
 # Output: D:\Programs\pcre2-clang-win\lib\pcre2-8-static.lib
 #====================================================
-function Build-Pcre2Win {
+function Update-Pcre2Win {
     # All git work BEFORE toolchain switch
     Set-Location D:\dev\pcre2
     git pull
@@ -1439,7 +1417,7 @@ function Build-Pcre2Win {
 #====================================================
 # Building pcre2 from github source
 # ===================================================
-function Build-Pcre2 {
+function Update-Pcre2 {
     # All git work BEFORE toolchain switch so MinGit never runs with polluted PATH
     Set-Location D:\dev\pcre2.py
     git pull
@@ -1465,7 +1443,9 @@ function Build-Pcre2 {
 
     use-clang-win
     pip cache purge
-    pip install . --no-build-isolation --no-cache-dir
+    pip install . --no-build-isolation --no-cache-dir --force-reinstall `
+      --config-settings=setup-args="-Dpcre2_include_dir=D:\Programs\pcre2-clang-win\include" `
+      --config-settings=setup-args="-Dpcre2_library=D:\Programs\pcre2-clang-win\lib\pcre2-8.lib"
 
     # Restore env
     $env:PATH               = $savedPath
@@ -1527,7 +1507,7 @@ if (Test-Path "$jomRoot\jom.exe") {
 }
 
 # Ninja status: show which binary is the active one for Windows toolchains
-#$_ninjaResolved = Get-WinNinja
+#$_ninjaResolved = Update-WinNinja
 if (Test-Path "$ninjaRoot\bin\ninja.exe") {
     $ninjaVer = & "$ninjaRoot\bin\ninja.exe" --version 2>&1
     Write-Host "  ✓ Ninja:      $ninjaVer (standalone at $ninjaRoot)" -ForegroundColor Green
@@ -1543,7 +1523,7 @@ if (Test-Path "$ninjaRoot\bin\ninja.exe") {
 }
 
 # Meson status: show which binary is active
-#$_mesonResolved = Get-WinMeson
+#$_mesonResolved = Update-WinMeson
 if (Test-Path "$mesonRoot\meson.cmd") {
     $mesonVer = & "$mesonRoot\meson.cmd" --version 2>&1
     Write-Host "  ✓ Meson:      $mesonVer (standalone cmd at $mesonRoot)" -ForegroundColor Green
@@ -1638,7 +1618,7 @@ Write-Host "`n=====================================================" -Foreground
 Write-Host ""
 } # end Show-ProfileInfo
 
-$_mesonExe = Get-WinMeson
+$_mesonExe = Update-WinMeson
 if ($_mesonExe) {
     $env:MESON = $_mesonExe
 }
