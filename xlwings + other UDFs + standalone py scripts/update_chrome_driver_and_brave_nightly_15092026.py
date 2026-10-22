@@ -16,11 +16,13 @@ CHROMEDRIVER_DIR  = r"D:\Programs\brave\chromedriver"
 VERSION_FILE      = os.path.join(PORTABLE_DIR, "brave_portable_version.txt")
 BRAVE_EXE         = os.path.join(PORTABLE_DIR, "brave.exe")
 ARIA2C_PATH       = r"D:\Programs\msys64\ucrt64\bin\aria2c.exe"
-
 GITHUB_RELEASES_API = "https://api.github.com/repos/brave/brave-browser/releases?per_page=20"
 CFT_API             = "https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json"
 ASSET_SUFFIX        = "win32-x64.zip"
 ASSET_PREFIX        = "brave-v"
+C_BRAVE_DIR      = os.path.join(os.environ["LOCALAPPDATA"], "BraveSoftware", "Brave-Browser")
+BRAVE_BACKUP_DIR = r"D:\Programs\brave-backups"
+C_BACKUP_DONE    = os.path.join(PORTABLE_DIR, "c_drive_backup_done.txt")
 # ───────────────────────────────────────────────────────────────────────────
 
 def warp_connect():

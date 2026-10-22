@@ -1,3 +1,5 @@
+# Added: $cmakeRoot\bin added to $basePaths (before Python Scripts to prevent pip cmake shadowing)
+# Added: Update-WinCmake — builds cmake from source via clang-win + WARP; handles fresh/broken/update automatically
 # Added: $ninjaRoot  = "D:\Programs\ninja"
 # Added: $mesonRoot  = "D:\Programs\meson"
 # Changed: use-msvc, use-clang-win now prefer standalone ninja over cmake-bundled ninja
@@ -34,6 +36,8 @@ $sqliteRoot  = "D:\Programs\sqlite"
 $bisonRoot   = "D:\Programs\winflexbison"
 $jomRoot     = "D:\Programs\jom"
 $mingitRoot  = "D:\Programs\MinGit"
+$rustRoot  = "D:\Programs\rustup"
+$cargoRoot = "D:\Programs\cargo"
 
 # =====================================================
 # Python - Direct path
@@ -107,7 +111,7 @@ $msvcBinPath = "$msvcRoot\VC\Tools\MSVC\$vcToolsVersion\bin\Host$hostArch\$targe
 # MSYS2 toolchains always use their own ucrt64\bin\ninja.exe (unchanged)
 # =====================================================
 
-function Get-WinNinja {
+function Update-WinNinja {
     param([switch]$Update)
     if ($Update) {
         # Snapshot both PATH and all env vars that use-clang-win touches
@@ -156,7 +160,7 @@ function Get-WinNinja {
 
 # Resolve preferred meson path
 # Priority: standalone D:\Programs\meson > pip D:\Programs\Python\Scripts
-function Get-WinMeson {
+function Update-WinMeson {
     param([switch]$Update)
     if ($Update) {
         # Point git to Python's certifi CA bundle to fix TLS on MinGit
@@ -183,10 +187,113 @@ function Get-WinMeson {
     return $null
 }
 
+# =====================================================
+# Added: Update-WinCmake function to build cmake from source via clang-win
+# Added: cmake-src expected at D:\dev\cmake-src (git clone https://gitlab.kitware.com/cmake/cmake)
+# Changed: cmake --install targets $cmakeRoot (D:\Programs\cmake) — overwrites in place
+# =====================================================
+
+function Update-WinCmake {
+    $warpCli = "C:\Program Files\Cloudflare\Cloudflare WARP\warp-cli.exe"
+    $warpWasConnected = $false
+    if (Test-Path $warpCli) {
+        $trace = & curl.exe -s --max-time 3 https://www.cloudflare.com/cdn-cgi/trace 2>&1
+        if ($trace -match "warp=on") {
+            $warpWasConnected = $true
+            Write-Host "  WARP already active (confirmed warp=on)" -ForegroundColor Cyan
+        } else {
+            & $warpCli disconnect | Out-Null
+            Start-Sleep -Seconds 1
+            & $warpCli connect | Out-Null
+            Write-Host "  WARP connecting..." -ForegroundColor Cyan
+            $elapsed = 0
+            do {
+                Start-Sleep -Seconds 1
+                $elapsed++
+                $trace = & curl.exe -s --max-time 3 https://www.cloudflare.com/cdn-cgi/trace 2>&1
+            } until (($trace -match "warp=on") -or ($elapsed -ge 15))
+            if ($trace -match "warp=on") {
+                Write-Host "  ✓ WARP tunnel confirmed (warp=on)" -ForegroundColor Green
+            } else {
+                Write-Warning "WARP tunnel not confirmed after 15s — proceeding anyway"
+            }
+        }
+    } else {
+        Write-Warning "warp-cli not found at $warpCli"
+    }
+
+    $savedPath    = $env:PATH
+    $savedCC      = $env:CC
+    $savedCXX     = $env:CXX
+    $savedINCLUDE = $env:INCLUDE
+    $savedLIB     = $env:LIB
+    $savedCMakeG  = $env:CMAKE_GENERATOR
+    $savedCMakeMk = $env:CMAKE_MAKE_PROGRAM
+
+    try {
+        if (-not (Test-Path D:\dev\cmake-src)) {
+            Write-Host "  No existing repo found — cloning fresh..." -ForegroundColor Cyan
+            git clone https://gitlab.kitware.com/cmake/cmake D:\dev\cmake-src
+        } else {
+            $isValidRepo = & git -C D:\dev\cmake-src rev-parse --git-dir 2>&1
+            if ($LASTEXITCODE -ne 0) {
+                Write-Host "  Incomplete clone detected — removing and re-cloning..." -ForegroundColor Yellow
+                Remove-Item D:\dev\cmake-src -Recurse -Force
+                git clone https://gitlab.kitware.com/cmake/cmake D:\dev\cmake-src
+            } else {
+                Write-Host "  Existing repo found — pulling latest..." -ForegroundColor Cyan
+                git -C D:\dev\cmake-src pull
+            }
+        }
+
+        use-clang-win
+        Set-Location D:\dev\cmake-src
+
+        cmake -B build -G Ninja `
+          -DCMAKE_BUILD_TYPE=Release `
+          -DCMAKE_C_COMPILER="$clangRoot\bin\clang-cl.exe" `
+          -DCMAKE_CXX_COMPILER="$clangRoot\bin\clang-cl.exe" `
+          -DCMAKE_LINKER="$clangRoot\bin\lld-link.exe" `
+          -DCMAKE_INSTALL_PREFIX="D:\Programs\cmake"
+        cmake --build build --config Release --parallel
+        # Rename old binaries to avoid lock conflicts during install
+        foreach ($exe in @("cmake.exe", "ctest.exe", "cpack.exe", "cmake-gui.exe")) {
+            $target = "$cmakeRoot\bin\$exe"
+            if (Test-Path $target) {
+                Rename-Item $target "$target.bak" -Force -ErrorAction SilentlyContinue
+            }
+        }
+        cmake --install build
+        # Remove backups if install succeeded
+        foreach ($exe in @("cmake.exe", "ctest.exe", "cpack.exe", "cmake-gui.exe")) {
+            $bak = "$cmakeRoot\bin\$exe.bak"
+            if (Test-Path $bak) { Remove-Item $bak -Force -ErrorAction SilentlyContinue }
+        }
+
+        Write-Host "✓ CMake built and installed to $cmakeRoot" -ForegroundColor Green
+        Write-Host "  Version: $(& "$cmakeRoot\bin\cmake.exe" --version | Select-Object -First 1)" -ForegroundColor Green
+    } finally {
+        $env:PATH               = $savedPath
+        $env:CC                 = $savedCC
+        $env:CXX                = $savedCXX
+        $env:INCLUDE            = $savedINCLUDE
+        $env:LIB                = $savedLIB
+        $env:CMAKE_GENERATOR    = $savedCMakeG
+        $env:CMAKE_MAKE_PROGRAM = $savedCMakeMk
+
+        if ((Test-Path $warpCli) -and -not $warpWasConnected) {
+            & $warpCli disconnect | Out-Null
+            Write-Host "  WARP disconnected." -ForegroundColor Cyan
+        }
+
+        Set-Location D:\
+    }
+}
+
 #======================================================
 #Mingit Building From Source
 #======================================================
-function Get-WinGit {
+function Update-WinGit {
     param([switch]$Update)
     if ($Update) {
         $release = Invoke-RestMethod "https://api.github.com/repos/git-for-windows/git/releases/latest"
@@ -228,7 +335,7 @@ function Get-WinGit {
     return $null
 }
 
-function Get-WinGitPreRelease {
+function Update-WinGitPreRelease {
     param(
         [switch]$Update,
         [switch]$PreRelease
@@ -275,7 +382,7 @@ function Get-WinGitPreRelease {
     return $null
 }
 
-function Get-WinGit-Msys {
+function Update-WinGit-Msys {
     Write-Host "Building git from source via MSYS2 ucrt64..." -ForegroundColor Cyan
 
     # Backup existing install
@@ -376,6 +483,11 @@ if (Test-Path "$ninjaRoot\bin\ninja.exe") {
     $basePaths += "$ninjaRoot\bin"
 }
 
+# cmake always in PATH — before Python Scripts to avoid pip cmake shadowing
+if (Test-Path "$cmakeRoot\bin\cmake.exe") {
+    $basePaths += "$cmakeRoot\bin"
+}
+
 # Standalone meson always in PATH
 if (Test-Path "$mesonRoot\meson.exe") {
     $basePaths += $mesonRoot
@@ -464,6 +576,20 @@ if (Test-Path "$sqliteRoot\sqlite3.lib") {
     $env:SQLITE3_LIB_DIR  = $sqliteRoot
     $env:SQLITE3_LIB_NAME = "sqlite3"
     $basePaths += $sqliteRoot
+}
+
+# Rust/Cargo — always in PATH
+if (Test-Path "$cargoRoot\bin") {
+    $basePaths += "$cargoRoot\bin"
+}
+
+if (Test-Path "$rustRoot\bin") {
+    $basePaths += "$rustRoot\bin"
+}
+
+if (Test-Path "$clangRoot\bin\lld-link.exe") {
+    $env:CARGO_HOME  = $cargoRoot
+    $env:RUSTUP_HOME = $rustRoot
 }
 
 # PCRE2 custom build - DLL needed at runtime by PyPcre and ripgrep
@@ -569,7 +695,7 @@ if (Test-Path "$msys64Root\ucrt64\bin\ninja.exe") {
 # --- Meson function (wraps .pyz or .exe transparently) ---
 # meson-win  → preferred: D:\Programs\meson\meson.pyz (git zipapp) or meson.exe
 # meson-pip  → pip-installed meson (D:\Programs\Python\Scripts), explicit fallback
-$_mesonExe = Get-WinMeson
+$_mesonExe = Update-WinMeson
 if ($_mesonExe) {
     $script:_mesonExePath = $_mesonExe
     function meson-win {
@@ -712,7 +838,7 @@ function Use-WindowsMSVC {
         "$windowsKitsRoot\Lib\$windowsSDKVersion\um\$targetArch"
     ) -join ";"
     $env:CMAKE_GENERATOR = "Ninja"
-    $resolvedNinja = Get-WinNinja
+    $resolvedNinja = Update-WinNinja
     if ($resolvedNinja) {
         $env:CMAKE_MAKE_PROGRAM = $resolvedNinja
     } else {
@@ -828,7 +954,7 @@ function Use-WindowsClang {
     ) -join ";"
     $env:CMAKE_GENERATOR = "Ninja"
 
-    # Resolve ninja directly — avoids circular call back into Get-WinNinja
+    # Resolve ninja directly — avoids circular call back into Update-WinNinja
     # which would trigger a second Use-WindowsClang call
     if (Test-Path "$ninjaRoot\bin\ninja.exe") {
         $env:CMAKE_MAKE_PROGRAM = "$ninjaRoot\bin\ninja.exe"
@@ -871,17 +997,18 @@ function Update-Cargo {
         'ripgrep' = @{ flags = '-C target-cpu=native'; features = '--all-features' }
         'xh'      = @{ flags = '--cfg reqwest_unstable'; features = '--all-features' }
     }
-    Write-Host "`nSwitching to MSVC for Cargo builds..." -ForegroundColor Cyan
-    Use-WindowsMSVC
+
     Write-Host "`nChecking cargo-binstall..." -ForegroundColor Cyan
     cargo install cargo-binstall
+
     Write-Host "`nUpdating custom-compiled packages..." -ForegroundColor Cyan
     foreach ($pkg in $customPackages.Keys) {
         Write-Host "  Updating $pkg with custom flags..." -ForegroundColor Yellow
-        $flags       = $customPackages[$pkg].flags
-        $featuresArg = $customPackages[$pkg].features
-        $oldRustFlags  = $env:RUSTFLAGS
-        $env:RUSTFLAGS = $flags
+        $flags           = $customPackages[$pkg].flags
+        $featuresArg     = $customPackages[$pkg].features
+        $oldRustFlags    = $env:RUSTFLAGS
+        # Append to existing RUSTFLAGS rather than replacing — preserves config.toml flags
+        $env:RUSTFLAGS   = if ($oldRustFlags) { "$oldRustFlags $flags" } else { $flags }
         if ($featuresArg) {
             & cargo install $pkg $featuresArg.Split(' ')
         } else {
@@ -893,8 +1020,10 @@ function Update-Cargo {
             Remove-Item Env:\RUSTFLAGS -ErrorAction SilentlyContinue
         }
     }
+
     Write-Host "`nUpdating remaining cargo packages..." -ForegroundColor Cyan
     cargo install-update -a
+
     Write-Host "`nAll Cargo updates complete!" -ForegroundColor Green
 }
 
@@ -1114,7 +1243,7 @@ Set-Alias -Name npmupdate -Value Update-GlobalNpm
 #======================================================
 
 function Update-PyPcre {
-    $originalLocation = Get-Location          # ← save wherever caller was
+    $originalLocation = Get-Location
     Set-Location D:\dev\PyPcre
 
     # ── 1. Pull latest from upstream (ModelCloud) into local clone ──
@@ -1169,7 +1298,7 @@ function Update-PyPcre {
     if ($savedWinSDKVer) { $env:WindowsSDKVersion  = $savedWinSDKVer } else { Remove-Item Env:\WindowsSDKVersion   -ErrorAction SilentlyContinue }
     if ($savedWinSDKDir) { $env:WindowsSDKDir      = $savedWinSDKDir } else { Remove-Item Env:\WindowsSDKDir       -ErrorAction SilentlyContinue }
 
-    Set-Location $originalLocation              # ← restore wherever caller was
+    Set-Location $originalLocation
 
     $pth = "D:\Programs\Python\Lib\site-packages\pcre2-clang-win.pth"
     if (-not (Test-Path $pth)) {
@@ -1374,7 +1503,20 @@ function Update-Pcre2Win {
       -DPCRE2_BUILD_PCRE2GREP=OFF `
       -DPCRE2_BUILD_PCRE2TEST=OFF
     cmake --build build --config Release
-    cmake --install build
+    #cmake --install build
+    # Rename old binaries to avoid lock conflicts during install
+foreach ($exe in @("cmake.exe", "ctest.exe", "cpack.exe", "cmake-gui.exe")) {
+    $target = "$cmakeRoot\bin\$exe"
+    if (Test-Path $target) {
+        Rename-Item $target "$target.bak" -Force -ErrorAction SilentlyContinue
+    }
+}
+cmake --install build
+# Remove backups if install succeeded
+foreach ($exe in @("cmake.exe", "ctest.exe", "cpack.exe", "cmake-gui.exe")) {
+    $bak = "$cmakeRoot\bin\$exe.bak"
+    if (Test-Path $bak) { Remove-Item $bak -Force -ErrorAction SilentlyContinue }
+}   
 
     # Restore env
     $env:PATH               = $savedPath
@@ -1507,7 +1649,7 @@ if (Test-Path "$jomRoot\jom.exe") {
 }
 
 # Ninja status: show which binary is the active one for Windows toolchains
-#$_ninjaResolved = Get-WinNinja
+#$_ninjaResolved = Update-WinNinja
 if (Test-Path "$ninjaRoot\bin\ninja.exe") {
     $ninjaVer = & "$ninjaRoot\bin\ninja.exe" --version 2>&1
     Write-Host "  ✓ Ninja:      $ninjaVer (standalone at $ninjaRoot)" -ForegroundColor Green
@@ -1523,7 +1665,7 @@ if (Test-Path "$ninjaRoot\bin\ninja.exe") {
 }
 
 # Meson status: show which binary is active
-#$_mesonResolved = Get-WinMeson
+#$_mesonResolved = Update-WinMeson
 if (Test-Path "$mesonRoot\meson.cmd") {
     $mesonVer = & "$mesonRoot\meson.cmd" --version 2>&1
     Write-Host "  ✓ Meson:      $mesonVer (standalone cmd at $mesonRoot)" -ForegroundColor Green
@@ -1618,7 +1760,7 @@ Write-Host "`n=====================================================" -Foreground
 Write-Host ""
 } # end Show-ProfileInfo
 
-$_mesonExe = Get-WinMeson
+$_mesonExe = Update-WinMeson
 if ($_mesonExe) {
     $env:MESON = $_mesonExe
 }

@@ -1,6 +1,6 @@
 function Watch-BuildPriority {
     param(
-        [string[]]$ProcessNames = @("nasm", "cl", "link", "cmd", "rustc", "nmake", "perl", "jom"),
+        [string[]]$ProcessNames = @("cmake", "nasm", "cl", "link", "cmd", "rustc", "nmake", "perl", "jom", "python", "py"),
         [int]$PollIntervalMs = 200
     )
 
