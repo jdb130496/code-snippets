@@ -25,6 +25,7 @@ $clangRoot   = "D:\Programs\clang"
 $cmakeRoot   = "D:\Programs\cmake"
 $ninjaRoot   = "D:\Programs\ninja"
 $mesonRoot   = "D:\Programs\meson"
+$env:MESON = "D:\Programs\Python\Scripts\meson.exe" 
 $msys64Root  = "D:\Programs\msys64"
 $nodejsRoot  = "D:\Programs\nodejs"
 $perlRoot    = "D:\Programs\Perl"
@@ -132,21 +133,20 @@ function Update-WinNinja {
     $savedCMakeG  = $env:CMAKE_GENERATOR
     $savedCMakeMk = $env:CMAKE_MAKE_PROGRAM
     $savedCMakeLn = $env:CMAKE_LINKER
+    $savedLocation = Get-Location
 
     try {
         use-clang-win
 
-        $ninjaRepo = "D:\dev\ninja-src"
-
-        # Clean previous build directory
-        if (Test-Path "$ninjaRepo\build") {
-            Write-Host "==> Cleaning previous build..." -ForegroundColor Yellow
-            Remove-Item "$ninjaRepo\build" -Recurse -Force
-        }
+        $ninjaRepo = "$env:USERPROFILE\dev\ninja-src"
 
         if (Test-Path "$ninjaRepo\.git") {
             Write-Host "==> Updating ninja source..." -ForegroundColor Cyan
             git -C $ninjaRepo pull
+            if ($LASTEXITCODE -ne 0) {
+                Write-Host "✗ git pull failed" -ForegroundColor Red
+                return
+            }
         } else {
             if (Test-Path $ninjaRepo) {
                 Write-Host "==> Removing invalid ninja source directory..." -ForegroundColor Yellow
@@ -154,17 +154,20 @@ function Update-WinNinja {
             }
             Write-Host "==> Cloning ninja source..." -ForegroundColor Cyan
             git clone https://github.com/ninja-build/ninja.git $ninjaRepo
+            if ($LASTEXITCODE -ne 0) {
+                Write-Host "✗ git clone failed" -ForegroundColor Red
+                return
+            }
         }
 
-        if ($LASTEXITCODE -ne 0) {
-            Write-Host "✗ git clone/pull failed" -ForegroundColor Red
-            return
+        # Clean previous build directory
+        if (Test-Path "$ninjaRepo\build") {
+            Write-Host "==> Cleaning previous build..." -ForegroundColor Yellow
+            Remove-Item "$ninjaRepo\build" -Recurse -Force
         }
-
-        Set-Location $ninjaRepo
 
         Write-Host "==> Configuring..." -ForegroundColor Cyan
-        cmake -B build -G Ninja `
+        cmake -B "$ninjaRepo\build" -S $ninjaRepo -G Ninja `
             -DCMAKE_BUILD_TYPE=Release `
             -DCMAKE_C_COMPILER="$clangRoot\bin\clang-cl.exe" `
             -DCMAKE_CXX_COMPILER="$clangRoot\bin\clang-cl.exe" `
@@ -176,7 +179,7 @@ function Update-WinNinja {
         }
 
         Write-Host "==> Building..." -ForegroundColor Cyan
-        cmake --build build --config Release
+        cmake --build "$ninjaRepo\build" --config Release
 
         if ($LASTEXITCODE -ne 0) {
             Write-Host "✗ CMake build failed" -ForegroundColor Red
@@ -204,7 +207,7 @@ function Update-WinNinja {
         $env:CMAKE_MAKE_PROGRAM = $savedCMakeMk
         if ($savedCMakeLn) { $env:CMAKE_LINKER = $savedCMakeLn }
         else { Remove-Item Env:\CMAKE_LINKER -ErrorAction SilentlyContinue }
-        Set-Location D:\
+        Set-Location $savedLocation
     }
 }
 
@@ -229,10 +232,33 @@ function Update-WinMeson {
         python packaging\create_zipapp.py --outfile "$mesonRoot\meson.pyz" --compress
         Write-Host "✓ Meson updated to $(& "$pythonRoot\python.exe" "$mesonRoot\meson.pyz" --version)" -ForegroundColor Green
         Set-Location D:\
+
+        # Rebuild shim exe after update so it stays in sync
+        Remove-Item "$mesonRoot\meson.exe" -Force -ErrorAction SilentlyContinue
     }
+
+    # Create meson.exe shim pointing to git meson.pyz if it doesn't exist
+    # This lets ninja spawn meson as a real Windows process during pip builds
+    if (-not (Test-Path "$mesonRoot\meson.exe")) {
+        $shimScript = "$env:TEMP\meson_shim.py"
+        Set-Content $shimScript @"
+import sys, os, subprocess
+result = subprocess.run(
+    [r'$pythonRoot\python.exe', r'$mesonRoot\meson.pyz'] + sys.argv[1:],
+    check=False
+)
+sys.exit(result.returncode)
+"@
+        & "$pythonRoot\python.exe" -m PyInstaller --onefile --name meson_git $shimScript --distpath "$mesonRoot" --workpath "$env:TEMP\meson_shim_build" --specpath "$env:TEMP" -y 2>&1 | Out-Null
+        if (Test-Path "$mesonRoot\meson_git.exe") {
+            Rename-Item "$mesonRoot\meson_git.exe" "$mesonRoot\meson.exe" -Force
+        }
+        Write-Host "✓ meson.exe shim created → git meson.pyz" -ForegroundColor Green
+    }
+
+    if (Test-Path "$mesonRoot\meson.exe") { return "$mesonRoot\meson.exe" }
     if (Test-Path "$mesonRoot\meson.cmd") { return "$mesonRoot\meson.cmd" }
     if (Test-Path "$mesonRoot\meson.pyz") { return "$mesonRoot\meson.pyz" }
-    if (Test-Path "$mesonRoot\meson.exe") { return "$mesonRoot\meson.exe" }
     if (Test-Path "$pythonRoot\Scripts\meson.exe") { return "$pythonRoot\Scripts\meson.exe" }
     return $null
 }
@@ -612,14 +638,17 @@ function Update-WinNasm-Clang {
                 if ($found) {
                     sd `
                         '#if _MSC_VER >= 1400\r?\n# define HAVE__BITSCANREVERSE 1\r?\n#endif' `
-                        '/* HAVE__BITSCANREVERSE disabled: corrupts COFF symbol table under clang-cl (e2f38a8) */' `
+                        '// HAVE__BITSCANREVERSE disabled: corrupts COFF symbol table under clang-cl (e2f38a8)
+// #if _MSC_VER >= 1400
+// # define HAVE__BITSCANREVERSE 1
+// #endif' `
                         $msvcH
-                    $stillThere = rg --fixed-strings '# define HAVE__BITSCANREVERSE 1' $msvcH
+                    $stillThere = rg '^# define HAVE__BITSCANREVERSE 1' $msvcH
                     if ($stillThere) {
                         Write-Host "  ✗ Patch FAILED: HAVE__BITSCANREVERSE still present" -ForegroundColor Red
                         return
                     }
-                    Write-Host "  ✓ Patch applied: removed HAVE__BITSCANREVERSE from config/msvc.h" -ForegroundColor Cyan
+                    Write-Host "  ✓ Patch applied: commented out HAVE__BITSCANREVERSE in config/msvc.h" -ForegroundColor Cyan
                 } else {
                     Write-Host "  Patch skipped: HAVE__BITSCANREVERSE not present (already fixed upstream)" -ForegroundColor DarkGray
                 }
@@ -957,6 +986,13 @@ if (Test-Path "$opensslRoot\include\openssl\ssl.h") {
     $env:OPENSSL_LIB_DIR     = "$opensslRoot\lib"
     $env:WITH_SSL            = $opensslRoot
     $env:CMAKE_PREFIX_PATH   = $opensslRoot
+    # CMake 4.x compatibility — passes -DCMAKE_POLICY_VERSION_MINIMUM=3.5 to
+    # every cmake invocation spawned by cargo build scripts (audiopus_sys, etc.)
+    $env:CMAKE_POLICY_VERSION_MINIMUM = "3.5"
+
+    # Enable SSE4.1 globally for clang-cl — required for Opus/audiopus_sys which
+    # uses per-file GCC-style flags that clang-cl in MSVC mode silently drops
+    $env:CFLAGS = "-msse4.1"
     $basePaths += "$opensslRoot\bin"
 }
 
@@ -1158,6 +1194,21 @@ if (Test-Path "$pythonRoot\Scripts\meson.exe") {
     Set-Alias -Name meson-pip -Value "$pythonRoot\Scripts\meson.exe" -Force
 }
 
+# ~line 1146 area - after meson-win and ninja-win aliases
+# ── pip build helper ──────────────────────────────────────────────────────────
+# Uses pip meson.exe temporarily so ninja can spawn it as a direct process,
+# then restores PATH. Git-built meson stays at priority for everything else.
+function Invoke-PipBuild {
+    $savedPath = $env:PATH
+    $env:PATH = "$pythonRoot\Scripts;" + $env:PATH
+    try {
+        & pip install . --no-build-isolation @args
+    } finally {
+        $env:PATH = $savedPath
+    }
+}
+Set-Alias pipbuild Invoke-PipBuild
+
 # --- Make Aliases ---
 if (Test-Path "$msys64Root\ucrt64\bin\make.exe") {
     Set-Alias -Name make-msys -Value "$msys64Root\ucrt64\bin\make.exe" -Force
@@ -1283,9 +1334,10 @@ function Use-WindowsMSVC {
         "$windowsKitsRoot\Lib\$windowsSDKVersion\um\$targetArch"
     ) -join ";"
     $env:CMAKE_GENERATOR = "Ninja"
-    $resolvedNinja = Update-WinNinja
-    if ($resolvedNinja) {
-        $env:CMAKE_MAKE_PROGRAM = $resolvedNinja
+    if (Test-Path "$ninjaRoot\bin\ninja.exe") {
+        $env:CMAKE_MAKE_PROGRAM = "$ninjaRoot\bin\ninja.exe"
+    } elseif (Test-Path "$cmakeRoot\bin\ninja.exe") {
+        $env:CMAKE_MAKE_PROGRAM = "$cmakeRoot\bin\ninja.exe"
     } else {
         $env:CMAKE_GENERATOR    = "NMake Makefiles"
         $env:CMAKE_MAKE_PROGRAM = "$msvcBinPath\nmake.exe"
@@ -1504,6 +1556,34 @@ function Update-Cargo {
         if ($savedWinSDKDir){ $env:WindowsSDKDir      = $savedWinSDKDir} else { Remove-Item Env:\WindowsSDKDir       -ErrorAction SilentlyContinue }
     }
 }
+
+# =====================================================
+# Rust Toolchain Switching
+# =====================================================
+
+function Use-RustNightly {
+    Remove-Item Env:\RUSTUP_TOOLCHAIN -ErrorAction SilentlyContinue
+    rustup default nightly-x86_64-pc-windows-msvc
+    Write-Host "✓ Rust toolchain → nightly (default)" -ForegroundColor Green
+}
+
+function Use-RustStable {
+    Remove-Item Env:\RUSTUP_TOOLCHAIN -ErrorAction SilentlyContinue
+    rustup default stable-x86_64-pc-windows-msvc
+    Write-Host "✓ Rust toolchain → stable (default)" -ForegroundColor Green
+}
+
+function Get-RustToolchain {
+    $active = rustup show active-toolchain 2>$null
+    Write-Host "  Active: $active" -ForegroundColor Cyan
+    Write-Host "  Installed:" -ForegroundColor Cyan
+    rustup toolchain list
+}
+
+Set-Alias -Name use-rust-stable   -Value Use-RustStable
+Set-Alias -Name use-rust-nightly  -Value Use-RustNightly
+Set-Alias -Name rust-toolchain    -Value Get-RustToolchain
+
 
 # =====================================================
 # MysqlclientSrc Patch Function
@@ -1729,16 +1809,17 @@ function Update-PyPcre {
     git fetch upstream
     if ($LASTEXITCODE -ne 0) { Write-Warning "git fetch upstream failed"; Set-Location $originalLocation; return }
 
-    git merge upstream/main --ff-only
+    # Rebase your meson commit(s) on top of upstream/main
+    git rebase upstream/main
     if ($LASTEXITCODE -ne 0) {
-        Write-Warning "Merge from upstream failed (conflicts?) — resolve manually then re-run"
+        Write-Warning "Rebase failed — resolve conflicts manually, then run: git rebase --continue"
+        Write-Warning "Once resolved, re-run Update-PyPcre"
         Set-Location $originalLocation; return
     }
-    Write-Host "  ✓ Local clone updated from upstream" -ForegroundColor Green
+    Write-Host "  ✓ Local clone rebased onto upstream" -ForegroundColor Green
 
     # ── 2. Push updated local clone → your fork (jdb130496/PyPcre) ──
-    # ── 2. Push updated local clone → your fork (jdb130496/PyPcre) ──
-    $pushOut = git push origin main 2>&1
+    $pushOut = git push origin main --force-with-lease 2>&1
     if ($LASTEXITCODE -ne 0) {
         Write-Warning "git push to your fork failed:"
         Write-Host ($pushOut | Out-String).Trim() -ForegroundColor Red
@@ -2601,6 +2682,9 @@ Write-Host "  cmake -B build && cmake --build build" -ForegroundColor White
 Write-Host ""
 Write-Host "  # Or use explicit alias without switching" -ForegroundColor Cyan
 Write-Host "  clang-msys++ -o test test.cpp" -ForegroundColor White
+Write-Host "  use-rust-stable       → Switch to stable rustc (session only, nightly stays default)" -ForegroundColor White
+Write-Host "  use-rust-nightly      → Restore nightly rustc (unsets RUSTUP_TOOLCHAIN)" -ForegroundColor White
+Write-Host "  rust-toolchain        → Show active and installed Rust toolchains" -ForegroundColor White
 
 Write-Host "`n=====================================================" -ForegroundColor Cyan
 Write-Host ""
@@ -2608,7 +2692,9 @@ Write-Host ""
 
 $_mesonExe = Update-WinMeson
 if ($_mesonExe) {
-    $env:MESON = $_mesonExe
+    # Store git-built meson path for meson-win alias use
+    $script:_mesonGitExe = $_mesonExe
+    # $env:MESON stays as pip meson.exe (set at line 28) for ninja subprocess compatibility
 }
 
 # =====================================================

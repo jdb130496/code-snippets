@@ -73,7 +73,7 @@ if ($_warpTrace -match "warp=on") {
 # Auto-detect MSVC tools version (highest installed)
 $vcToolsVersion = Get-ChildItem "$msvcRoot\VC\Tools\MSVC" -Directory -ErrorAction SilentlyContinue |
                   Sort-Object Name -Descending | Select-Object -First 1 -ExpandProperty Name
-if (-not $vcToolsVersion) { $vcToolsVersion = "14.52.36815" }  # fallback
+if (-not $vcToolsVersion) { $vcToolsVersion = "14.53.36911" }  # fallback
 
 # Auto-detect Windows Kits root (11 takes priority over 10)
 $windowsKitsRoot = $null
@@ -122,50 +122,92 @@ $msvcBinPath = "$msvcRoot\VC\Tools\MSVC\$vcToolsVersion\bin\Host$hostArch\$targe
 # =====================================================
 
 function Update-WinNinja {
-    param([switch]$Update)
-    if ($Update) {
-        # Snapshot both PATH and all env vars that use-clang-win touches
-        $savedPath    = $env:PATH
-        $savedCC      = $env:CC
-        $savedCXX     = $env:CXX
-        $savedINCLUDE = $env:INCLUDE
-        $savedLIB     = $env:LIB
-        $savedCMakeC  = $env:CMAKE_C_COMPILER
-        $savedCMakeCX = $env:CMAKE_CXX_COMPILER
-        $savedCMakeG  = $env:CMAKE_GENERATOR
-        $savedCMakeMk = $env:CMAKE_MAKE_PROGRAM
-        $savedCMakeLn = $env:CMAKE_LINKER
+    $savedPath    = $env:PATH
+    $savedCC      = $env:CC
+    $savedCXX     = $env:CXX
+    $savedINCLUDE = $env:INCLUDE
+    $savedLIB     = $env:LIB
+    $savedCMakeC  = $env:CMAKE_C_COMPILER
+    $savedCMakeCX = $env:CMAKE_CXX_COMPILER
+    $savedCMakeG  = $env:CMAKE_GENERATOR
+    $savedCMakeMk = $env:CMAKE_MAKE_PROGRAM
+    $savedCMakeLn = $env:CMAKE_LINKER
+    $savedLocation = Get-Location
 
+    try {
         use-clang-win
-        Set-Location D:\dev\ninja-src
-        git pull
-        cmake -B build -G Ninja `
-          -DCMAKE_BUILD_TYPE=Release `
-          -DCMAKE_C_COMPILER="$clangRoot\bin\clang-cl.exe" `
-          -DCMAKE_CXX_COMPILER="$clangRoot\bin\clang-cl.exe" `
-          -DCMAKE_LINKER="$clangRoot\bin\lld-link.exe"
-        cmake --build build --config Release
-        Copy-Item "build\ninja.exe" "$ninjaRoot\bin\ninja.exe" -Force
 
-        # Restore everything before any further output or commands
-        $env:PATH             = $savedPath
-        $env:CC               = $savedCC
-        $env:CXX              = $savedCXX
-        $env:INCLUDE          = $savedINCLUDE
-        $env:LIB              = $savedLIB
-        $env:CMAKE_C_COMPILER = $savedCMakeC
+        $ninjaRepo = "$env:USERPROFILE\dev\ninja-src"
+
+        if (Test-Path "$ninjaRepo\.git") {
+            Write-Host "==> Updating ninja source..." -ForegroundColor Cyan
+            git -C $ninjaRepo pull
+            if ($LASTEXITCODE -ne 0) {
+                Write-Host "✗ git pull failed" -ForegroundColor Red
+                return
+            }
+        } else {
+            if (Test-Path $ninjaRepo) {
+                Write-Host "==> Removing invalid ninja source directory..." -ForegroundColor Yellow
+                Remove-Item $ninjaRepo -Recurse -Force
+            }
+            Write-Host "==> Cloning ninja source..." -ForegroundColor Cyan
+            git clone https://github.com/ninja-build/ninja.git $ninjaRepo
+            if ($LASTEXITCODE -ne 0) {
+                Write-Host "✗ git clone failed" -ForegroundColor Red
+                return
+            }
+        }
+
+        # Clean previous build directory
+        if (Test-Path "$ninjaRepo\build") {
+            Write-Host "==> Cleaning previous build..." -ForegroundColor Yellow
+            Remove-Item "$ninjaRepo\build" -Recurse -Force
+        }
+
+        Write-Host "==> Configuring..." -ForegroundColor Cyan
+        cmake -B "$ninjaRepo\build" -S $ninjaRepo -G Ninja `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DCMAKE_C_COMPILER="$clangRoot\bin\clang-cl.exe" `
+            -DCMAKE_CXX_COMPILER="$clangRoot\bin\clang-cl.exe" `
+            -DCMAKE_LINKER="$clangRoot\bin\lld-link.exe"
+
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "✗ CMake configure failed" -ForegroundColor Red
+            return
+        }
+
+        Write-Host "==> Building..." -ForegroundColor Cyan
+        cmake --build "$ninjaRepo\build" --config Release
+
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "✗ CMake build failed" -ForegroundColor Red
+            return
+        }
+
+        $builtExe = "$ninjaRepo\build\ninja.exe"
+        if (Test-Path $builtExe) {
+            New-Item -ItemType Directory -Force -Path "$ninjaRoot\bin" | Out-Null
+            Copy-Item $builtExe "$ninjaRoot\bin\ninja.exe" -Force
+            Write-Host "✓ Ninja $(& "$ninjaRoot\bin\ninja.exe" --version) installed to $ninjaRoot\bin\ninja.exe" -ForegroundColor Green
+        } else {
+            Write-Host "✗ ninja.exe not found at $builtExe after build" -ForegroundColor Red
+        }
+
+    } finally {
+        $env:PATH               = $savedPath
+        $env:CC                 = $savedCC
+        $env:CXX                = $savedCXX
+        $env:INCLUDE            = $savedINCLUDE
+        $env:LIB                = $savedLIB
+        $env:CMAKE_C_COMPILER   = $savedCMakeC
         $env:CMAKE_CXX_COMPILER = $savedCMakeCX
-        $env:CMAKE_GENERATOR  = $savedCMakeG
+        $env:CMAKE_GENERATOR    = $savedCMakeG
         $env:CMAKE_MAKE_PROGRAM = $savedCMakeMk
         if ($savedCMakeLn) { $env:CMAKE_LINKER = $savedCMakeLn }
         else { Remove-Item Env:\CMAKE_LINKER -ErrorAction SilentlyContinue }
-
-        Write-Host "✓ Ninja updated to $(& "$ninjaRoot\bin\ninja.exe" --version)" -ForegroundColor Green
-        Set-Location D:\
+        Set-Location $savedLocation
     }
-    if (Test-Path "$ninjaRoot\bin\ninja.exe") { return "$ninjaRoot\bin\ninja.exe" }
-    if (Test-Path "$cmakeRoot\bin\ninja.exe") { return "$cmakeRoot\bin\ninja.exe" }
-    return $null
 }
 
 # Resolve preferred meson path
@@ -423,11 +465,13 @@ function Update-WinGit-Msys {
             [System.StringComparer]::OrdinalIgnoreCase)
 
         # A) ldd scan — all stage exes
+        # FIX: use single-quoted string so PowerShell does not interpret $PATH or $3.
+        # '' inside a single-quoted PS string is an escaped literal single-quote,
+        # which produces the surrounding quotes awk needs around the pattern.
         Write-Host "  Discovering import-table DLLs via ldd..." -ForegroundColor Cyan
         $lddLines = & "$msys64Root\usr\bin\env.exe" MSYSTEM=UCRT64 `
             "$msys64Root\usr\bin\bash.exe" -c `
-            "export PATH=/ucrt64/bin:`$PATH
-             find /d/dev/git-stage -name '*.exe' -print0 | xargs -0 ldd 2>/dev/null | awk '/\/ucrt64\//{print \$3}' | sort -u"
+            'export PATH=/ucrt64/bin:$PATH; find /d/dev/git-stage -name "*.exe" -print0 | xargs -0 ldd 2>/dev/null | awk ''/\/ucrt64\//{print $3}'' | sort -u'
 
         foreach ($msysPath in ($lddLines -split "`n" | Where-Object { $_ -match '\.dll$' })) {
             $dllNames.Add((Split-Path $msysPath.Trim() -Leaf)) | Out-Null
@@ -492,7 +536,7 @@ function Update-WinGit-Msys {
         Write-Host "  Version:  $builtVersion ($builtCommit)" -ForegroundColor Green
         Write-Host "  Compiler: clang (MSYS2 ucrt64, -march=native)" -ForegroundColor Green
         if ($backupVersion) {
-        Write-Host "  Previous: $backupVersion ($backupCommit) (at $backupDir)" -ForegroundColor Yellow
+            Write-Host "  Previous: $backupVersion ($backupCommit) (at $backupDir)" -ForegroundColor Yellow
         } else {
             Write-Host "  Previous: (no backup — install dir was already absent)" -ForegroundColor DarkGray
         }
@@ -533,10 +577,8 @@ function Update-WinGit-Msys {
 #NASM Building From Source
 #======================================================
 
-function Update-WinNasm {
-    # Note: stays on master intentionally — nasm-3.02 tag has broken msvc.mak
-    # (missing common\files.obj rule added post-release). Master is the 3.02
-    # codebase plus Windows build fixes, same as the official dev snapshot.
+function Update-WinNasm-Clang {
+    $nasmMode = "dev"   # "stable" | "dev"
 
     $savedPath    = $env:PATH
     $savedCC      = $env:CC
@@ -549,37 +591,178 @@ function Update-WinNasm {
     $savedCMakeMk = $env:CMAKE_MAKE_PROGRAM
     $savedCMakeLn = $env:CMAKE_LINKER
 
-    if (-not (Test-Path D:\dev\nasm-src)) {
-        git clone https://github.com/netwide-assembler/nasm D:\dev\nasm-src
-    } else {
-        git -C D:\dev\nasm-src pull
+    try {
+        if (-not (Test-Path D:\dev\nasm-src)) {
+            git clone https://github.com/netwide-assembler/nasm D:\dev\nasm-src
+        }
+
+        if ($nasmMode -eq "stable") {
+            git -C D:\dev\nasm-src fetch origin
+            git -C D:\dev\nasm-src fetch --tags
+            git -C D:\dev\nasm-src reset --hard
+            git -C D:\dev\nasm-src checkout 4a56d66
+            git -C D:\dev\nasm-src clean -fdx
+        } else {
+            git -C D:\dev\nasm-src fetch origin
+            git -C D:\dev\nasm-src fetch --tags
+            git -C D:\dev\nasm-src reset --hard origin/master
+            git -C D:\dev\nasm-src clean -fdx
+
+            $msvcH = "D:\dev\nasm-src\config\msvc.h"
+            if (Test-Path $msvcH) {
+                $found = rg --fixed-strings '# define HAVE__BITSCANREVERSE 1' $msvcH
+                if ($found) {
+                    sd `
+                        '#if _MSC_VER >= 1400\r?\n# define HAVE__BITSCANREVERSE 1\r?\n#endif' `
+                        '// HAVE__BITSCANREVERSE disabled: corrupts COFF symbol table under clang-cl (e2f38a8)
+// #if _MSC_VER >= 1400
+// # define HAVE__BITSCANREVERSE 1
+// #endif' `
+                        $msvcH
+                    $stillThere = rg '^# define HAVE__BITSCANREVERSE 1' $msvcH
+                    if ($stillThere) {
+                        Write-Host "  ✗ Patch FAILED: HAVE__BITSCANREVERSE still present" -ForegroundColor Red
+                        return
+                    }
+                    Write-Host "  ✓ Patch applied: commented out HAVE__BITSCANREVERSE in config/msvc.h" -ForegroundColor Cyan
+                } else {
+                    Write-Host "  Patch skipped: HAVE__BITSCANREVERSE not present (already fixed upstream)" -ForegroundColor DarkGray
+                }
+            } else {
+                Write-Host "  ✗ config/msvc.h not found — unexpected tree layout" -ForegroundColor Red
+                return
+            }
+        }
+
+        $gitDesc = (git -C D:\dev\nasm-src describe --tags --long --dirty 2>$null)
+        if ($gitDesc) {
+            $verStr  = $gitDesc -replace '^nasm-', ''
+            $verFile = "D:\dev\nasm-src\version"
+            [System.IO.File]::WriteAllText($verFile, "$verStr`n")
+            Write-Host "  version file patched: $verStr" -ForegroundColor Cyan
+        } else {
+            Write-Host "  version file not patched: git describe returned nothing" -ForegroundColor Yellow
+        }
+
+        use-clang-win
+        Set-Location D:\dev\nasm-src
+
+        nmake-msvc /f Mkfiles\msvc.mak clean
+
+        nmake-msvc /f Mkfiles\msvc.mak `
+            CC="$clangRoot\bin\clang-cl.exe" `
+            AR="$clangRoot\bin\llvm-lib.exe" `
+            OPTFLAGS="/O2" `
+            LDFLAGS="/opt:ref /opt:icf"
+
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "✗ NASM build failed (exit $LASTEXITCODE)" -ForegroundColor Red
+            return
+        }
+
+        Copy-Item D:\dev\nasm-src\nasm.exe    D:\Programs\nasm\nasm.exe    -Force
+        Copy-Item D:\dev\nasm-src\ndisasm.exe D:\Programs\nasm\ndisasm.exe -Force
+        Write-Host "✓ NASM: $(& "$nasmRoot\nasm.exe" --version)" -ForegroundColor Green
+
+    } finally {
+        $env:PATH               = $savedPath
+        $env:CC                 = $savedCC
+        $env:CXX                = $savedCXX
+        $env:INCLUDE            = $savedINCLUDE
+        $env:LIB                = $savedLIB
+        $env:CMAKE_C_COMPILER   = $savedCMakeC
+        $env:CMAKE_CXX_COMPILER = $savedCMakeCX
+        $env:CMAKE_GENERATOR    = $savedCMakeG
+        $env:CMAKE_MAKE_PROGRAM = $savedCMakeMk
+        if ($savedCMakeLn) { $env:CMAKE_LINKER = $savedCMakeLn }
+        else { Remove-Item Env:\CMAKE_LINKER -ErrorAction SilentlyContinue }
+        Set-Location D:\
     }
-    use-clang-win
-    $shimDir = "$env:TEMP\nasm-cl-shim"
-    New-Item -ItemType Directory -Path $shimDir -Force | Out-Null
-    Copy-Item "$clangRoot\bin\clang-cl.exe" "$shimDir\cl.exe" -Force
-    Copy-Item "$clangRoot\bin\lld-link.exe" "$shimDir\link.exe" -Force
-    $env:PATH = "$shimDir;" + $env:PATH
-    Set-Location D:\dev\nasm-src
-    nmake-msvc /f Mkfiles\msvc.mak
+}
 
-    Copy-Item D:\dev\nasm-src\nasm.exe    D:\Programs\nasm\nasm.exe    -Force
-    Copy-Item D:\dev\nasm-src\ndisasm.exe D:\Programs\nasm\ndisasm.exe -Force
+function Update-WinNasm-MSVC {
+    # Builds NASM from source using MSVC toolchain (cl.exe/nmake).
+    # $nasmMode = "stable" : pins to commit 4a56d66 (nasm-3.02 release)
+    # $nasmMode = "dev"    : tracks master; applies two patches required for
+    #                        OpenSSL compatibility (file.c + outcoff.c).
+    $nasmMode = "stable"   # "stable" | "dev"
 
-    $env:PATH             = $savedPath
-    $env:CC               = $savedCC
-    $env:CXX              = $savedCXX
-    $env:INCLUDE          = $savedINCLUDE
-    $env:LIB              = $savedLIB
-    $env:CMAKE_C_COMPILER = $savedCMakeC
-    $env:CMAKE_CXX_COMPILER = $savedCMakeCX
-    $env:CMAKE_GENERATOR  = $savedCMakeG
-    $env:CMAKE_MAKE_PROGRAM = $savedCMakeMk
-    if ($savedCMakeLn) { $env:CMAKE_LINKER = $savedCMakeLn }
-    else { Remove-Item Env:\CMAKE_LINKER -ErrorAction SilentlyContinue }
+    $savedPath    = $env:PATH
+    $savedCC      = $env:CC
+    $savedCXX     = $env:CXX
+    $savedINCLUDE = $env:INCLUDE
+    $savedLIB     = $env:LIB
+    $savedCMakeC  = $env:CMAKE_C_COMPILER
+    $savedCMakeCX = $env:CMAKE_CXX_COMPILER
+    $savedCMakeG  = $env:CMAKE_GENERATOR
+    $savedCMakeMk = $env:CMAKE_MAKE_PROGRAM
+    $savedCMakeLn = $env:CMAKE_LINKER
 
-    Set-Location D:\
-    Write-Host "✓ NASM: $(& "$nasmRoot\nasm.exe" --version)" -ForegroundColor Green
+    try {
+        if (-not (Test-Path D:\dev\nasm-src)) {
+            git clone https://github.com/netwide-assembler/nasm D:\dev\nasm-src
+        }
+
+        if ($nasmMode -eq "stable") {
+            git -C D:\dev\nasm-src fetch --tags
+            git -C D:\dev\nasm-src reset --hard
+            git -C D:\dev\nasm-src checkout 720a326 #4a56d66
+            git -C D:\dev\nasm-src clean -fdx
+        } else {
+            git -C D:\dev\nasm-src fetch --tags
+            git -C D:\dev\nasm-src reset --hard
+            git -C D:\dev\nasm-src checkout master
+            git -C D:\dev\nasm-src pull
+            git -C D:\dev\nasm-src clean -fdx
+        }
+
+        # Embed git commit hash into the 'version' plain text file that version.pl reads.
+        # msvc.mak generates version.h via: perl version.pl h < version > version.h
+        # Patching version.h directly is useless — nmake regenerates it from 'version'.
+        # stable produces: "3.02-0-g4a56d66"
+        # dev produces:    "3.02-50-gfbdc88565-dirty"
+        $gitDesc = (git -C D:\dev\nasm-src describe --tags --long --dirty 2>$null)
+        if ($gitDesc) {
+            $verStr  = $gitDesc -replace '^nasm-', ''
+            $verFile = "D:\dev\nasm-src\version"
+            [System.IO.File]::WriteAllText($verFile, "$verStr`n")
+            Write-Host "  version file patched: $verStr" -ForegroundColor Cyan
+        } else {
+            Write-Host "  version file not patched: git describe returned nothing" -ForegroundColor Yellow
+        }
+
+        use-msvc
+        Set-Location D:\dev\nasm-src
+
+        nmake-msvc /f Mkfiles\msvc.mak clean
+
+        nmake-msvc /f Mkfiles\msvc.mak `
+            OPTFLAGS="/O2" `
+            LDFLAGS="/opt:ref /opt:icf"
+
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "✗ NASM build failed (exit $LASTEXITCODE)" -ForegroundColor Red
+            return
+        }
+
+        Copy-Item D:\dev\nasm-src\nasm.exe    D:\Programs\nasm\nasm.exe    -Force
+        Copy-Item D:\dev\nasm-src\ndisasm.exe D:\Programs\nasm\ndisasm.exe -Force
+        Write-Host "✓ NASM: $(& "$nasmRoot\nasm.exe" --version)" -ForegroundColor Green
+
+    } finally {
+        $env:PATH               = $savedPath
+        $env:CC                 = $savedCC
+        $env:CXX                = $savedCXX
+        $env:INCLUDE            = $savedINCLUDE
+        $env:LIB                = $savedLIB
+        $env:CMAKE_C_COMPILER   = $savedCMakeC
+        $env:CMAKE_CXX_COMPILER = $savedCMakeCX
+        $env:CMAKE_GENERATOR    = $savedCMakeG
+        $env:CMAKE_MAKE_PROGRAM = $savedCMakeMk
+        if ($savedCMakeLn) { $env:CMAKE_LINKER = $savedCMakeLn }
+        else { Remove-Item Env:\CMAKE_LINKER -ErrorAction SilentlyContinue }
+        Set-Location D:\
+    }
 }
 
 #======================================================
@@ -600,6 +783,7 @@ function Update-WinOpenSSL-MSVC {
 
     Set-Location "D:\Downloads\OpenSSL"
     git pull
+    nmake-msvc distclean 2>$null   # suppress errors if no Makefile yet
 
     perl Configure VC-WIN64A no-makedepend `
         --prefix="D:\Programs\OpenSSL" `
@@ -632,6 +816,90 @@ function Update-WinOpenSSL-MSVC {
     if ($savedCL) { $env:CL = $savedCL }
     else { Remove-Item Env:\CL -ErrorAction SilentlyContinue }
     Set-Location D:\
+}
+
+function Update-WinOpenSSL-Clang {
+    # Builds OpenSSL from source using clang-win toolchain.
+    # OpenSSL has no VC-CLANG-WIN64A target for x86-64 — clang-cl is passed
+    # via CC/LD env vars on top of VC-WIN64A, same pattern as the MSVC build
+    # but with clang-cl.exe as compiler and lld-link.exe as linker.
+    # nmake distclean runs unconditionally — stale MSVC obj/lib files from a
+    # previous build silently block recompilation (same lesson as NASM).
+    # jom is used for parallel build identical to the MSVC function.
+
+    $savedPath    = $env:PATH
+    $savedCC      = $env:CC
+    $savedCXX     = $env:CXX
+    $savedINCLUDE = $env:INCLUDE
+    $savedLIB     = $env:LIB
+    $savedCL      = $env:CL
+
+    try {
+        # Perl and NASM must be ahead of everything — OpenSSL Configure needs both
+        $env:PATH = "$perlRoot\perl\bin;$nasmRoot;$env:PATH"
+
+        use-clang-win
+
+        # Point OpenSSL's Configure at clang-cl and lld-link via env vars.
+        # VC-WIN64A uses CC for the compiler and LD for the linker — these
+        # override cl.exe/link.exe without needing a shim directory.
+        $env:CC  = "$clangRoot\bin\clang-cl.exe"
+        $env:CXX = "$clangRoot\bin\clang-cl.exe"
+        $env:LD  = "$clangRoot\bin\lld-link.exe"
+
+        Set-Location "D:\Downloads\OpenSSL"
+        git pull
+
+        # distclean unconditionally — nmake tracks timestamps not compiler
+        # identity; stale MSVC objects silently prevent recompilation
+        nmake-msvc distclean 2>$null   # suppress errors if no Makefile yet
+
+        perl Configure VC-WIN64A no-makedepend `
+            --prefix="D:\Programs\OpenSSL" `
+            --openssldir="D:\Programs\OpenSSL"
+
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "✗ Configure failed (exit $LASTEXITCODE)" -ForegroundColor Red
+            return
+        }
+        # Replace lib.exe with llvm-lib.exe in generated Makefile
+        (Get-Content "D:\Downloads\OpenSSL\Makefile") `
+            -replace '^AR="lib"', "AR=`"$clangRoot\bin\llvm-lib.exe`"" |
+            Set-Content "D:\Downloads\OpenSSL\Makefile"
+
+        $jobs = (Get-CimInstance Win32_ComputerSystem).NumberOfLogicalProcessors
+        & "$jomRoot\jom.exe" /J $jobs
+
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "✗ Build failed (exit $LASTEXITCODE)" -ForegroundColor Red
+            return
+        }
+
+        # Skip 20-test_app_ecparam.t — known CRLF false-failure on Windows
+        & "$jomRoot\jom.exe" TESTS="-test_app_ecparam" test
+
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "✗ Tests failed (exit $LASTEXITCODE)" -ForegroundColor Red
+            return
+       }
+
+        & "$jomRoot\jom.exe" install_sw
+
+        $ver = (Get-Content "D:\Programs\OpenSSL\include\openssl\opensslv.h" -ErrorAction SilentlyContinue |
+                Select-String 'OPENSSL_VERSION_STR') -replace '.*"(.*)".*', '$1'
+        Write-Host "✓ OpenSSL $ver installed to D:\Programs\OpenSSL" -ForegroundColor Green
+
+    } finally {
+        $env:PATH    = $savedPath
+        $env:CC      = $savedCC
+        $env:CXX     = $savedCXX
+        $env:INCLUDE = $savedINCLUDE
+        $env:LIB     = $savedLIB
+        Remove-Item Env:\LD -ErrorAction SilentlyContinue
+        if ($savedCL) { $env:CL = $savedCL }
+        else { Remove-Item Env:\CL -ErrorAction SilentlyContinue }
+        Set-Location D:\
+    }
 }
 
 # =====================================================
@@ -805,7 +1073,11 @@ if (Test-Path "$mesonRoot\meson.cmd") {
 
 # Force cmake ahead of Python Scripts cmake.exe
 if (Test-Path "$cmakeRoot\bin\cmake.exe") {
-    $env:PATH = "$cmakeRoot\bin;" + $env:PATH
+    if (Test-Path "$ninjaRoot\bin\ninja.exe") {
+        $env:PATH = "$ninjaRoot\bin;$cmakeRoot\bin;" + $env:PATH
+    } else {
+        $env:PATH = "$cmakeRoot\bin;" + $env:PATH
+    }
 }
 
 # Unicode fix for Python on Windows cp1252 terminals
@@ -1016,9 +1288,10 @@ function Use-WindowsMSVC {
         "$windowsKitsRoot\Lib\$windowsSDKVersion\um\$targetArch"
     ) -join ";"
     $env:CMAKE_GENERATOR = "Ninja"
-    $resolvedNinja = Update-WinNinja
-    if ($resolvedNinja) {
-        $env:CMAKE_MAKE_PROGRAM = $resolvedNinja
+    if (Test-Path "$ninjaRoot\bin\ninja.exe") {
+        $env:CMAKE_MAKE_PROGRAM = "$ninjaRoot\bin\ninja.exe"
+    } elseif (Test-Path "$cmakeRoot\bin\ninja.exe") {
+        $env:CMAKE_MAKE_PROGRAM = "$cmakeRoot\bin\ninja.exe"
     } else {
         $env:CMAKE_GENERATOR    = "NMake Makefiles"
         $env:CMAKE_MAKE_PROGRAM = "$msvcBinPath\nmake.exe"
@@ -1462,16 +1735,17 @@ function Update-PyPcre {
     git fetch upstream
     if ($LASTEXITCODE -ne 0) { Write-Warning "git fetch upstream failed"; Set-Location $originalLocation; return }
 
-    git merge upstream/main --ff-only
+    # Rebase your meson commit(s) on top of upstream/main
+    git rebase upstream/main
     if ($LASTEXITCODE -ne 0) {
-        Write-Warning "Merge from upstream failed (conflicts?) — resolve manually then re-run"
+        Write-Warning "Rebase failed — resolve conflicts manually, then run: git rebase --continue"
+        Write-Warning "Once resolved, re-run Update-PyPcre"
         Set-Location $originalLocation; return
     }
-    Write-Host "  ✓ Local clone updated from upstream" -ForegroundColor Green
+    Write-Host "  ✓ Local clone rebased onto upstream" -ForegroundColor Green
 
     # ── 2. Push updated local clone → your fork (jdb130496/PyPcre) ──
-    # ── 2. Push updated local clone → your fork (jdb130496/PyPcre) ──
-    $pushOut = git push origin main 2>&1
+    $pushOut = git push origin main --force-with-lease 2>&1
     if ($LASTEXITCODE -ne 0) {
         Write-Warning "git push to your fork failed:"
         Write-Host ($pushOut | Out-String).Trim() -ForegroundColor Red
@@ -1863,6 +2137,329 @@ function Update-Pcre2 {
     Set-Location D:\
     python -c "import pcre2; print('pcre2 Python:', pcre2.__version__, '| PCRE2 C:', pcre2.__libpcre2_version__)"
 }
+
+# =====================================================
+# NASM / OpenSSL Bisect Regression Automation
+# =====================================================
+
+function Find-NasmOpenSSLRegression {
+    [CmdletBinding()]
+    param(
+        [string]$StartCommit = "18c778c",
+        [string]$EndCommit   = "b2734a9",
+        [string]$OpenSSLDir  = "D:\Downloads\OpenSSL"
+    )
+
+    $nasmSrc = "D:\dev\nasm-src"
+    if (-not (Test-Path $nasmSrc)) {
+        throw "NASM source directory not found at $nasmSrc"
+    }
+
+    # ASM targets to probe: [perl generator script, output asm path, symbol to verify]
+    $asmTargets = @(
+        @{
+            Pl     = "$OpenSSLDir\crypto\sm3\asm\sm3-x86_64.pl"
+            Asm    = "$OpenSSLDir\crypto\sm3\sm3-x86_64.asm"
+            Obj    = "$OpenSSLDir\crypto\sm3\sm3-x86_64.obj"
+            Symbol = "ossl_hwsm3_block_data_order"
+        },
+        @{
+            Pl     = "$OpenSSLDir\crypto\aes\asm\aesni-x86_64.pl"
+            Asm    = "$OpenSSLDir\crypto\aes\aesni-x86_64.asm"
+            Obj    = "$OpenSSLDir\crypto\aes\aesni-x86_64.obj"
+            Symbol = "aesni_encrypt"
+        }
+    )
+
+    # Pre-generate .asm files once (they don't change between NASM versions)
+    Write-Host "=== Pre-generating ASM files ===" -ForegroundColor Cyan
+    $savedPath = $env:PATH
+    $env:PATH  = "$perlRoot\perl\bin;D:\Programs\nasm;$env:PATH"
+    foreach ($t in $asmTargets) {
+        if (-not (Test-Path $t.Asm)) {
+            Write-Host "  Generating $($t.Asm)..." -ForegroundColor DarkCyan
+            perl $t.Pl win64 $t.Asm
+            if ($LASTEXITCODE -ne 0) { throw "Failed to generate $($t.Asm)" }
+        } else {
+            Write-Host "  Reusing existing $($t.Asm)" -ForegroundColor DarkGray
+        }
+    }
+    $env:PATH = $savedPath
+
+    # --- Bisect setup ---
+    git -C "$nasmSrc" bisect reset 2>$null
+    git -C "$nasmSrc" checkout "$StartCommit" --force
+    git -C "$nasmSrc" reset --hard
+    git -C "$nasmSrc" clean -fdx
+
+    Write-Host "`n=== Initializing Git Bisect for NASM ===" -ForegroundColor Cyan
+    Write-Host "  Good: $StartCommit" -ForegroundColor Green
+    Write-Host "  Bad:  $EndCommit"   -ForegroundColor Red
+
+    git -C "$nasmSrc" bisect start
+    git -C "$nasmSrc" bisect bad  "$EndCommit"
+    git -C "$nasmSrc" bisect good "$StartCommit"
+
+    try {
+        while ($true) {
+
+            $currentCommit  = (git -C "$nasmSrc" rev-parse --short HEAD).Trim()
+            $currentSubject = (git -C "$nasmSrc" log --no-walk --format="%s" HEAD).Trim()
+            Write-Host "`n--------------------------------------------------" -ForegroundColor Yellow
+            Write-Host "Testing NASM commit: $currentCommit  $currentSubject" -ForegroundColor Yellow
+            Write-Host "--------------------------------------------------" -ForegroundColor Yellow
+
+            # --- Patch 1: file.c windows.h (clang-cl compat) ---
+            $fileC = "$nasmSrc\nasmlib\file.c"
+            if (Test-Path $fileC) {
+                $content = Get-Content $fileC -Raw
+                if ($content -match '#include <stringapiset\.h>' -and
+                    $content -notmatch '#include <windows\.h>') {
+                    $content = $content -replace '#include <stringapiset\.h>',
+                        "#include <windows.h>`r`n#include <stringapiset.h>"
+                    [System.IO.File]::WriteAllText($fileC, $content)
+                    Write-Host "  -> Patch 1 applied: file.c windows.h" -ForegroundColor Cyan
+                } else {
+                    Write-Host "  -> Patch 1 skipped" -ForegroundColor DarkGray
+                }
+            }
+
+            # --- Patch version file ---
+            $gitDesc = (git -C "$nasmSrc" describe --tags --long --dirty 2>$null)
+            if ($gitDesc) {
+                $verStr = $gitDesc -replace '^nasm-', ''
+                [System.IO.File]::WriteAllText("$nasmSrc\version", "$verStr`n")
+            }
+
+            # --- Build NASM ---
+            Write-Host "  Building NASM..." -ForegroundColor DarkCyan
+            use-clang-win
+            Push-Location $nasmSrc
+            nmake-msvc /f Mkfiles\msvc.mak clean 2>$null
+            nmake-msvc /f Mkfiles\msvc.mak `
+                CC="$clangRoot\bin\clang-cl.exe" `
+                AR="$clangRoot\bin\llvm-lib.exe" `
+                OPTFLAGS="/O2" `
+                LDFLAGS="/opt:ref /opt:icf"
+            $nasmBuildExit = $LASTEXITCODE
+            Pop-Location
+
+            if ($nasmBuildExit -ne 0) {
+                Write-Host "  ✗ NASM build failed — skipping" -ForegroundColor Red
+                git -C "$nasmSrc" reset --hard
+                git -C "$nasmSrc" clean -fdx
+                git -C "$nasmSrc" bisect skip
+                continue
+            }
+
+            Copy-Item "$nasmSrc\nasm.exe"    "D:\Programs\nasm\nasm.exe"    -Force
+            Copy-Item "$nasmSrc\ndisasm.exe" "D:\Programs\nasm\ndisasm.exe" -Force
+            Write-Host "  ✓ NASM built: $(& D:\Programs\nasm\nasm.exe --version)" -ForegroundColor Cyan
+
+            # --- Fast test: assemble + symbol check ---
+            Write-Host "  Assembling probe targets..." -ForegroundColor DarkCyan
+            $assemblyOK = $true
+
+            foreach ($t in $asmTargets) {
+                # Remove stale obj
+                if (Test-Path $t.Obj) { Remove-Item $t.Obj -Force }
+
+                & "D:\Programs\nasm\nasm.exe" -f win64 $t.Asm -o $t.Obj 2>&1 |
+                    ForEach-Object { Write-Host "    nasm: $_" -ForegroundColor DarkGray }
+
+                if (-not (Test-Path $t.Obj)) {
+                    Write-Host "  ✗ Assembly failed — no .obj produced for $($t.Asm)" -ForegroundColor Red
+                    $assemblyOK = $false
+                    break
+                }
+
+                $syms = & "$clangRoot\bin\llvm-nm.exe" $t.Obj 2>&1
+                if ($syms -match [regex]::Escape($t.Symbol)) {
+                    Write-Host "  ✓ Symbol found: $($t.Symbol)" -ForegroundColor Green
+                } else {
+                    Write-Host "  ✗ Symbol MISSING: $($t.Symbol)" -ForegroundColor Red
+                    $assemblyOK = $false
+                    break
+                }
+            }
+
+            # --- Clean tree before bisect step ---
+            git -C "$nasmSrc" reset --hard
+            git -C "$nasmSrc" clean -fdx
+
+            if ($assemblyOK) {
+                Write-Host "  → GOOD: $currentCommit  $currentSubject" -ForegroundColor Green
+                $bisectOut = git -C "$nasmSrc" bisect good 2>&1
+            } else {
+                Write-Host "  → BAD:  $currentCommit  $currentSubject" -ForegroundColor Red
+                $bisectOut = git -C "$nasmSrc" bisect bad 2>&1
+            }
+
+            Write-Host "  bisect: $bisectOut" -ForegroundColor Gray
+
+            if ($bisectOut -match 'is the first bad commit' -or
+                $bisectOut -match 'first bad commit'        -or
+                $bisectOut -match 'There are only') {
+                Write-Host "`n=== BISECT COMPLETE ===" -ForegroundColor Magenta
+                Write-Host $bisectOut -ForegroundColor Magenta
+                break
+            }
+        }
+    } finally {
+        git -C "$nasmSrc" bisect reset
+        Set-Location D:\
+    }
+}
+
+function Find-NasmOpenSSLRegression-New {
+    [CmdletBinding()]
+    param(
+        [string]$StartCommit = "4a56d66", # Stable 3.02 release commit
+        [string]$EndCommit = "HEAD",       # Latest broken commit
+        [string]$OpenSSLDir = "D:\Downloads\OpenSSL"
+    )
+
+    $nasmSrc = "D:\dev\nasm-src"
+    if (-not (Test-Path $nasmSrc)) {
+        throw "NASM source directory not found at $nasmSrc"
+    }
+
+    Write-Host "=== Initializing Git Bisect for NASM ===" -ForegroundColor Cyan
+    git -C "$nasmSrc" reset --hard > $null 2>&1
+    git -C "$nasmSrc" clean -fdx > $null 2>&1
+    git -C "$nasmSrc" bisect start > $null 2>&1
+    git -C "$nasmSrc" bisect bad "$EndCommit" > $null 2>&1
+    git -C "$nasmSrc" bisect good "$StartCommit" > $null 2>&1
+
+    # --- ONE-TIME OPENSSL CONFIGURATION ---
+    Write-Host "==> Performing initial OpenSSL configuration..." -ForegroundColor Cyan
+    $savedPath =$env:PATH
+    $savedCC =$env:CC
+    $savedCXX =$env:CXX
+    $savedLD =$env:LD
+
+    try {
+        $env:PATH = "$perlRoot\perl\bin;D:\Programs\nasm;$env:PATH"
+        use-clang-win > $null 2>&1
+        $env:CC = "$clangRoot\bin\clang-cl.exe"
+        $env:CXX = "$clangRoot\bin\clang-cl.exe"
+        $env:LD = "$clangRoot\bin\lld-link.exe"
+
+        Set-Location $OpenSSLDir
+        nmake-msvc distclean > $null 2>&1
+        if (Test-Path "$OpenSSLDir\Makefile") { Remove-Item "$OpenSSLDir\Makefile" -Force }
+
+        perl Configure VC-WIN64A no-makedepend --prefix="D:\Programs\OpenSSL" --openssldir="D:\Programs\OpenSSL" > $null 2>&1
+        if ($LASTEXITCODE -ne 0) { throw "OpenSSL initial Configure failed" }
+
+        (Get-Content "$OpenSSLDir\Makefile") -replace '^AR="lib"', "AR=`"$clangRoot\bin\llvm-lib.exe`"" | Set-Content "$OpenSSLDir\Makefile"
+    }
+    finally {
+        $env:PATH =$savedPath
+        if ($savedCC) { $env:CC =$savedCC } else { Remove-Item Env:\CC -ErrorAction SilentlyContinue }
+        if ($savedCXX) { $env:CXX =$savedCXX } else { Remove-Item Env:\CXX -ErrorAction SilentlyContinue }
+        if ($savedLD) { $env:LD =$savedLD } else { Remove-Item Env:\LD -ErrorAction SilentlyContinue }
+        Set-Location D:\
+    }
+
+    try {
+        while ($true) {
+            $currentCommit = (git -C "$nasmSrc" rev-parse --short HEAD).Trim()
+            Write-Host "`n--------------------------------------------------" -ForegroundColor Yellow
+            Write-Host "Testing NASM commit: $currentCommit" -ForegroundColor Yellow
+            Write-Host "--------------------------------------------------" -ForegroundColor Yellow
+
+            # 1. Clean and prepare NASM working tree
+            git -C "$nasmSrc" reset --hard > $null 2>&1
+            git -C "$nasmSrc" clean -fdx > $null 2>&1
+
+            # 2. Apply Patch 1 (file.c windows.h fix)
+            $fileC = "$nasmSrc\nasmlib\file.c"
+            if (Test-Path $fileC) {
+                $content = Get-Content $fileC -Raw
+                if ($content -notmatch '#include <windows\.h>') {
+                    $content = $content -replace '#include <stringapiset\.h>', "#include <windows.h>`r`n#include <stringapiset.h>"
+                    [System.IO.File]::WriteAllText($fileC, $content)
+                }
+            }
+
+            # 3. Patch version file for correct embedding via git describe
+            $gitDesc = (git -C "$nasmSrc" describe --tags --long --dirty 2>$null)
+            if ($gitDesc) {
+                $verStr = $gitDesc -replace '^nasm-', ''
+                [System.IO.File]::WriteAllText("$nasmSrc\version", "$verStr`n")
+            }
+
+            # 4. Build NASM
+            Write-Host "Building NASM..." -ForegroundColor DarkCyan
+            use-clang-win > $null 2>&1
+            Push-Location $nasmSrc
+            nmake-msvc /f Mkfiles\msvc.mak clean > $null 2>&1
+            nmake-msvc /f Mkfiles\msvc.mak `
+                CC="$clangRoot\bin\clang-cl.exe" `
+                AR="$clangRoot\bin\llvm-lib.exe" `
+                OPTFLAGS="/O2" `
+                LDFLAGS="/opt:ref /opt:icf" > $null 2>&1
+
+            if ($LASTEXITCODE -ne 0) {
+                Pop-Location
+                Write-Host "✗ NASM build failed at this commit. Skipping..." -ForegroundColor Red
+                git -C "$nasmSrc" bisect skip > $null 2>&1
+                continue
+            }
+
+            if (-not (Test-Path "D:\Programs\nasm")) { New-Item -ItemType Directory -Path "D:\Programs\nasm" | Out-Null }
+            Copy-Item "$nasmSrc\nasm.exe" D:\Programs\nasm\nasm.exe -Force
+            Copy-Item "$nasmSrc\ndisasm.exe" D:\Programs\nasm\ndisasm.exe -Force
+            Pop-Location
+
+            # 5. Build OpenSSL
+            Write-Host "Building OpenSSL with NASM $currentCommit..." -ForegroundColor DarkCyan
+            $savedPath =$env:PATH
+            $savedCC =$env:CC
+            $savedCXX =$env:CXX
+            $savedLD =$env:LD
+
+            try {
+                $env:PATH = "$perlRoot\perl\bin;D:\Programs\nasm;$env:PATH"
+                use-clang-win > $null 2>&1
+                $env:CC = "$clangRoot\bin\clang-cl.exe"
+                $env:CXX = "$clangRoot\bin\clang-cl.exe"
+                $env:LD = "$clangRoot\bin\lld-link.exe"
+
+                Set-Location $OpenSSLDir
+                
+                & "$jomRoot\jom.exe" clean > $null 2>&1
+
+                $jobs = (Get-CimInstance Win32_ComputerSystem).NumberOfLogicalProcessors
+                & "$jomRoot\jom.exe" /J $jobs >$null 2>&1
+
+                if ($LASTEXITCODE -ne 0) {
+                    throw "OpenSSL build failed"
+                }
+
+                Write-Host "✓ Build succeeded for NASM $currentCommit" -ForegroundColor Green
+                git -C "$nasmSrc" bisect good > $null 2>&1
+            }
+            catch {
+                Write-Host "✗ OpenSSL build/link failed with NASM $currentCommit" -ForegroundColor Red
+                git -C "$nasmSrc" bisect bad > $null 2>&1
+            }
+            finally {
+                $env:PATH =$savedPath
+                if ($savedCC) { $env:CC =$savedCC } else { Remove-Item Env:\CC -ErrorAction SilentlyContinue }
+                if ($savedCXX) { $env:CXX =$savedCXX } else { Remove-Item Env:\CXX -ErrorAction SilentlyContinue }
+                if ($savedLD) { $env:LD =$savedLD } else { Remove-Item Env:\LD -ErrorAction SilentlyContinue }
+                Set-Location D:\
+            }
+        }
+    }
+    finally {
+        git -C "$nasmSrc" bisect reset > $null 2>&1
+        Set-Location D:\
+    }
+}
+
 # =====================================================
 # Profile Load Message
 # =====================================================
