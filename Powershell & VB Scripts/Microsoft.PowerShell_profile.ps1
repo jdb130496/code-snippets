@@ -986,13 +986,15 @@ if (Test-Path "$opensslRoot\include\openssl\ssl.h") {
     $env:OPENSSL_LIB_DIR     = "$opensslRoot\lib"
     $env:WITH_SSL            = $opensslRoot
     $env:CMAKE_PREFIX_PATH   = $opensslRoot
-    # CMake 4.x compatibility — passes -DCMAKE_POLICY_VERSION_MINIMUM=3.5 to
-    # every cmake invocation spawned by cargo build scripts (audiopus_sys, etc.)
+    # CMake 4.x compatibility for legacy vendored CMakeLists.txt (e.g. audiopus_sys/opus)
     $env:CMAKE_POLICY_VERSION_MINIMUM = "3.5"
 
-    # Enable SSE4.1 globally for clang-cl — required for Opus/audiopus_sys which
-    # uses per-file GCC-style flags that clang-cl in MSVC mode silently drops
+    # SSE4.1 globally for clang-cl — Opus per-file GCC flags are silently dropped in MSVC mode
     $env:CFLAGS = "-msse4.1"
+
+    # Python 3.15 forward compatibility for pyo3 — suppresses "version newer than max supported"
+    # check and builds using the stable ABI. Required until pyo3 0.28+ ships with native 3.15 support.
+    $env:PYO3_USE_ABI3_FORWARD_COMPATIBILITY = "1"
     $basePaths += "$opensslRoot\bin"
 }
 
