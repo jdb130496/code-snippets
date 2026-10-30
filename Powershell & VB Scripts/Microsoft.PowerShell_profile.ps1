@@ -1,4 +1,4 @@
-# Added: $cmakeRoot\bin added to $basePaths (before Python Scripts to prevent pip cmake shadowing)
+﻿# Added: $cmakeRoot\bin added to $basePaths (before Python Scripts to prevent pip cmake shadowing)
 # Added: Update-WinCmake — builds cmake from source via clang-win + WARP; handles fresh/broken/update automatically
 # Added: $ninjaRoot  = "D:\Programs\ninja"
 # Added: $mesonRoot  = "D:\Programs\meson"
@@ -25,7 +25,6 @@ $clangRoot   = "D:\Programs\clang"
 $cmakeRoot   = "D:\Programs\cmake"
 $ninjaRoot   = "D:\Programs\ninja"
 $mesonRoot   = "D:\Programs\meson"
-$env:MESON = "D:\Programs\Python\Scripts\meson.exe" 
 $msys64Root  = "D:\Programs\msys64"
 $nodejsRoot  = "D:\Programs\nodejs"
 $perlRoot    = "D:\Programs\Perl"
@@ -39,6 +38,10 @@ $jomRoot     = "D:\Programs\jom"
 $mingitRoot  = "D:\Programs\MinGit"
 $rustRoot  = "D:\Programs\rustup"
 $cargoRoot = "D:\Programs\cargo"
+$bzip2Root   = "D:\Programs\bzip2"
+$zlibRoot    = "D:\Programs\zlib"
+$popplerRoot = "D:\Programs\poppler"
+$pandocRoot = "D:\Programs\pandoc"
 
 # =====================================================
 # Python - Direct path
@@ -213,47 +216,72 @@ function Update-WinNinja {
 
 # Resolve preferred meson path
 # Priority: standalone D:\Programs\meson > pip D:\Programs\Python\Scripts
+
 function Update-WinMeson {
     param([switch]$Update)
     if ($Update) {
         # Point git to Python's certifi CA bundle to fix TLS on MinGit
         $certBundle = & "$pythonRoot\python.exe" -c "import certifi; print(certifi.where())" 2>$null
-        if ($certBundle -and (Test-Path $certBundle)) {
-            $env:GIT_SSL_CAINFO = $certBundle
-        }
+        if ($certBundle -and (Test-Path $certBundle)) { $env:GIT_SSL_CAINFO = $certBundle }
 
         Set-Location D:\dev\meson-src
-        $gitResult = git pull
+        git pull
         if ($LASTEXITCODE -ne 0) {
             Write-Warning "git pull failed (exit $LASTEXITCODE) — meson.pyz will NOT be updated"
             Set-Location D:\
             return
         }
-        python packaging\create_zipapp.py --outfile "$mesonRoot\meson.pyz" --compress
+        & "$pythonRoot\python.exe" packaging\create_zipapp.py --outfile "$mesonRoot\meson.pyz" --compress
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning "create_zipapp.py failed — meson.pyz NOT updated"
+            Set-Location D:\
+            return
+        }
         Write-Host "✓ Meson updated to $(& "$pythonRoot\python.exe" "$mesonRoot\meson.pyz" --version)" -ForegroundColor Green
         Set-Location D:\
 
         # Rebuild shim exe after update so it stays in sync
         Remove-Item "$mesonRoot\meson.exe" -Force -ErrorAction SilentlyContinue
+        if (Test-Path "$mesonRoot\meson.exe") {
+            Write-Warning "meson.exe is in use and could not be replaced — close any running meson/pip and retry"
+        }
     }
 
-    # Create meson.exe shim pointing to git meson.pyz if it doesn't exist
-    # This lets ninja spawn meson as a real Windows process during pip builds
+    # Create meson.exe shim if it doesn't exist.
+    # The shim runs meson.pyz but tells Meson that *meson.exe* is the launcher, so build.ninja
+    # records a real Windows executable (a .pyz cannot be started by CreateProcess).
     if (-not (Test-Path "$mesonRoot\meson.exe")) {
         $shimScript = "$env:TEMP\meson_shim.py"
         Set-Content $shimScript @"
-import sys, os, subprocess
-result = subprocess.run(
-    [r'$pythonRoot\python.exe', r'$mesonRoot\meson.pyz'] + sys.argv[1:],
-    check=False
+import sys, subprocess
+
+SELF = r'$mesonRoot\meson.exe'
+PYZ  = r'$mesonRoot\meson.pyz'
+PY   = r'$pythonRoot\python.exe'
+
+code = (
+    "import sys; sys.path.insert(0, sys.argv[1]); "
+    "from mesonbuild import mesonmain; "
+    "sys.exit(mesonmain.run(sys.argv[3:], sys.argv[2]))"
 )
+result = subprocess.run([PY, '-c', code, PYZ, SELF] + sys.argv[1:], check=False)
 sys.exit(result.returncode)
 "@
-        & "$pythonRoot\python.exe" -m PyInstaller --onefile --name meson_git $shimScript --distpath "$mesonRoot" --workpath "$env:TEMP\meson_shim_build" --specpath "$env:TEMP" -y 2>&1 | Out-Null
+        $shimLog = "$env:TEMP\meson_shim_build.log"
+        & "$pythonRoot\python.exe" -m PyInstaller --onefile --name meson_git $shimScript `
+            --distpath "$mesonRoot" --workpath "$env:TEMP\meson_shim_build" --specpath "$env:TEMP" -y *> $shimLog
+
         if (Test-Path "$mesonRoot\meson_git.exe") {
             Rename-Item "$mesonRoot\meson_git.exe" "$mesonRoot\meson.exe" -Force
+            $ver = & "$mesonRoot\meson.exe" --version 2>&1
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host "✓ meson.exe shim created (reports $ver)" -ForegroundColor Green
+            } else {
+                Write-Warning "meson.exe shim built but '--version' failed: $ver"
+            }
+        } else {
+            Write-Warning "PyInstaller failed — meson.exe NOT created. See $shimLog"
         }
-        Write-Host "✓ meson.exe shim created → git meson.pyz" -ForegroundColor Green
     }
 
     if (Test-Path "$mesonRoot\meson.exe") { return "$mesonRoot\meson.exe" }
@@ -926,6 +954,298 @@ function Update-WinOpenSSL-Clang {
     }
 }
 
+#====================================================
+# Building BZip2 from source (clang-win)
+# Source: https://github.com/libarchive/bzip2  (cmake fork)
+# Output: D:\Programs\bzip2\lib\bzip2.lib (static)
+#         D:\Programs\bzip2\lib\bzip2dll.lib (import)
+#         D:\Programs\bzip2\bin\bzip2.dll
+#         D:\Programs\bzip2\include\bzlib.h
+#====================================================
+function Update-WinBzip2 {
+    $srcDir  = "D:\dev\bzip2-src"
+    $instDir = $bzip2Root   # D:\Programs\bzip2
+
+    # Git work before toolchain switch
+    if (Test-Path "$srcDir\.git") {
+        Write-Host "==> Updating bzip2 source..." -ForegroundColor Cyan
+        git -C $srcDir pull
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "✗ git pull failed" -ForegroundColor Red
+            return
+        }
+    } else {
+        if (Test-Path $srcDir) {
+            Write-Host "==> Removing incomplete bzip2 source directory..." -ForegroundColor Yellow
+            Remove-Item $srcDir -Recurse -Force
+        }
+        Write-Host "==> Cloning bzip2 source (libarchive cmake fork)..." -ForegroundColor Cyan
+        git clone https://github.com/libarchive/bzip2.git $srcDir
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "✗ git clone failed" -ForegroundColor Red
+            return
+        }
+    }
+
+    $savedPath      = $env:PATH
+    $savedCC        = $env:CC
+    $savedCXX       = $env:CXX
+    $savedINCLUDE   = $env:INCLUDE
+    $savedLIB       = $env:LIB
+    $savedCMakeC    = $env:CMAKE_C_COMPILER
+    $savedCMakeCX   = $env:CMAKE_CXX_COMPILER
+    $savedCMakeG    = $env:CMAKE_GENERATOR
+    $savedCMakeMk   = $env:CMAKE_MAKE_PROGRAM
+    $savedCMakeLn   = $env:CMAKE_LINKER
+    $savedWinSDKVer = $env:WindowsSDKVersion
+    $savedWinSDKDir = $env:WindowsSDKDir
+    $savedLocation  = Get-Location
+
+    try {
+        use-clang-win
+
+        $cmakeExe = "$cmakeRoot\bin\cmake.exe"
+        if (-not (Test-Path $cmakeExe)) {
+            Write-Host "✗ Standalone cmake not found at $cmakeExe — run Update-WinCmake first" -ForegroundColor Red
+            return
+        }
+
+        Set-Location $srcDir
+
+        # Clean previous build dir so cmake cache does not carry stale paths
+        if (Test-Path "$srcDir\build") {
+            Remove-Item "$srcDir\build" -Recurse -Force
+        }
+
+        Write-Host "==> Configuring BZip2..." -ForegroundColor Cyan
+        & $cmakeExe -B build -G Ninja `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DCMAKE_INSTALL_PREFIX="$instDir" `
+            -DCMAKE_C_COMPILER="$clangRoot\bin\clang-cl.exe" `
+            -DCMAKE_LINKER="$clangRoot\bin\lld-link.exe" `
+            -DENABLE_STATIC_LIB=ON `
+            -DENABLE_SHARED_LIB=ON `
+            -DENABLE_TESTS=OFF `
+            -DENABLE_DOCS=OFF
+
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "✗ CMake configure failed" -ForegroundColor Red
+            return
+        }
+
+        Write-Host "==> Building BZip2..." -ForegroundColor Cyan
+        & $cmakeExe --build build --config Release
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "✗ CMake build failed" -ForegroundColor Red
+            return
+        }
+
+        Write-Host "==> Installing BZip2 to $instDir..." -ForegroundColor Cyan
+        & $cmakeExe --install build
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "✗ CMake install failed" -ForegroundColor Red
+            return
+        }
+
+        # The libarchive fork installs the static lib as bz2_static.lib —
+        # rename to bzip2.lib so Update-Pcre2Win's *.lib glob finds it predictably
+        $staticSrc = "$instDir\lib\bz2_static.lib"
+        $staticDst = "$instDir\lib\bzip2.lib"
+        if ((Test-Path $staticSrc) -and (-not (Test-Path $staticDst))) {
+            Rename-Item $staticSrc $staticDst
+            Write-Host "  Renamed bz2_static.lib → bzip2.lib" -ForegroundColor DarkGray
+        }
+
+        # Verify
+        $cutoff = (Get-Date).AddMinutes(-5)
+        $hdr    = "$instDir\include\bzlib.h"
+        $lib    = "$instDir\lib\bzip2.lib"
+        $dll    = "$instDir\bin\bzip2.dll"
+
+        if ((Test-Path $hdr) -and (Test-Path $lib)) {
+            $ver = (Get-Content $hdr -ErrorAction SilentlyContinue |
+                    Select-String 'BZ_VERSION') -replace '.*"(.*)".*', '$1'
+            Write-Host "✓ BZip2 $ver installed to $instDir" -ForegroundColor Green
+            Write-Host "  Static:  $lib" -ForegroundColor White
+            if (Test-Path $dll) {
+                Write-Host "  DLL:     $dll" -ForegroundColor White
+            }
+        } else {
+            Write-Host "✗ BZip2 install verification failed — check output above" -ForegroundColor Red
+        }
+
+    } finally {
+        $env:PATH               = $savedPath
+        $env:INCLUDE            = $savedINCLUDE
+        $env:LIB                = $savedLIB
+        $env:CMAKE_GENERATOR    = $savedCMakeG
+        $env:CMAKE_MAKE_PROGRAM = $savedCMakeMk
+        if ($savedCC)        { $env:CC                  = $savedCC        } else { Remove-Item Env:\CC                  -ErrorAction SilentlyContinue }
+        if ($savedCXX)       { $env:CXX                 = $savedCXX       } else { Remove-Item Env:\CXX                 -ErrorAction SilentlyContinue }
+        if ($savedCMakeC)    { $env:CMAKE_C_COMPILER    = $savedCMakeC    } else { Remove-Item Env:\CMAKE_C_COMPILER    -ErrorAction SilentlyContinue }
+        if ($savedCMakeCX)   { $env:CMAKE_CXX_COMPILER  = $savedCMakeCX   } else { Remove-Item Env:\CMAKE_CXX_COMPILER  -ErrorAction SilentlyContinue }
+        if ($savedCMakeLn)   { $env:CMAKE_LINKER        = $savedCMakeLn   } else { Remove-Item Env:\CMAKE_LINKER        -ErrorAction SilentlyContinue }
+        if ($savedWinSDKVer) { $env:WindowsSDKVersion   = $savedWinSDKVer } else { Remove-Item Env:\WindowsSDKVersion   -ErrorAction SilentlyContinue }
+        if ($savedWinSDKDir) { $env:WindowsSDKDir       = $savedWinSDKDir } else { Remove-Item Env:\WindowsSDKDir       -ErrorAction SilentlyContinue }
+        Set-Location $savedLocation
+    }
+}
+
+#====================================================
+# Building ZLib from source (clang-win)
+# Source: https://github.com/madler/zlib
+# Output: D:\Programs\zlib\lib\zs.lib (static)
+#         D:\Programs\zlib\lib\z.lib (import)
+#         D:\Programs\zlib\bin\z.dll
+#         D:\Programs\zlib\include\zlib.h
+#====================================================
+function Update-WinZlib {
+    $srcDir  = "D:\dev\zlib-src"
+    $instDir = $zlibRoot   # D:\Programs\zlib
+
+    # Git work before toolchain switch
+    if (Test-Path "$srcDir\.git") {
+        Write-Host "==> Updating zlib source..." -ForegroundColor Cyan
+        # zlib uses tags for releases and is typically in detached HEAD —
+        # fetch all tags then checkout the latest vX.Y.Z release tag.
+        git -C $srcDir fetch --tags origin
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "✗ git fetch failed" -ForegroundColor Red
+            return
+        }
+        $latestTag = git -C $srcDir tag -l "v*" |
+                     Where-Object { $_ -match '^v\d+\.\d+(\.\d+)?$' } |
+                     Sort-Object { [version]($_ -replace '^v','') } |
+                     Select-Object -Last 1
+        if ($latestTag) {
+            Write-Host "  Checking out $latestTag" -ForegroundColor Cyan
+            git -C $srcDir checkout $latestTag --quiet
+        } else {
+            Write-Host "  No versioned tag found — staying on current commit" -ForegroundColor Yellow
+        }
+    } else {
+        if (Test-Path $srcDir) {
+            Write-Host "==> Removing incomplete zlib source directory..." -ForegroundColor Yellow
+            Remove-Item $srcDir -Recurse -Force
+        }
+        Write-Host "==> Cloning zlib source..." -ForegroundColor Cyan
+        git clone https://github.com/madler/zlib.git $srcDir
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "✗ git clone failed" -ForegroundColor Red
+            return
+        }
+        $latestTag = git -C $srcDir tag -l "v*" |
+                     Where-Object { $_ -match '^v\d+\.\d+(\.\d+)?$' } |
+                     Sort-Object { [version]($_ -replace '^v','') } |
+                     Select-Object -Last 1
+        if ($latestTag) {
+            Write-Host "  Checking out $latestTag" -ForegroundColor Cyan
+            git -C $srcDir checkout $latestTag --quiet
+        }
+    }
+
+    $savedPath      = $env:PATH
+    $savedCC        = $env:CC
+    $savedCXX       = $env:CXX
+    $savedINCLUDE   = $env:INCLUDE
+    $savedLIB       = $env:LIB
+    $savedCMakeC    = $env:CMAKE_C_COMPILER
+    $savedCMakeCX   = $env:CMAKE_CXX_COMPILER
+    $savedCMakeG    = $env:CMAKE_GENERATOR
+    $savedCMakeMk   = $env:CMAKE_MAKE_PROGRAM
+    $savedCMakeLn   = $env:CMAKE_LINKER
+    $savedWinSDKVer = $env:WindowsSDKVersion
+    $savedWinSDKDir = $env:WindowsSDKDir
+    $savedLocation  = Get-Location
+
+    try {
+        use-clang-win
+
+        $cmakeExe = "$cmakeRoot\bin\cmake.exe"
+        if (-not (Test-Path $cmakeExe)) {
+            Write-Host "✗ Standalone cmake not found at $cmakeExe — run Update-WinCmake first" -ForegroundColor Red
+            return
+        }
+
+        Set-Location $srcDir
+
+        # Clean previous build dir
+        if (Test-Path "$srcDir\build") {
+            Remove-Item "$srcDir\build" -Recurse -Force
+        }
+
+        Write-Host "==> Configuring ZLib..." -ForegroundColor Cyan
+        & $cmakeExe -B build -G Ninja `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DCMAKE_INSTALL_PREFIX="$instDir" `
+            -DCMAKE_C_COMPILER="$clangRoot\bin\clang-cl.exe" `
+            -DCMAKE_LINKER="$clangRoot\bin\lld-link.exe" `
+            -DZLIB_BUILD_EXAMPLES=OFF `
+            -DZLIB_BUILD_TESTING=OFF `
+            -DBUILD_TESTING=OFF
+
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "✗ CMake configure failed" -ForegroundColor Red
+            return
+        }
+
+        Write-Host "==> Building ZLib..." -ForegroundColor Cyan
+        & $cmakeExe --build build --config Release
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "✗ CMake build failed" -ForegroundColor Red
+            return
+        }
+
+        Write-Host "==> Installing ZLib to $instDir..." -ForegroundColor Cyan
+        & $cmakeExe --install build
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "✗ CMake install failed" -ForegroundColor Red
+            return
+        }
+
+        # zlib's cmake (madler/zlib, newer) installs:
+        #   z.lib  (shared import), zs.lib (static), z.dll — under bin/lib as above.
+
+        # Verify — probe actual filenames the new cmake produces
+        $hdr       = "$instDir\include\zlib.h"
+        $staticLib = if (Test-Path "$instDir\lib\zs.lib")        { "$instDir\lib\zs.lib"        }
+                     elseif (Test-Path "$instDir\lib\zlibstatic.lib") { "$instDir\lib\zlibstatic.lib" }
+                     else { $null }
+        $importLib = if (Test-Path "$instDir\lib\z.lib")         { "$instDir\lib\z.lib"         }
+                     elseif (Test-Path "$instDir\lib\zlib.lib")  { "$instDir\lib\zlib.lib"      }
+                     else { $null }
+        $dll       = if (Test-Path "$instDir\bin\z.dll")         { "$instDir\bin\z.dll"         }
+                     elseif (Test-Path "$instDir\bin\zlib1.dll") { "$instDir\bin\zlib1.dll"     }
+                     else { $null }
+
+        if ((Test-Path $hdr) -and ($staticLib -or $importLib)) {
+            $ver = (Get-Content $hdr -ErrorAction SilentlyContinue |
+                    Select-String '#define ZLIB_VERSION') -replace '.*"(.*)".*', '$1'
+            Write-Host "✓ ZLib $ver installed to $instDir" -ForegroundColor Green
+            if ($staticLib) { Write-Host "  Static:  $staticLib" -ForegroundColor White }
+            if ($importLib) { Write-Host "  Import:  $importLib" -ForegroundColor White }
+            if ($dll)       { Write-Host "  DLL:     $dll"       -ForegroundColor White }
+        } else {
+            Write-Host "✗ ZLib install verification failed — check output above" -ForegroundColor Red
+        }
+
+    } finally {
+        $env:PATH               = $savedPath
+        $env:INCLUDE            = $savedINCLUDE
+        $env:LIB                = $savedLIB
+        $env:CMAKE_GENERATOR    = $savedCMakeG
+        $env:CMAKE_MAKE_PROGRAM = $savedCMakeMk
+        if ($savedCC)        { $env:CC                  = $savedCC        } else { Remove-Item Env:\CC                  -ErrorAction SilentlyContinue }
+        if ($savedCXX)       { $env:CXX                 = $savedCXX       } else { Remove-Item Env:\CXX                 -ErrorAction SilentlyContinue }
+        if ($savedCMakeC)    { $env:CMAKE_C_COMPILER    = $savedCMakeC    } else { Remove-Item Env:\CMAKE_C_COMPILER    -ErrorAction SilentlyContinue }
+        if ($savedCMakeCX)   { $env:CMAKE_CXX_COMPILER  = $savedCMakeCX   } else { Remove-Item Env:\CMAKE_CXX_COMPILER  -ErrorAction SilentlyContinue }
+        if ($savedCMakeLn)   { $env:CMAKE_LINKER        = $savedCMakeLn   } else { Remove-Item Env:\CMAKE_LINKER        -ErrorAction SilentlyContinue }
+        if ($savedWinSDKVer) { $env:WindowsSDKVersion   = $savedWinSDKVer } else { Remove-Item Env:\WindowsSDKVersion   -ErrorAction SilentlyContinue }
+        if ($savedWinSDKDir) { $env:WindowsSDKDir       = $savedWinSDKDir } else { Remove-Item Env:\WindowsSDKDir       -ErrorAction SilentlyContinue }
+        Set-Location $savedLocation
+    }
+}
+
 # =====================================================
 # BASE PATH - Universal tools always in PATH
 # =====================================================
@@ -1052,6 +1372,16 @@ if (Test-Path "$sqliteRoot\sqlite3.lib") {
     $basePaths += $sqliteRoot
 }
 
+# BZip2 — DLL on PATH for runtime consumers (e.g. pcre2grep when enabled)
+if (Test-Path "$bzip2Root\bin") {
+    $basePaths += "$bzip2Root\bin"
+}
+
+# ZLib — DLL on PATH
+if (Test-Path "$zlibRoot\bin") {
+    $basePaths += "$zlibRoot\bin"
+}
+
 # Rust/Cargo — always in PATH
 if (Test-Path "$cargoRoot\bin") {
     $basePaths += "$cargoRoot\bin"
@@ -1092,6 +1422,16 @@ if (Test-Path "$msys64Root\usr\bin\bash.exe") {
 }
 
 $env:PATH = ($basePaths -join ";") + ";$env:PATH"
+
+# Poppler (pdftotext etc.) — appended so its bundled DLLs don't shadow your custom builds
+if (Test-Path "$popplerRoot\Library\bin\pdftotext.exe") {
+    $env:PATH = "$env:PATH;$popplerRoot\Library\bin"
+}
+
+# Pandoc — single static exe, used by rga for docx/odt/epub
+if (Test-Path "$pandocRoot\pandoc.exe") {
+    $env:PATH = "$env:PATH;$pandocRoot"
+}
 
 # Force MinGit ahead of any MSYS2 git already in PATH (usr\bin was just appended above)
 if (Test-Path "$mingitRoot\cmd\git.exe") {
@@ -1480,6 +1820,124 @@ function Use-WindowsClang {
     Write-Host "  CMake:     $cmakeRoot\bin\cmake.exe" -ForegroundColor White
     Write-Host "  Ninja:     $($env:CMAKE_MAKE_PROGRAM)" -ForegroundColor White
 }
+
+# =====================================================
+# Update-RandomgenWin: build randomgen from the PyPI sdist with clang-cl
+# Requires (from your profile): $pythonRoot, $mesonRoot, use-clang-win, Update-WinMeson
+#   (Update-WinMeson must be the version that builds the meson.exe shim passing its
+#    own path to mesonmain.run, so Ninja records meson.exe instead of meson.pyz)
+# Usage:
+#   Update-RandomgenWin                    # latest on PyPI, skips if already installed
+#   Update-RandomgenWin -Version 2.3.0     # specific version
+#   Update-RandomgenWin -Force             # rebuild even if the version is installed
+# =====================================================
+function Update-RandomgenWin {
+    param(
+        [string]$Version,     # default: latest on PyPI
+        [switch]$Force        # rebuild even if this version is already installed
+    )
+
+    $py       = "$pythonRoot\python.exe"
+    $workDir  = "D:\dev\randomgen-src"
+    $buildDir = "D:\dev\randomgen-build"
+    $logFile  = "D:\temp\randomgen_build.log"
+    New-Item -ItemType Directory (Split-Path $logFile) -Force | Out-Null
+
+    # ── Resolve version + sdist from PyPI ────────────────────────────
+    $url = if ($Version) { "https://pypi.org/pypi/randomgen/$Version/json" }
+           else          { "https://pypi.org/pypi/randomgen/json" }
+    try   { $meta = Invoke-RestMethod $url -ErrorAction Stop }
+    catch { Write-Host "✗ Could not query PyPI: $_" -ForegroundColor Red; return }
+
+    $target = $meta.info.version
+    $sdist  = $meta.urls | Where-Object packagetype -eq 'sdist' | Select-Object -First 1
+    if (-not $sdist) { Write-Host "✗ No sdist for randomgen $target" -ForegroundColor Red; return }
+
+    $installed = & $py -c "import importlib.metadata as m; print(m.version('randomgen'))" 2>$null
+    if ($installed -eq $target -and -not $Force) {
+        Write-Host "✓ randomgen $target already installed (use -Force to rebuild)" -ForegroundColor Green
+        return
+    }
+    Write-Host "==> Building randomgen $target (installed: $(if ($installed) { $installed } else { 'none' }))" -ForegroundColor Cyan
+
+    # ── Make sure the meson.exe shim exists (Ninja must be able to launch it) ──
+    $null = Update-WinMeson
+    if (-not (Test-Path "$mesonRoot\meson.exe")) {
+        Write-Host "✗ meson.exe shim missing — run Update-WinMeson -Update" -ForegroundColor Red; return
+    }
+
+    # ── Build prerequisites for --no-build-isolation ─────────────────
+    & $py -c "import mesonpy, numpy, Cython" 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "  Installing build prerequisites..." -ForegroundColor Gray
+        & $py -m pip install meson-python numpy cython
+        if ($LASTEXITCODE -ne 0) { Write-Host "✗ Prerequisite install failed" -ForegroundColor Red; return }
+    }
+
+    # ── Download, verify, extract ────────────────────────────────────
+    Remove-Item $workDir -Recurse -Force -ErrorAction SilentlyContinue
+    New-Item -ItemType Directory $workDir -Force | Out-Null
+    $tgz = Join-Path $workDir $sdist.filename
+    Invoke-WebRequest $sdist.url -OutFile $tgz
+    if ((Get-FileHash $tgz -Algorithm SHA256).Hash.ToLower() -ne $sdist.digests.sha256) {
+        Write-Host "✗ SHA256 mismatch for $($sdist.filename)" -ForegroundColor Red; return
+    }
+    & $py -c "import sys,tarfile; tarfile.open(sys.argv[1]).extractall(sys.argv[2], filter='data')" $tgz $workDir
+    $src = Get-ChildItem $workDir -Directory | Select-Object -First 1 -ExpandProperty FullName
+    if (-not $src) { Write-Host "✗ Extraction failed" -ForegroundColor Red; return }
+
+    # ── Patch: clang-cl defines both __clang__ and _MSC_VER ──────────
+    $f   = Join-Path $src "randomgen\src\common\cpu_features.c"
+    $old = '#if defined(__clang__) || defined(__GNUC__)'
+    $new = '#if (defined(__clang__) || defined(__GNUC__)) && !defined(_MSC_VER)'
+    $c   = [System.IO.File]::ReadAllText($f)
+    if     ($c.Contains($new)) { Write-Host "✓ cpu_features.c already patched" -ForegroundColor Green }
+    elseif ($c.Contains($old)) {
+        [System.IO.File]::WriteAllText($f, $c.Replace($old, $new))
+        Write-Host "✓ cpu_features.c patched for clang-cl" -ForegroundColor Green
+    }
+    else { Write-Host "⚠ cpu_features.c pattern not found — upstream may have changed; building unpatched" -ForegroundColor Yellow }
+
+    # ── Snapshot env (restored in finally) ───────────────────────────
+    $envNames = 'PATH','CC','CXX','CC_LD','CXX_LD','CCACHE_DISABLE','CFLAGS','CXXFLAGS','INCLUDE','LIB',
+                'CMAKE_C_COMPILER','CMAKE_CXX_COMPILER','CMAKE_GENERATOR','CMAKE_MAKE_PROGRAM',
+                'CMAKE_LINKER','WindowsSDKVersion','WindowsSDKDir','VCToolsInstallDir','LINKER','LINK'
+    $saved = @{}
+    foreach ($n in $envNames) { $saved[$n] = [Environment]::GetEnvironmentVariable($n, 'Process') }
+
+    $ok = $false
+    try {
+        use-clang-win
+        $env:CC  = "clang-cl";   $env:CXX  = "clang-cl"
+        $env:CC_LD = "lld-link"; $env:CXX_LD = "lld-link"
+        $env:CCACHE_DISABLE = "1"                          # avoid Strawberry Perl's ccache
+        $env:CFLAGS   = "-msse4.1 -maes -mpclmul"          # clang needs explicit AES-NI / PCLMUL
+        $env:CXXFLAGS = $env:CFLAGS
+
+        Remove-Item $buildDir -Recurse -Force -ErrorAction SilentlyContinue
+        Write-Host "  Compiling (full log: $logFile)..." -ForegroundColor Gray
+        & $py -m pip install $src --no-build-isolation --no-deps --force-reinstall -v `
+            "--config-settings=build-dir=$($buildDir -replace '\\','/')" *> $logFile
+        $ok = ($LASTEXITCODE -eq 0)
+    }
+    finally {
+        foreach ($n in $envNames) { [Environment]::SetEnvironmentVariable($n, $saved[$n], 'Process') }
+        Set-Location D:\
+    }
+
+    if (-not $ok) {
+        Write-Host "✗ randomgen build failed — first errors:" -ForegroundColor Red
+        Select-String -Path $logFile -Pattern 'FAILED:|\): error:|lld-link: error|ninja: fatal|fatal error' -Context 0,6 |
+            Select-Object -First 3
+        return
+    }
+
+    # ── Verify ───────────────────────────────────────────────────────
+    & $py -c "import randomgen as r; from randomgen import AESCounter; print('randomgen', r.__version__, '| AESCounter:', AESCounter(1234).random_raw(2))"
+    if ($LASTEXITCODE -eq 0) { Write-Host "✓ randomgen $target built with clang-cl and installed" -ForegroundColor Green }
+    else { Write-Host "⚠ Built, but the import test failed" -ForegroundColor Yellow }
+}
+
 # =====================================================
 # Convenient Aliases
 # =====================================================
@@ -1806,28 +2264,67 @@ function Update-PyPcre {
     $originalLocation = Get-Location
     Set-Location D:\dev\PyPcre
 
-    # ── 1. Pull latest from upstream (ModelCloud) into local clone ──
+    # ── Files that are YOURS — never overwritten by upstream ──
+    $forkFiles = @(
+        "README.md",
+        "meson.build",
+        "meson.options",
+        "pyproject.toml"
+        # add setup.py, setup.cfg etc. if upstream ever ships them
+    )
+
+    # ── 1. Fetch upstream ──
     Write-Host "Fetching upstream (ModelCloud/PyPcre)..." -ForegroundColor Cyan
     git fetch upstream
     if ($LASTEXITCODE -ne 0) { Write-Warning "git fetch upstream failed"; Set-Location $originalLocation; return }
 
-    # Rebase your meson commit(s) on top of upstream/main
-    git rebase upstream/main
-    if ($LASTEXITCODE -ne 0) {
-        Write-Warning "Rebase failed — resolve conflicts manually, then run: git rebase --continue"
-        Write-Warning "Once resolved, re-run Update-PyPcre"
-        Set-Location $originalLocation; return
-    }
-    Write-Host "  ✓ Local clone rebased onto upstream" -ForegroundColor Green
+    # ── 2. Stash your fork files to a temp folder ──
+    $tmpDir = Join-Path $env:TEMP "pypcre_fork_files"
+    Remove-Item $tmpDir -Recurse -Force -ErrorAction SilentlyContinue
+    New-Item $tmpDir -ItemType Directory | Out-Null
 
-    # ── 2. Push updated local clone → your fork (jdb130496/PyPcre) ──
-    $pushOut = git push origin main --force-with-lease 2>&1
+    foreach ($f in $forkFiles) {
+        if (Test-Path $f) {
+            Copy-Item $f (Join-Path $tmpDir $f)
+            Write-Host "  Saved: $f" -ForegroundColor DarkGray
+        }
+    }
+
+    # ── 3. Hard reset local to upstream/main (becomes identical to ModelCloud) ──
+    git reset --hard upstream/main
+    if ($LASTEXITCODE -ne 0) { Write-Warning "git reset --hard upstream/main failed"; Set-Location $originalLocation; return }
+    Write-Host "  ✓ Local reset to upstream/main" -ForegroundColor Green
+
+    # ── 4. Restore your fork files on top ──
+    $restored = @()
+    foreach ($f in $forkFiles) {
+        $saved = Join-Path $tmpDir $f
+        if (Test-Path $saved) {
+            Copy-Item $saved $f -Force
+            git add $f
+            $restored += $f
+        }
+    }
+
+    if ($restored.Count -gt 0) {
+        $msg = "chore: sync upstream/main, retain fork files [$(($restored) -join ', ')]"
+        git diff --cached --quiet
+        if ($LASTEXITCODE -ne 0) {
+            git commit -m $msg
+            Write-Host "  ✓ Fork files restored and committed" -ForegroundColor Green
+        } else {
+            Write-Host "  ✓ Fork files unchanged vs upstream — no commit needed" -ForegroundColor Green
+        }
+    }
+
+    # ── 5. Push to your fork ──
+    $pushOut = git push origin main --force 2>&1
     if ($LASTEXITCODE -ne 0) {
         Write-Warning "git push to your fork failed:"
         Write-Host ($pushOut | Out-String).Trim() -ForegroundColor Red
         Set-Location $originalLocation; return
     }
-    else { Write-Host "  ✓ Your fork (jdb130496/PyPcre) synced" -ForegroundColor Green }
+    Write-Host "  ✓ Your fork (jdb130496/PyPcre) synced" -ForegroundColor Green
 
     # ── Snapshot env ──
     $savedPath      = $env:PATH
@@ -1845,7 +2342,7 @@ function Update-PyPcre {
 
     use-clang-win
 
-    # ── 3. Build & install from (now-updated) local source ──
+    # ── 6. Build & install ──
     pip install . --no-build-isolation --no-cache-dir --force-reinstall `
       --config-settings=setup-args="-Dpcre2_include_dir=D:\Programs\pcre2-clang-win\include" `
       --config-settings=setup-args="-Dpcre2_library=D:\Programs\pcre2-clang-win\lib\pcre2-8.lib"
@@ -2024,6 +2521,81 @@ rustflags = ["-C", "target-feature=+crt-static"]'
     }
 }
 
+function Update-RgaWin {
+    $rgaDir  = "D:\dev\ripgrep-all"
+    $destDir = "D:\Programs\cargo\bin"
+
+    # ── Clone if missing, then update ────────────────────────────────
+    if (-not (Test-Path $rgaDir)) {
+        Write-Host "  Cloning ripgrep-all..." -ForegroundColor Gray
+        git clone https://github.com/phiresky/ripgrep-all $rgaDir
+        if (-not (Test-Path "$rgaDir\Cargo.toml")) {
+            Write-Host "✗ Clone failed — aborting" -ForegroundColor Red
+            return
+        }
+    }
+
+    try { Set-Location $rgaDir -ErrorAction Stop }
+    catch { Write-Host "✗ Could not cd to $rgaDir — aborting" -ForegroundColor Red; return }
+
+    git pull
+    git submodule update --init --recursive
+
+    # ── Snapshot env (restored in finally) ───────────────────────────
+    $envNames = 'PATH','CC','CXX','INCLUDE','LIB','CMAKE_C_COMPILER','CMAKE_CXX_COMPILER',
+                'CMAKE_GENERATOR','CMAKE_MAKE_PROGRAM','CMAKE_LINKER','WindowsSDKVersion',
+                'WindowsSDKDir','CARGO_HOME','RUSTUP_HOME','DISTUTILS_USE_SDK','MSSdk',
+                'LINKER','LINK','VCToolsInstallDir'
+    $saved = @{}
+    foreach ($n in $envNames) { $saved[$n] = [Environment]::GetEnvironmentVariable($n, 'Process') }
+
+    $buildOk = $false
+    try {
+        use-clang-win
+        $env:CARGO_HOME  = "D:\Programs\cargo"
+        $env:RUSTUP_HOME = "D:\Programs\rustup"
+
+        # rga has no pcre2 feature and no pcre2-sys dependency — it shells out to rg.
+        cargo clean
+        cargo build --release
+        $buildOk = ($LASTEXITCODE -eq 0)
+    }
+    finally {
+        foreach ($n in $envNames) {
+            [Environment]::SetEnvironmentVariable($n, $saved[$n], 'Process')
+        }
+        Set-Location D:\
+    }
+
+    if (-not $buildOk) {
+        Write-Host "✗ cargo build failed — see output above" -ForegroundColor Red
+        return
+    }
+
+    # ── Install binaries ─────────────────────────────────────────────
+    foreach ($name in @("rga", "rga-fzf")) {
+        $src  = "$rgaDir\target\release\$name.exe"
+        $dest = "$destDir\$name.exe"
+        if (Test-Path $src) {
+            Copy-Item $src $dest -Force
+            Write-Host "✓ $name installed: $dest" -ForegroundColor Green
+        } else {
+            Write-Host "⚠ $name.exe not produced by this build" -ForegroundColor Yellow
+        }
+    }
+
+    & "$destDir\rga.exe" --version
+
+    # ── Confirm the rg that rga will call has your custom PCRE2 ──────
+    $rgCmd = Get-Command rg -ErrorAction SilentlyContinue
+    if ($rgCmd) {
+        Write-Host "  rga will use: $($rgCmd.Source)" -ForegroundColor Gray
+        & rg --pcre2-version
+    } else {
+        Write-Host "⚠ rg not found in PATH — rga needs it at runtime" -ForegroundColor Yellow
+    }
+}
+
 #====================================================
 # Building PCRE2 C static lnd dll lib from source (clang-win)
 # Output: D:\Programs\pcre2-clang-win\lib\pcre2-8-static.lib
@@ -2050,39 +2622,130 @@ function Update-Pcre2Win {
 
     use-clang-win
 
-    # Configure — static lnd dll lib, install to pcre2-clang-win
-    # Configure — both static lib AND shared DLL, install to pcre2-clang-win
-    cmake -B build -G Ninja `
-      -DCMAKE_BUILD_TYPE=Release `
-      -DCMAKE_INSTALL_PREFIX="D:\Programs\pcre2-clang-win" `
-      -DCMAKE_C_COMPILER="$clangRoot\bin\clang-cl.exe" `
-      -DCMAKE_CXX_COMPILER="$clangRoot\bin\clang-cl.exe" `
-      -DCMAKE_LINKER="$clangRoot\bin\lld-link.exe" `
-      -DBUILD_SHARED_LIBS=ON `
-      -DBUILD_STATIC_LIBS=ON `
-      -DPCRE2_BUILD_PCRE2_8=ON `
-      -DPCRE2_BUILD_PCRE2_16=OFF `
-      -DPCRE2_BUILD_PCRE2_32=OFF `
-      -DPCRE2_SUPPORT_JIT=ON `
-      -DPCRE2_SUPPORT_UNICODE=ON `
-      -DPCRE2_BUILD_TESTS=OFF `
-      -DPCRE2_BUILD_PCRE2GREP=OFF `
-      -DPCRE2_BUILD_PCRE2TEST=OFF
-    cmake --build build --config Release
-    #cmake --install build
-    # Rename old binaries to avoid lock conflicts during install
-foreach ($exe in @("cmake.exe", "ctest.exe", "cpack.exe", "cmake-gui.exe")) {
-    $target = "$cmakeRoot\bin\$exe"
-    if (Test-Path $target) {
-        Rename-Item $target "$target.bak" -Force -ErrorAction SilentlyContinue
+    # Use standalone cmake explicitly — prevents pip-installed cmake (Python\Scripts) from
+    # shadowing the profile's $cmakeRoot\bin\cmake.exe via PATH ordering.
+    $cmakeExe = "$cmakeRoot\bin\cmake.exe"
+    if (-not (Test-Path $cmakeExe)) {
+        Write-Host "✗ Standalone cmake not found at $cmakeExe — run Update-WinCmake first" -ForegroundColor Red
+        $env:PATH               = $savedPath
+        $env:INCLUDE            = $savedINCLUDE
+        $env:LIB                = $savedLIB
+        $env:CMAKE_GENERATOR    = $savedCMakeG
+        $env:CMAKE_MAKE_PROGRAM = $savedCMakeMk
+        if ($savedCC)        { $env:CC                  = $savedCC        } else { Remove-Item Env:\CC                  -ErrorAction SilentlyContinue }
+        if ($savedCXX)       { $env:CXX                 = $savedCXX       } else { Remove-Item Env:\CXX                 -ErrorAction SilentlyContinue }
+        if ($savedCMakeC)    { $env:CMAKE_C_COMPILER    = $savedCMakeC    } else { Remove-Item Env:\CMAKE_C_COMPILER    -ErrorAction SilentlyContinue }
+        if ($savedCMakeCX)   { $env:CMAKE_CXX_COMPILER  = $savedCMakeCX   } else { Remove-Item Env:\CMAKE_CXX_COMPILER  -ErrorAction SilentlyContinue }
+        if ($savedCMakeLn)   { $env:CMAKE_LINKER        = $savedCMakeLn   } else { Remove-Item Env:\CMAKE_LINKER        -ErrorAction SilentlyContinue }
+        if ($savedWinSDKVer) { $env:WindowsSDKVersion   = $savedWinSDKVer } else { Remove-Item Env:\WindowsSDKVersion   -ErrorAction SilentlyContinue }
+        if ($savedWinSDKDir) { $env:WindowsSDKDir       = $savedWinSDKDir } else { Remove-Item Env:\WindowsSDKDir       -ErrorAction SilentlyContinue }
+        Set-Location D:\
+        return
     }
-}
-cmake --install build
-# Remove backups if install succeeded
-foreach ($exe in @("cmake.exe", "ctest.exe", "cpack.exe", "cmake-gui.exe")) {
-    $bak = "$cmakeRoot\bin\$exe.bak"
-    if (Test-Path $bak) { Remove-Item $bak -Force -ErrorAction SilentlyContinue }
-}   
+
+    # Probe optional dependencies.
+    # Readline and Editline are permanently OFF — pcre2test is disabled.
+    # BZip2 and ZLIB are linked in when installed at their profile roots.
+    $useBzip2 = $false
+    $useZlib  = $false
+
+    if ((Test-Path "$bzip2Root\include\bzlib.h") -and (Test-Path "$bzip2Root\lib")) {
+        $useBzip2 = $true
+        Write-Host "  BZip2 found at $bzip2Root — enabling" -ForegroundColor Cyan
+    } else {
+        Write-Host "  BZip2 not found at $bzip2Root — building without" -ForegroundColor DarkGray
+    }
+    if ((Test-Path "$zlibRoot\include\zlib.h") -and (Test-Path "$zlibRoot\lib")) {
+        $useZlib = $true
+        Write-Host "  ZLIB found at $zlibRoot — enabling" -ForegroundColor Cyan
+    } else {
+        Write-Host "  ZLIB not found at $zlibRoot — building without" -ForegroundColor DarkGray
+    }
+
+    # Build cmake argument list dynamically
+    $cmakeArgs = @(
+        "-B", "build",
+        "-G", "Ninja",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_INSTALL_PREFIX=D:\Programs\pcre2-clang-win",
+        "-DCMAKE_C_COMPILER=$clangRoot\bin\clang-cl.exe",
+        "-DCMAKE_CXX_COMPILER=$clangRoot\bin\clang-cl.exe",
+        "-DCMAKE_LINKER=$clangRoot\bin\lld-link.exe",
+        "-DBUILD_SHARED_LIBS=ON",
+        "-DBUILD_STATIC_LIBS=ON",
+        "-DPCRE2_BUILD_PCRE2_8=ON",
+        "-DPCRE2_BUILD_PCRE2_16=OFF",
+        "-DPCRE2_BUILD_PCRE2_32=OFF",
+        "-DPCRE2_SUPPORT_JIT=ON",
+        "-DPCRE2_SUPPORT_UNICODE=ON",
+        "-DPCRE2_BUILD_TESTS=OFF",
+        "-DPCRE2_BUILD_PCRE2GREP=OFF",
+        "-DPCRE2_BUILD_PCRE2TEST=OFF",
+        # Suppress searches for optional deps only used by disabled components
+        "-DPCRE2_SUPPORT_LIBREADLINE=OFF",
+        "-DPCRE2_SUPPORT_LIBEDIT=OFF"
+    )
+
+    if ($useBzip2) {
+        $bzip2LibFile = Get-ChildItem "$bzip2Root\lib\*.lib" |
+                        Where-Object { $_.Name -notmatch 'static|dll' } |
+                        Select-Object -First 1
+        if (-not $bzip2LibFile) {
+            $bzip2LibFile = Get-ChildItem "$bzip2Root\lib\*.lib" | Select-Object -First 1
+        }
+        $cmakeArgs += "-DPCRE2_SUPPORT_LIBBZ2=ON"
+        $cmakeArgs += "-DBZIP2_INCLUDE_DIR=$bzip2Root\include"
+        if ($bzip2LibFile) { $cmakeArgs += "-DBZIP2_LIBRARIES=$($bzip2LibFile.FullName)" }
+    } else {
+        $cmakeArgs += "-DPCRE2_SUPPORT_LIBBZ2=OFF"
+    }
+
+    if ($useZlib) {
+        # zlib cmake installs: z.lib (import), zs.lib (static), z.dll (newer naming)
+        # or zlib.lib / zlibstatic.lib / zlib1.dll (older naming) — probe both
+        # Resolve to a full path string — prefer import lib (z.lib/zlib.lib) for linking
+        $zlibLibPath = @("$zlibRoot\lib\z.lib","$zlibRoot\lib\zlib.lib") |
+                       Where-Object { Test-Path $_ } | Select-Object -First 1
+        if (-not $zlibLibPath) {
+            $zlibLibPath = (Get-ChildItem "$zlibRoot\lib\*.lib" | Select-Object -First 1).FullName
+        }
+        $cmakeArgs += "-DPCRE2_SUPPORT_LIBZ=ON"
+        $cmakeArgs += "-DZLIB_INCLUDE_DIR=$zlibRoot\include"
+        if ($zlibLibPath) { $cmakeArgs += "-DZLIB_LIBRARY=$zlibLibPath" }
+    } else {
+        $cmakeArgs += "-DPCRE2_SUPPORT_LIBZ=OFF"
+    }
+
+    # Configure
+    Write-Host "==> Configuring PCRE2..." -ForegroundColor Cyan
+    & $cmakeExe @cmakeArgs
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "✗ CMake configure failed" -ForegroundColor Red
+        $env:PATH               = $savedPath
+        $env:INCLUDE            = $savedINCLUDE
+        $env:LIB                = $savedLIB
+        $env:CMAKE_GENERATOR    = $savedCMakeG
+        $env:CMAKE_MAKE_PROGRAM = $savedCMakeMk
+        if ($savedCC)        { $env:CC                  = $savedCC        } else { Remove-Item Env:\CC                  -ErrorAction SilentlyContinue }
+        if ($savedCXX)       { $env:CXX                 = $savedCXX       } else { Remove-Item Env:\CXX                 -ErrorAction SilentlyContinue }
+        if ($savedCMakeC)    { $env:CMAKE_C_COMPILER    = $savedCMakeC    } else { Remove-Item Env:\CMAKE_C_COMPILER    -ErrorAction SilentlyContinue }
+        if ($savedCMakeCX)   { $env:CMAKE_CXX_COMPILER  = $savedCMakeCX   } else { Remove-Item Env:\CMAKE_CXX_COMPILER  -ErrorAction SilentlyContinue }
+        if ($savedCMakeLn)   { $env:CMAKE_LINKER        = $savedCMakeLn   } else { Remove-Item Env:\CMAKE_LINKER        -ErrorAction SilentlyContinue }
+        if ($savedWinSDKVer) { $env:WindowsSDKVersion   = $savedWinSDKVer } else { Remove-Item Env:\WindowsSDKVersion   -ErrorAction SilentlyContinue }
+        if ($savedWinSDKDir) { $env:WindowsSDKDir       = $savedWinSDKDir } else { Remove-Item Env:\WindowsSDKDir       -ErrorAction SilentlyContinue }
+        Set-Location D:\
+        return
+    }
+
+    # Build
+    Write-Host "==> Building PCRE2..." -ForegroundColor Cyan
+    & $cmakeExe --build build --config Release
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "✗ CMake build failed" -ForegroundColor Red
+    } else {
+        Write-Host "==> Installing PCRE2..." -ForegroundColor Cyan
+        & $cmakeExe --install build
+    }
 
     # Restore env
     $env:PATH               = $savedPath
@@ -2100,8 +2763,8 @@ foreach ($exe in @("cmake.exe", "ctest.exe", "cpack.exe", "cmake-gui.exe")) {
 
     Set-Location D:\
 
-    # Confirm both outputs freshly written
-    $cutoff = (Get-Date).AddMinutes(-5)
+    # Confirm outputs freshly written
+    $cutoff    = (Get-Date).AddMinutes(-5)
     $staticLib = "D:\Programs\pcre2-clang-win\lib\pcre2-8-static.lib"
     $dll       = "D:\Programs\pcre2-clang-win\bin\pcre2-8.dll"
     $importLib = "D:\Programs\pcre2-clang-win\lib\pcre2-8.lib"
@@ -2645,6 +3308,23 @@ if (Test-Path "$postgresRoot\lib\libpq.lib") {
     Write-Host "  ⚠ PostgreSQL: not found at $postgresRoot" -ForegroundColor Red
 }
 
+if (Test-Path "$bzip2Root\lib\bzip2.lib") {
+    $bzip2Ver = (Get-Content "$bzip2Root\include\bzlib.h" -ErrorAction SilentlyContinue |
+                 Select-String 'BZ_VERSION') -replace '.*"(.*)".*', '$1'
+    Write-Host "  ✓ BZip2:      $bzip2Ver at $bzip2Root" -ForegroundColor Green
+} else {
+    Write-Host "  ⚠ BZip2:      not found at $bzip2Root — run Update-WinBzip2" -ForegroundColor DarkGray
+}
+$_zlibLib = @("$zlibRoot\lib\zs.lib","$zlibRoot\lib\zlibstatic.lib","$zlibRoot\lib\z.lib","$zlibRoot\lib\zlib.lib") |
+            Where-Object { Test-Path $_ } | Select-Object -First 1
+if ($_zlibLib) {
+    $zlibVer = (Get-Content "$zlibRoot\include\zlib.h" -ErrorAction SilentlyContinue |
+                Select-String '#define ZLIB_VERSION') -replace '.*"(.*)".*', '$1'
+    Write-Host "  ✓ ZLib:       $zlibVer at $zlibRoot" -ForegroundColor Green
+} else {
+    Write-Host "  ⚠ ZLib:       not found at $zlibRoot — run Update-WinZlib" -ForegroundColor DarkGray
+}
+
 Write-Host "`nToolchain Switching (sets PATH + environment):" -ForegroundColor Yellow
 Write-Host "  use-msvc         → MSVC (D:\dev\msvc\...)" -ForegroundColor White
 Write-Host "  use-gcc          → MSYS2 GCC (D:\Programs\msys64\ucrt64\...)" -ForegroundColor White
@@ -2694,13 +3374,17 @@ Write-Host ""
 
 $_mesonExe = Update-WinMeson
 if ($_mesonExe) {
-    # Store git-built meson path for meson-win alias use
     $script:_mesonGitExe = $_mesonExe
-    # $env:MESON stays as pip meson.exe (set at line 28) for ninja subprocess compatibility
+}
+# Set $env:MESON so meson-python/ninja subprocess spawning gets a directly-execable .exe.
+# Prefer the self-built meson.exe from Update-WinMeson; fall back to pip only if absent.
+if (Test-Path "$mesonRoot\meson.exe") {
+    $env:MESON = "$mesonRoot\meson.exe"
+} elseif (Test-Path "$pythonRoot\Scripts\meson.exe") {
+    $env:MESON = "$pythonRoot\Scripts\meson.exe"
 }
 
 # =====================================================
 # Startup message (fast — no subprocess calls)
 # =====================================================
 Write-Host "PS Profile loaded. Run Show-ProfileInfo for tool versions." -ForegroundColor Cyan
-
