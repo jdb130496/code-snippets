@@ -77,7 +77,7 @@ if ($_warpTrace -match "warp=on") {
 # Auto-detect MSVC tools version (highest installed)
 $vcToolsVersion = Get-ChildItem "$msvcRoot\VC\Tools\MSVC" -Directory -ErrorAction SilentlyContinue |
                   Sort-Object Name -Descending | Select-Object -First 1 -ExpandProperty Name
-if (-not $vcToolsVersion) { $vcToolsVersion = "14.53.36911" }  # fallback
+if (-not $vcToolsVersion) { $vcToolsVersion = "14.53.36919" }  # fallback
 
 # Auto-detect Windows Kits root (11 takes priority over 10)
 $windowsKitsRoot = $null
@@ -1366,9 +1366,12 @@ if (Test-Path "$postgresRoot\lib\libpq.lib") {
     $env:PQ_LIB_STATIC = "0"
 }
 
+# SqLite
 if (Test-Path "$sqliteRoot\sqlite3.lib") {
-    $env:SQLITE3_LIB_DIR  = $sqliteRoot
-    $env:SQLITE3_LIB_NAME = "sqlite3"
+    $env:SQLITE3_LIB_DIR     = $sqliteRoot
+    $env:SQLITE3_LIB_NAME    = "sqlite3"
+    $env:SQLITE3_INCLUDE_DIR = Get-ChildItem "$sqliteRoot" -Recurse -Filter sqlite3.h |
+                               Select-Object -First 1 -ExpandProperty DirectoryName
     $basePaths += $sqliteRoot
 }
 
@@ -2537,11 +2540,28 @@ function Update-RgaWin {
 
     try { Set-Location $rgaDir -ErrorAction Stop }
     catch { Write-Host "✗ Could not cd to $rgaDir — aborting" -ForegroundColor Red; return }
-
+    cargo clean
     git pull
     git submodule update --init --recursive
 
+    # ── Patch rusqlite: drop "bundled" so it links D:\Programs\sqlite ─
+    # SQLITE3_LIB_DIR / SQLITE3_LIB_NAME are already set by the profile
+    # (same vars diesel-cli uses). rusqlite's build.rs respects them only
+    # when "bundled" is NOT in the feature list.
+    $cargoToml = "$rgaDir\Cargo.toml"
+    if (rg -q 'bundled' $cargoToml) {
+        Write-Host "  Patching Cargo.toml: removing rusqlite 'bundled' feature..." -ForegroundColor Gray
+        sd ',\s*"bundled"' '' $cargoToml
+        sd '"bundled"\s*,' '' $cargoToml
+        sd '"bundled"'     '' $cargoToml
+        Write-Host "  ✓ Patched — rusqlite will now link $env:SQLITE3_LIB_DIR\$env:SQLITE3_LIB_NAME.lib" -ForegroundColor Green
+    } else {
+        Write-Host "  ✓ rusqlite already unbundled" -ForegroundColor Gray
+    }
+
     # ── Snapshot env (restored in finally) ───────────────────────────
+    # SQLITE3_LIB_DIR / SQLITE3_LIB_NAME are intentionally NOT in this list —
+    # they're set at profile load and must survive into the cargo build.
     $envNames = 'PATH','CC','CXX','INCLUDE','LIB','CMAKE_C_COMPILER','CMAKE_CXX_COMPILER',
                 'CMAKE_GENERATOR','CMAKE_MAKE_PROGRAM','CMAKE_LINKER','WindowsSDKVersion',
                 'WindowsSDKDir','CARGO_HOME','RUSTUP_HOME','DISTUTILS_USE_SDK','MSSdk',
@@ -2555,7 +2575,6 @@ function Update-RgaWin {
         $env:CARGO_HOME  = "D:\Programs\cargo"
         $env:RUSTUP_HOME = "D:\Programs\rustup"
 
-        # rga has no pcre2 feature and no pcre2-sys dependency — it shells out to rg.
         cargo clean
         cargo build --release
         $buildOk = ($LASTEXITCODE -eq 0)

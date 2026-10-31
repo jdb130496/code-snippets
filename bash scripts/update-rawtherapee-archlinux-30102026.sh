@@ -4,7 +4,7 @@ set -e
 # ── Configuration ────────────────────────────────────────────
 REPO_DIR="/home/admin/Downloads/RawTherapee"
 GH_USER="jdb130496"
-GH_TOKEN="insert-token-here"  # Update this when token changes
+GH_TOKEN=$(grep -oP '(?<=:)ghp_[^@]+' /root/.git-credentials)  # Update this when token changes
 GH_REPO="RawTherapee"
 # ─────────────────────────────────────────────────────────────
 
