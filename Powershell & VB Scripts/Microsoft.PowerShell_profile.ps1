@@ -1,14 +1,4 @@
-﻿# Added: $cmakeRoot\bin added to $basePaths (before Python Scripts to prevent pip cmake shadowing)
-# Added: Update-WinCmake — builds cmake from source via clang-win + WARP; handles fresh/broken/update automatically
-# Added: $ninjaRoot  = "D:\Programs\ninja"
-# Added: $mesonRoot  = "D:\Programs\meson"
-# Changed: use-msvc, use-clang-win now prefer standalone ninja over cmake-bundled ninja
-# Changed: meson-win alias resolves standalone meson first, pip meson as fallback
-# Changed: Remove-ToolchainPaths now also strips ninjaRoot from PATH on switch
-# Changed: ninja-win alias now points to standalone ninja (D:\Programs\ninja\ninja.exe)
-#          ninja-cmake alias added for cmake-bundled ninja (D:\Programs\cmake\bin\ninja.exe)
-#
-# =====================================================
+﻿# =====================================================
 # PowerShell Profile - All 4 Toolchains with Explicit Aliases
 # =====================================================
 # Philosophy:
@@ -20,28 +10,52 @@ $MaximumHistoryCount = 10000
 # =====================================================
 # Base Path Configuration (Tool Locations)
 # =====================================================
-$msvcRoot    = "D:\dev\msvc"
-$clangRoot   = "D:\Programs\clang"
-$cmakeRoot   = "D:\Programs\cmake"
-$ninjaRoot   = "D:\Programs\ninja"
-$mesonRoot   = "D:\Programs\meson"
-$msys64Root  = "D:\Programs\msys64"
-$nodejsRoot  = "D:\Programs\nodejs"
-$perlRoot    = "D:\Programs\Perl"
-$nasmRoot    = "D:\Programs\nasm"
-$opensslRoot = "D:\Programs\OpenSSL"
-$mysqlRoot   = "D:\Programs\mysql"
+$msvcRoot     = "D:\dev\msvc"
+$clangRoot    = "D:\Programs\clang"
+$cmakeRoot    = "D:\Programs\cmake"
+$ninjaRoot    = "D:\Programs\ninja"
+$mesonRoot    = "D:\Programs\meson"
+$msys64Root   = "D:\Programs\msys64"
+$nodejsRoot   = "D:\Programs\nodejs"
+$perlRoot     = "D:\Programs\Perl"
+$nasmRoot     = "D:\Programs\nasm"
+$opensslRoot  = "D:\Programs\OpenSSL"
+$mysqlRoot    = "D:\Programs\mysql"
 $postgresRoot = "D:\Programs\postgre"
-$sqliteRoot  = "D:\Programs\sqlite"
-$bisonRoot   = "D:\Programs\winflexbison"
-$jomRoot     = "D:\Programs\jom"
-$mingitRoot  = "D:\Programs\MinGit"
-$rustRoot  = "D:\Programs\rustup"
-$cargoRoot = "D:\Programs\cargo"
-$bzip2Root   = "D:\Programs\bzip2"
-$zlibRoot    = "D:\Programs\zlib"
-$popplerRoot = "D:\Programs\poppler"
-$pandocRoot = "D:\Programs\pandoc"
+$sqliteRoot   = "D:\Programs\sqlite"
+$bisonRoot    = "D:\Programs\winflexbison"
+$jomRoot      = "D:\Programs\jom"
+$mingitRoot   = "D:\Programs\MinGit"
+$rustRoot     = "D:\Programs\rustup"
+$cargoRoot    = "D:\Programs\cargo"
+$bzip2Root    = "D:\Programs\bzip2"
+$zlibRoot     = "D:\Programs\zlib"
+$popplerRoot  = "D:\Programs\poppler"
+$pandocRoot   = "D:\Programs\pandoc"
+$libarchiveRoot = "D:\Programs\bsdtar"
+
+# =====================================================
+# PATH Configuration
+# =====================================================
+# Build PATH from scratch using only Machine + clean User PATH
+$_machinePath = [System.Environment]::GetEnvironmentVariable("PATH", "Machine")
+$_userPath    = [System.Environment]::GetEnvironmentVariable("PATH", "User")
+
+$env:PATH = @(
+    "$libarchiveRoot\bin"          # first — wins over everything
+    $_machinePath
+    $_userPath
+    "$msys64Root\usr\bin"
+    "$msys64Root\ucrt64\bin"
+    $clangRoot
+    $cmakeRoot
+    $ninjaRoot
+    $nodejsRoot
+    "$perlRoot\bin"
+    $nasmRoot
+    "$cargoRoot\bin"
+    "$mingitRoot\cmd"
+) -join ";"
 
 # =====================================================
 # Python - Direct path
@@ -624,6 +638,8 @@ function Update-WinGit-Msys {
         Write-Host "  Check $log for details" -ForegroundColor Red
     }
 }
+
+
 
 #======================================================
 #NASM Building From Source
@@ -1415,6 +1431,11 @@ if (Test-Path "$clangRoot\bin\libclang.dll") {
     $env:LIBCLANG_PATH = "$clangRoot\bin"
 } elseif (Test-Path "$msys64Root\ucrt64\bin\libclang.dll") {
     $env:LIBCLANG_PATH = "$msys64Root\ucrt64\bin"
+}
+
+# bsdtar — our built version wins over msys64\usr\bin\bsdtar.exe
+if (Test-Path "$libarchiveRoot\bin\bsdtar.exe") {
+    $basePaths += "$libarchiveRoot\bin"
 }
 
 # MSYS2 bash only - needed for packages that require bash to build from source (e.g. pythonmonkey/SpiderMonkey)
@@ -3342,6 +3363,13 @@ if ($_zlibLib) {
     Write-Host "  ✓ ZLib:       $zlibVer at $zlibRoot" -ForegroundColor Green
 } else {
     Write-Host "  ⚠ ZLib:       not found at $zlibRoot — run Update-WinZlib" -ForegroundColor DarkGray
+}
+
+if (Test-Path "$libarchiveRoot\bin\bsdtar.exe") {
+    $bsdtarVer = & "$libarchiveRoot\bin\bsdtar.exe" --version 2>&1 | Select-Object -First 1
+    Write-Host "  ✓ bsdtar:     $bsdtarVer" -ForegroundColor Green
+} else {
+    Write-Host "  ⚠ bsdtar:     not found at $libarchiveRoot — run build-bsdtar.sh" -ForegroundColor DarkGray
 }
 
 Write-Host "`nToolchain Switching (sets PATH + environment):" -ForegroundColor Yellow
