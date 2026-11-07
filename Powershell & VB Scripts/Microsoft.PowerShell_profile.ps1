@@ -17,6 +17,7 @@ $ninjaRoot    = "D:\Programs\ninja"
 $mesonRoot    = "D:\Programs\meson"
 $msys64Root   = "D:\Programs\msys64"
 $nodejsRoot   = "D:\Programs\nodejs"
+$vsCodeRoot   = "D:\Programs\vscode"
 $perlRoot     = "D:\Programs\Perl"
 $nasmRoot     = "D:\Programs\nasm"
 $opensslRoot  = "D:\Programs\OpenSSL"
@@ -33,6 +34,8 @@ $zlibRoot     = "D:\Programs\zlib"
 $popplerRoot  = "D:\Programs\poppler"
 $pandocRoot   = "D:\Programs\pandoc"
 $libarchiveRoot = "D:\Programs\bsdtar"
+$goRoot = "D:\Programs\go"
+$goPath = "D:\Programs\go\workspace"   # or D:\dev\go-workspace if you prefer src separate
 
 # =====================================================
 # PATH Configuration
@@ -1307,6 +1310,15 @@ if (Test-Path "$nodejsRoot\node.exe") {
     }
 }
 
+# VSCode — bin\ holds code.cmd which is what 'code .' in terminals uses
+if (Test-Path "$vsCodeRoot\bin") {
+    $basePaths += "$vsCodeRoot\bin"
+}
+
+# --- VSCode Insiders alias ---
+# Set-Alias cannot target .cmd files; use a function wrapper instead
+function code { & "$vsCodeRoot\bin\code-insiders.cmd" @args }
+
 if ($pythonRoot) {
     $basePaths += @(
         $pythonRoot,
@@ -1406,6 +1418,7 @@ if (Test-Path "$cargoRoot\bin") {
     $basePaths += "$cargoRoot\bin"
 }
 
+
 if (Test-Path "$rustRoot\bin") {
     $basePaths += "$rustRoot\bin"
 }
@@ -1424,6 +1437,14 @@ if (Test-Path "D:\Programs\pcre2-clang-win\bin\pcre2-8.dll") {
 if (Test-Path "$mingitRoot\cmd\git.exe") {
     $basePaths += "$mingitRoot\bin"    # ← DLLs (libpcre2, libiconv, zlib) findable in PATH
     $basePaths += "$mingitRoot\cmd"
+}
+
+# Go
+if (Test-Path "$goRoot\bin\go.exe") {
+    $env:GOROOT = $goRoot
+    $env:GOPATH = $goPath
+    $basePaths += "$goRoot\bin"
+    $basePaths += "$goPath\bin"    # go install puts binaries here (e.g. gokiteconnect tools)
 }
 
 # libclang for bindgen (required by libsqlite3-sys, librocksdb-sys, etc.)
@@ -1477,6 +1498,7 @@ if (Test-Path "$cmakeRoot\bin\cmake.exe") {
     }
 }
 
+
 # Unicode fix for Python on Windows cp1252 terminals
 $env:PYTHONUTF8 = "1"
 
@@ -1513,6 +1535,11 @@ if (Test-Path "$clangRoot\bin\clang.exe") {
     Set-Alias -Name clang++-win   -Value "$clangRoot\bin\clang++.exe"  -Force
     Set-Alias -Name clang-cl-win  -Value "$clangRoot\bin\clang-cl.exe" -Force
     Set-Alias -Name lld-link-win  -Value "$clangRoot\bin\lld-link.exe" -Force
+}
+
+# --- Go Alias ---
+if (Test-Path "$goRoot\bin\go.exe") {
+    Set-Alias -Name go-win -Value "$goRoot\bin\go.exe" -Force
 }
 
 # --- CMake Aliases ---
@@ -2917,6 +2944,146 @@ function Update-Pcre2 {
     python -c "import pcre2; print('pcre2 Python:', pcre2.__version__, '| PCRE2 C:', pcre2.__libpcre2_version__)"
 }
 
+#======================================================
+# Go - Build from source (self-hosted, no toolchain needed)
+# Source: https://github.com/golang/go
+# Bootstrap: D:\Programs\go-bootstrap-extract\go
+# Output: D:\Programs\go
+#======================================================
+function Update-WinGo {
+    param(
+        [string]$Tag = "go1.23.4",
+        [switch]$Latest
+    )
+
+    $srcDir        = "D:\dev\go-src"
+    $bootstrapDir  = "D:\Programs\go-bootstrap-extract\go"
+    $installDir    = "D:\Programs\go"
+    $savedLocation = Get-Location
+    $savedBootstrap = $env:GOROOT_BOOTSTRAP
+    $savedFinal     = $env:GOROOT_FINAL
+
+    try {
+        # ── 1. Clone or pull source ──────────────────────────────────────
+        if (Test-Path "$srcDir\.git") {
+            Write-Host "==> Updating Go source..." -ForegroundColor Cyan
+            git -C $srcDir fetch --tags origin
+            if ($LASTEXITCODE -ne 0) { Write-Host "✗ git fetch failed" -ForegroundColor Red; return }
+        } else {
+            if (Test-Path $srcDir) { Remove-Item $srcDir -Recurse -Force }
+            Write-Host "==> Cloning Go source..." -ForegroundColor Cyan
+            git clone https://github.com/golang/go $srcDir
+            if ($LASTEXITCODE -ne 0) { Write-Host "✗ git clone failed" -ForegroundColor Red; return }
+        }
+
+        # ── 2. Resolve tag ───────────────────────────────────────────────
+        if ($Latest) {
+            $Tag = git -C $srcDir tag -l "go*" |
+                   Where-Object { $_ -match '^go\d+\.\d+(\.\d+)?$' } |
+                   Sort-Object { [version]($_ -replace '^go','') } |
+                   Select-Object -Last 1
+            Write-Host "  Latest stable tag: $Tag" -ForegroundColor Cyan
+        }
+
+        Write-Host "==> Checking out $Tag..." -ForegroundColor Cyan
+        git -C $srcDir checkout $Tag --quiet
+        if ($LASTEXITCODE -ne 0) { Write-Host "✗ git checkout $Tag failed" -ForegroundColor Red; return }
+
+        # ── 3. Bootstrap check ───────────────────────────────────────────
+        if (-not (Test-Path "$bootstrapDir\bin\go.exe")) {
+            Write-Host "✗ Bootstrap Go not found at $bootstrapDir" -ForegroundColor Red
+            Write-Host "  Invoke-WebRequest https://go.dev/dl/go1.22.10.windows-amd64.zip -OutFile D:\dev\go-bootstrap.zip" -ForegroundColor Yellow
+            Write-Host "  Expand-Archive D:\dev\go-bootstrap.zip -DestinationPath D:\Programs\go-bootstrap-extract" -ForegroundColor Yellow
+            return
+        }
+
+        # ── 4. Build ─────────────────────────────────────────────────────
+        $env:GOROOT_BOOTSTRAP = $bootstrapDir
+        $env:GOROOT_FINAL     = $installDir
+        Set-Location "$srcDir\src"
+
+        Write-Host "==> Building Go $Tag -> $installDir ..." -ForegroundColor Cyan
+        .\make.bat
+
+        if ($LASTEXITCODE -ne 0) { Write-Host "✗ make.bat failed (exit $LASTEXITCODE)" -ForegroundColor Red; return }
+
+        # ── 5. Copy to install dir ───────────────────────────────────────
+        Write-Host "==> Copying to $installDir ..." -ForegroundColor Cyan
+        if (Test-Path $installDir) { Remove-Item $installDir -Recurse -Force }
+        Copy-Item $srcDir $installDir -Recurse -Force
+
+        # ── 6. Verify ────────────────────────────────────────────────────
+        $goExe = "$installDir\bin\go.exe"
+        if (Test-Path $goExe) {
+            Write-Host "✓ $(& $goExe version)" -ForegroundColor Green
+            Write-Host "  Installed to: $installDir" -ForegroundColor White
+        } else {
+            Write-Host "✗ go.exe not found at $goExe after copy" -ForegroundColor Red
+        }
+
+    } finally {
+        if ($savedBootstrap) { $env:GOROOT_BOOTSTRAP = $savedBootstrap }
+        else { Remove-Item Env:\GOROOT_BOOTSTRAP -ErrorAction SilentlyContinue }
+        if ($savedFinal)     { $env:GOROOT_FINAL     = $savedFinal }
+        else { Remove-Item Env:\GOROOT_FINAL     -ErrorAction SilentlyContinue }
+        Set-Location $savedLocation
+    }
+}
+
+#====================================================
+# Set-VSCodeRgWire
+# Replaces VSCode Insiders' bundled rg.exe with the
+# custom build at D:\Programs\cargo\bin\rg.exe
+# Run once after Update-NodeWin or Update-RipgrepWin
+#====================================================
+
+function Set-VSCodeRgWire {
+    $customRg = "$cargoRoot\bin\rg.exe"
+
+    # VSCode Insiders uses a versioned subfolder that changes with updates — find it dynamically
+    $vsCodeRgDir = Get-ChildItem "$vsCodeRoot" -Recurse -Filter "rg.exe" |
+                   Where-Object { $_.FullName -like "*ripgrep-universal*" } |
+                   Select-Object -First 1
+
+    if (-not $vsCodeRgDir) {
+        Write-Host "✗ VSCode bundled rg.exe not found under $vsCodeRoot" -ForegroundColor Red
+        return
+    }
+
+    $vsCodeRg = $vsCodeRgDir.FullName
+    $backupRg = "$($vsCodeRgDir.DirectoryName)\rg.exe.bak"
+
+    if (-not (Test-Path $customRg)) {
+        Write-Host "✗ Custom rg.exe not found at $customRg — run Update-RipgrepWin first" -ForegroundColor Red
+        return
+    }
+
+    # Back up original only once
+    if (-not (Test-Path $backupRg)) {
+        Copy-Item $vsCodeRg $backupRg -Force
+        Write-Host "  Backed up original: $backupRg" -ForegroundColor DarkGray
+    }
+
+    # Symlink — stays in sync after Update-RipgrepWin automatically
+    Remove-Item $vsCodeRg -Force
+    New-Item -ItemType SymbolicLink -Path $vsCodeRg -Target $customRg -ErrorAction SilentlyContinue | Out-Null
+
+    if ((Get-Item $vsCodeRg -ErrorAction SilentlyContinue).LinkType -eq 'SymbolicLink') {
+        Write-Host "✓ VSCode rg.exe → $customRg (symlink)" -ForegroundColor Green
+    } else {
+        # Symlink needs Developer Mode or admin — fall back to copy
+        Copy-Item $customRg $vsCodeRg -Force
+        Write-Host "✓ VSCode rg.exe replaced with copy of $customRg" -ForegroundColor Green
+        Write-Host "  (Enable Developer Mode or run as admin for a symlink instead)" -ForegroundColor DarkGray
+    }
+
+    # Verify — versions should match
+    $customVer = & $customRg --version 2>&1 | Select-Object -First 1
+    $vsCodeVer = & $vsCodeRg --version 2>&1 | Select-Object -First 1
+    Write-Host "  cargo\bin\rg: $customVer" -ForegroundColor DarkGray
+    Write-Host "  VSCode rg:    $vsCodeVer" -ForegroundColor DarkGray
+}
+
 # =====================================================
 # NASM / OpenSSL Bisect Regression Automation
 # =====================================================
@@ -3239,6 +3406,7 @@ function Find-NasmOpenSSLRegression-New {
     }
 }
 
+
 # =====================================================
 # Profile Load Message
 # =====================================================
@@ -3414,7 +3582,6 @@ Write-Host "  clang-msys++ -o test test.cpp" -ForegroundColor White
 Write-Host "  use-rust-stable       → Switch to stable rustc (session only, nightly stays default)" -ForegroundColor White
 Write-Host "  use-rust-nightly      → Restore nightly rustc (unsets RUSTUP_TOOLCHAIN)" -ForegroundColor White
 Write-Host "  rust-toolchain        → Show active and installed Rust toolchains" -ForegroundColor White
-
 Write-Host "`n=====================================================" -ForegroundColor Cyan
 Write-Host ""
 } # end Show-ProfileInfo
@@ -3429,6 +3596,19 @@ if (Test-Path "$mesonRoot\meson.exe") {
     $env:MESON = "$mesonRoot\meson.exe"
 } elseif (Test-Path "$pythonRoot\Scripts\meson.exe") {
     $env:MESON = "$pythonRoot\Scripts\meson.exe"
+}
+
+# Auto-wire custom rg.exe into VSCode Insiders on every session
+# No-op if symlink is already correct — completes in milliseconds
+$_vsCodeRgDir = Get-ChildItem "$vsCodeRoot" -Recurse -Filter "rg.exe" -ErrorAction SilentlyContinue |
+                Where-Object { $_.FullName -like "*ripgrep-universal*" } |
+                Select-Object -First 1
+if ($_vsCodeRgDir) {
+    $_vsCodeRg = $_vsCodeRgDir.FullName
+    $_target   = (Get-Item $_vsCodeRg -ErrorAction SilentlyContinue).Target
+    if ($_target -ne "$cargoRoot\bin\rg.exe") {
+        Set-VSCodeRgWire
+    }
 }
 
 # =====================================================
