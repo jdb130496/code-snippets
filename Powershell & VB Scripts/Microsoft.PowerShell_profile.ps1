@@ -36,6 +36,7 @@ $pandocRoot   = "D:\Programs\pandoc"
 $libarchiveRoot = "D:\Programs\bsdtar"
 $goRoot = "D:\Programs\go"
 $goPath = "D:\Programs\go\workspace"   # or D:\dev\go-workspace if you prefer src separate
+$vscoderoot = "D:\Programs\vscode"
 
 # =====================================================
 # PATH Configuration
@@ -94,7 +95,7 @@ if ($_warpTrace -match "warp=on") {
 # Auto-detect MSVC tools version (highest installed)
 $vcToolsVersion = Get-ChildItem "$msvcRoot\VC\Tools\MSVC" -Directory -ErrorAction SilentlyContinue |
                   Sort-Object Name -Descending | Select-Object -First 1 -ExpandProperty Name
-if (-not $vcToolsVersion) { $vcToolsVersion = "14.53.36919" }  # fallback
+if (-not $vcToolsVersion) { $vcToolsVersion = "14.53.36930" }  # fallback
 
 # Auto-detect Windows Kits root (11 takes priority over 10)
 $windowsKitsRoot = $null
@@ -1316,8 +1317,25 @@ if (Test-Path "$vsCodeRoot\bin") {
 }
 
 # --- VSCode Insiders alias ---
-# Set-Alias cannot target .cmd files; use a function wrapper instead
-function code { & "$vsCodeRoot\bin\code-insiders.cmd" @args }
+# Set-Alias cannot target .cmd files; use a function wrapper instead.
+# Also re-checks the rg.exe wire-in before every launch so a mid-session
+# VSCode update (new versioned hash folder) is healed automatically —
+# without waiting for the next PowerShell session.
+function code {
+    $_rgDir = Get-ChildItem "$vsCodeRoot" -Recurse -Filter "rg.exe" -ErrorAction SilentlyContinue |
+              Where-Object { $_.FullName -like "*ripgrep-universal*" } |
+              Select-Object -First 1
+    if ($_rgDir) {
+        $_target = (Get-Item $_rgDir.FullName -ErrorAction SilentlyContinue).Target
+        if ($_target -ne "$cargoRoot\bin\rg.exe") {
+            Write-Host "  rg wire-in stale (VSCode updated?) — re-wiring..." -ForegroundColor Yellow
+            Set-VSCodeRgWire
+        }
+    }
+    # Call exe directly — no cmd.exe console spawned, no stray window
+    # --reuse-window: always open in the existing VS Code instance
+    & "$vsCodeRoot\Code - Insiders.exe" --reuse-window @args
+}
 
 if ($pythonRoot) {
     $basePaths += @(
@@ -1670,23 +1688,8 @@ function Remove-ToolchainPaths {
     $env:PATH = $cleanPath -join ';'
 }
 
-function Reset-Toolchain {
-    Write-Host "`n==> Resetting to default (no toolchain active)..." -ForegroundColor Cyan
-    Remove-ToolchainPaths
-    $varsToClear = @(
-        'CC','CXX','CMAKE_C_COMPILER','CMAKE_CXX_COMPILER',
-        'CMAKE_GENERATOR','CMAKE_MAKE_PROGRAM','CMAKE_LINKER',
-        'INCLUDE','LIB','LINKER','LINK',
-        'VCToolsInstallDir','VCToolsVersion','WindowsSDKVersion',
-        'WindowsSdkBinPath','WindowsSDKDir',
-        'VSCMD_ARG_HOST_ARCH','VSCMD_ARG_TGT_ARCH'
-    )
-    foreach ($v in $varsToClear) {
-        Remove-Item "Env:\$v" -ErrorAction SilentlyContinue
-    }
-    Write-Host "✓ No toolchain active — same state as a fresh PowerShell window" -ForegroundColor Green
-}
-Set-Alias -Name use-none -Value Reset-Toolchain
+# Reset-Toolchain is defined at end of profile after full env snapshot is taken
+# Alias registered there too
 
 # =====================================================
 # Toolchain 1: Windows MSVC
@@ -1753,7 +1756,11 @@ function Use-WindowsMSVC {
 function Use-MSYS2GCC {
     Write-Host "`n==> Switching to MSYS2 GCC toolchain..." -ForegroundColor Cyan
     Remove-ToolchainPaths
-    $msys2Paths = @( "$msys64Root\ucrt64\bin" )
+    $msys2Paths = @(
+        "$msys64Root\usr\bin",       # <-- sed, awk, grep, perl, find, bash, etc.
+        "$msys64Root\usr\local\bin", # <-- optional: locally-installed MSYS2 tools
+        "$msys64Root\ucrt64\bin"     # gcc, g++, ninja, cmake, pkg-config, etc.
+    )
     foreach ($path in $msys2Paths) {
         if (Test-Path $path) { $env:PATH = "$path;$env:PATH" }
     }
@@ -1856,6 +1863,7 @@ function Use-WindowsClang {
     }
 
     $env:CC                  = "$clangRoot\bin\clang-cl.exe"
+    $env:CLANG_WIN_PATH      = "$clangRoot\bin"
     $env:CXX                 = "$clangRoot\bin\clang-cl.exe"
     $env:CMAKE_C_COMPILER    = "$clangRoot\bin\clang-cl.exe"
     $env:CMAKE_CXX_COMPILER  = "$clangRoot\bin\clang-cl.exe"
@@ -2606,7 +2614,43 @@ function Update-RgaWin {
     } else {
         Write-Host "  ✓ rusqlite already unbundled" -ForegroundColor Gray
     }
+    # ── Patch Cargo.toml: remove redundant homepage warning (Native PowerShell) ──
+    $cargoToml = "$rgaDir\Cargo.toml"
+    if (Test-Path $cargoToml) {
+        $content = Get-Content $cargoToml -Raw
+        if ($content -match '(?m)^\s*homepage\s*=') {
+            Write-Host "  Patching Cargo.toml: removing redundant homepage field..." -ForegroundColor Gray
+            # Strip out the homepage line and its newline cleanly
+            $newContent = $content -replace '(?m)^\s*homepage\s*=.*\r?\n?', ''
+            Set-Content -Path $cargoToml -Value $newContent -NoNewline
+            Write-Host "  ✓ Patched — redundant homepage removed" -ForegroundColor Green
+        } else {
+            Write-Host "  ✓ No redundant homepage found" -ForegroundColor Gray
+        }
+    }
+    # ── Patch Cargo.toml: silence unused_dependencies warnings ───────
+    $cargoToml = "$rgaDir\Cargo.toml"
+    if (Test-Path $cargoToml) {
+        $content = Get-Content $cargoToml -Raw
 
+        # Fix hyphenated version left by a previous run
+        if ($content -match 'unused-dependencies') {
+            Write-Host "  Patching Cargo.toml: fixing hyphenated lint name..." -ForegroundColor Gray
+            $content = $content -replace 'unused-dependencies', 'unused_dependencies'
+            Set-Content -Path $cargoToml -Value $content -NoNewline
+            Write-Host "  ✓ Fixed — unused_dependencies (underscore)" -ForegroundColor Green
+        }
+        # Add the section if it's still missing entirely
+        elseif ($content -notmatch '(?m)^\[lints\.cargo\]') {
+            Write-Host "  Patching Cargo.toml: suppressing unused_dependencies warnings..." -ForegroundColor Gray
+            $content += "`n[lints.cargo]`nunused_dependencies = `"allow`"`n"
+            Set-Content -Path $cargoToml -Value $content -NoNewline
+            Write-Host "  ✓ Patched — unused_dependencies lint silenced" -ForegroundColor Green
+        }
+        else {
+            Write-Host "  ✓ lint table already correct" -ForegroundColor Gray
+        }
+    }
     # ── Snapshot env (restored in finally) ───────────────────────────
     # SQLITE3_LIB_DIR / SQLITE3_LIB_NAME are intentionally NOT in this list —
     # they're set at profile load and must survive into the cargo build.
@@ -3051,17 +3095,10 @@ function Set-VSCodeRgWire {
     }
 
     $vsCodeRg = $vsCodeRgDir.FullName
-    $backupRg = "$($vsCodeRgDir.DirectoryName)\rg.exe.bak"
 
     if (-not (Test-Path $customRg)) {
         Write-Host "✗ Custom rg.exe not found at $customRg — run Update-RipgrepWin first" -ForegroundColor Red
         return
-    }
-
-    # Back up original only once
-    if (-not (Test-Path $backupRg)) {
-        Copy-Item $vsCodeRg $backupRg -Force
-        Write-Host "  Backed up original: $backupRg" -ForegroundColor DarkGray
     }
 
     # Symlink — stays in sync after Update-RipgrepWin automatically
@@ -3406,6 +3443,141 @@ function Find-NasmOpenSSLRegression-New {
     }
 }
 
+# =====================================================
+# Update-DieselCli — full automated flow
+# =====================================================
+function Update-DieselCli {
+    param(
+        [string]$Version       = "",          # e.g. "2.4.0" or "" for latest
+        [string[]]$Features    = @("postgres","mysql","sqlite"),
+        [switch]$NoClean                      # skip clearing temp dirs
+    )
+
+    $crate = if ($Version) { "diesel_cli@$Version" } else { "diesel_cli" }
+
+    Write-Host "`n==> Install-DieselCli: $crate" -ForegroundColor Cyan
+    Write-Host "    Features: $($Features -join ',')" -ForegroundColor DarkGray
+
+    # --- 1. Snapshot current env so we can restore after ---
+    $savedToolchain = $env:RUSTUP_TOOLCHAIN
+    $savedCC        = $env:CC
+    $savedCXX       = $env:CXX
+    $savedAR        = $env:AR
+    $savedCFLAGS    = $env:CFLAGS
+    $savedCXXFLAGS  = $env:CXXFLAGS
+
+    try {
+        # --- 2. Clear any leaked toolchain state ---
+        Write-Host "==> Resetting environment..." -ForegroundColor Cyan
+        use-none
+        Remove-Item Env:AR       -ErrorAction SilentlyContinue
+        Remove-Item Env:CC       -ErrorAction SilentlyContinue
+        Remove-Item Env:CXX      -ErrorAction SilentlyContinue
+        Remove-Item Env:CFLAGS   -ErrorAction SilentlyContinue
+        Remove-Item Env:CXXFLAGS -ErrorAction SilentlyContinue
+
+        # --- 3. Set MSVC toolchain ---
+        use-clang-win
+        $env:RUSTUP_TOOLCHAIN = "nightly-x86_64-pc-windows-msvc"
+
+        # Confirm
+        $activeToolchain = rustup show active-toolchain 2>&1
+        $activeHost      = rustc -vV 2>&1 | Select-String "host"
+        Write-Host "    Toolchain : $activeToolchain" -ForegroundColor DarkGray
+        Write-Host "    Host      : $activeHost"      -ForegroundColor DarkGray
+
+        if ($activeToolchain -notmatch "msvc") {
+            Write-Host "✗ Wrong toolchain active — expected msvc, got: $activeToolchain" -ForegroundColor Red
+            return
+        }
+
+        # --- 4. Clear old temp dirs ---
+        if (-not $NoClean) {
+            Write-Host "==> Clearing stale cargo-install temp dirs..." -ForegroundColor Cyan
+            Get-ChildItem "$env:TEMP" -Directory -Filter "cargo-install*" -ErrorAction SilentlyContinue |
+                Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+            # Clear cached source for mysqlclient-sys so patch applies fresh
+            Remove-Item "$env:CARGO_HOME\registry\src\*\mysqlclient-sys-*" -Recurse -Force -ErrorAction SilentlyContinue
+            Write-Host "  ✓ Done" -ForegroundColor Green
+        }
+
+        # --- 5. Build cargo install args ---
+        $cargoArgs = @(
+            "install", $crate,
+            "--force",
+            "--no-default-features",
+            "--features", ($Features -join ",")
+        )
+
+        # --- 6. First attempt — expected to fail on mysqlclient-sys if unpatched ---
+        Write-Host "`n==> First build attempt (may fail on mysqlclient-sys — that is expected)..." -ForegroundColor Cyan
+        $logFile1 = "$env:TEMP\diesel_install_attempt1.log"
+        cargo @cargoArgs -vv 2>&1 | Tee-Object $logFile1
+        $attempt1Exit = $LASTEXITCODE
+
+        if ($attempt1Exit -eq 0) {
+            Write-Host "`n✓ diesel_cli installed successfully on first attempt!" -ForegroundColor Green
+            return
+        }
+
+        # --- 7. Check if failure was specifically mysqlclient-sys ---
+        $logContent = Get-Content $logFile1 -Raw -ErrorAction SilentlyContinue
+        if ($logContent -notmatch "mysqlclient-sys") {
+            Write-Host "`n✗ Build failed but NOT due to mysqlclient-sys — check log: $logFile1" -ForegroundColor Red
+            Write-Host "  Hint: run 'Get-Content $logFile1 | Select-String error'" -ForegroundColor Yellow
+            return
+        }
+
+        Write-Host "`n  → mysqlclient-sys version check failure detected — patching..." -ForegroundColor Yellow
+
+        # --- 8. Patch ---
+        $patchResult = Patch-MysqlclientSysVersionCheck
+        # Don't check $LASTEXITCODE here — the function doesn't set it.
+        # Instead verify the build.rs was actually modified by looking for
+        # our patch marker in the file.
+        $patchedFile = Get-ChildItem "$env:CARGO_HOME\registry\src" -Recurse -Filter "build.rs" -ErrorAction SilentlyContinue |
+                       Where-Object { $_.FullName -like "*mysqlclient-sys-*" } |
+                       Select-Object -First 1
+        if (-not $patchedFile) {
+            Write-Host "✗ Could not find mysqlclient-sys build.rs to verify patch" -ForegroundColor Red
+            return
+        }
+        $patchedContent = Get-Content $patchedFile.FullName -Raw
+        if ($patchedContent -notmatch "PATCHED") {
+            Write-Host "✗ Patch does not appear to have applied — check Patch-MysqlclientSysVersionCheck" -ForegroundColor Red
+            return
+        }
+        Write-Host "  ✓ Patch verified in $($patchedFile.FullName)" -ForegroundColor Green
+        
+        # --- 9. Second attempt ---
+        Write-Host "`n==> Second build attempt (with patch applied)..." -ForegroundColor Cyan
+        Write-Host "    Note: LTO release build — expect 5-10 minutes at link step" -ForegroundColor DarkGray
+        $logFile2 = "$env:TEMP\diesel_install_attempt2.log"
+        cargo @cargoArgs -vv 2>&1 | Tee-Object $logFile2
+        $attempt2Exit = $LASTEXITCODE
+
+        if ($attempt2Exit -eq 0) {
+            Write-Host "`n✓ diesel_cli installed successfully!" -ForegroundColor Green
+            diesel --version 2>&1
+        } else {
+            Write-Host "`n✗ Second attempt also failed — check log: $logFile2" -ForegroundColor Red
+            Write-Host "  Hint: run 'Get-Content $logFile2 | Select-String error'" -ForegroundColor Yellow
+        }
+
+    } finally {
+        # --- 10. Restore original env ---
+        if ($savedToolchain) { $env:RUSTUP_TOOLCHAIN = $savedToolchain }
+        else { Remove-Item Env:RUSTUP_TOOLCHAIN -ErrorAction SilentlyContinue }
+        if ($savedCC)       { $env:CC       = $savedCC       } else { Remove-Item Env:CC       -ErrorAction SilentlyContinue }
+        if ($savedCXX)      { $env:CXX      = $savedCXX      } else { Remove-Item Env:CXX      -ErrorAction SilentlyContinue }
+        if ($savedAR)       { $env:AR       = $savedAR       } else { Remove-Item Env:AR       -ErrorAction SilentlyContinue }
+        if ($savedCFLAGS)   { $env:CFLAGS   = $savedCFLAGS   } else { Remove-Item Env:CFLAGS   -ErrorAction SilentlyContinue }
+        if ($savedCXXFLAGS) { $env:CXXFLAGS = $savedCXXFLAGS } else { Remove-Item Env:CXXFLAGS -ErrorAction SilentlyContinue }
+        Write-Host "`n==> Environment restored to pre-install state" -ForegroundColor DarkGray
+    }
+}
+
+Set-Alias -Name update-diesel -Value Update-DieselCli
 
 # =====================================================
 # Profile Load Message
@@ -3446,6 +3618,12 @@ if (Test-Path "$jomRoot\jom.exe") {
     Write-Host "  ✓ jom:        found at $jomRoot" -ForegroundColor Green
 } else {
     Write-Host "  ⚠ jom:        not found at $jomRoot" -ForegroundColor Red
+}
+
+if (Test-Path "$vscodeRoot\bin\code-insiders.cmd") {
+    Write-Host "  ✓ vscode:        found at $vscodeRoot" -ForegroundColor Green
+} else {
+    Write-Host "  ⚠ vscode:        not found at $vscodeRoot" -ForegroundColor Red
 }
 
 # Ninja status: show which binary is the active one for Windows toolchains
@@ -3612,6 +3790,64 @@ if ($_vsCodeRgDir) {
 }
 
 # =====================================================
+# Clean environment snapshot — taken AFTER all profile
+# setup is complete (PATH, env vars, meson, everything)
+# =====================================================
+$script:_cleanEnvSnapshot = @{}
+foreach ($entry in [System.Environment]::GetEnvironmentVariables().GetEnumerator()) {
+    $script:_cleanEnvSnapshot[$entry.Key] = $entry.Value
+}
+
+# Set AFTER snapshot so use-none clears it cleanly
+$env:GIT_CONFIG_GLOBAL = "D:\Programs\msys64\home\juhi\.gitconfig"
+
+# =====================================================
+# Reset-Toolchain (use-none) — defined here so snapshot
+# is complete before the function is registered
+# =====================================================
+function Reset-Toolchain {
+    Write-Host "`n==> Resetting to default (no toolchain active)..." -ForegroundColor Cyan
+
+    Remove-ToolchainPaths
+
+    # Remove any env var that didn't exist at profile load time
+    foreach ($key in @([System.Environment]::GetEnvironmentVariables().Keys)) {
+        if (-not $script:_cleanEnvSnapshot.ContainsKey($key)) {
+            Remove-Item "Env:\$key" -ErrorAction SilentlyContinue
+            Write-Host "  - Cleared: $key" -ForegroundColor DarkGray
+        }
+    }
+
+    # Restore any env var that was modified after profile load
+    foreach ($key in $script:_cleanEnvSnapshot.Keys) {
+        $original = $script:_cleanEnvSnapshot[$key]
+        $current  = [System.Environment]::GetEnvironmentVariable($key)
+        if ($current -ne $original) {
+            [System.Environment]::SetEnvironmentVariable($key, $original)
+            Write-Host "  ~ Restored: $key" -ForegroundColor DarkGray
+        }
+    }
+
+    Write-Host "✓ No toolchain active — restored to profile-load state" -ForegroundColor Green
+}
+
+Set-Alias -Name use-none -Value Reset-Toolchain
+
+# Battery Limiter — run once per VS Code session only
+if ($env:TERM_PROGRAM -eq 'vscode') {
+    $vscodeProc = Get-Process "Code - Insiders" -ErrorAction SilentlyContinue |
+                  Sort-Object StartTime | Select-Object -First 1
+    $sessionKey = if ($vscodeProc) { $vscodeProc.StartTime.Ticks } else { Get-Date -Format 'yyyyMMdd' }
+    $flagFile   = "$env:TEMP\vscode_battery_$sessionKey.flag"
+    if (-not (Test-Path $flagFile)) {
+        New-Item $flagFile -Force | Out-Null
+        & 'D:\battery-limiter-new.ps1'
+    }
+}
+
+# =====================================================
 # Startup message (fast — no subprocess calls)
 # =====================================================
 Write-Host "PS Profile loaded. Run Show-ProfileInfo for tool versions." -ForegroundColor Cyan
+
+
