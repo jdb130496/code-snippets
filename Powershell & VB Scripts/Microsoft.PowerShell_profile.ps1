@@ -1698,6 +1698,22 @@ function Use-WindowsMSVC {
     Write-Host "`n==> Switching to Windows MSVC toolchain..." -ForegroundColor Cyan
     Write-Host "  MSVC: $vcToolsVersion  SDK: $windowsSDKVersion" -ForegroundColor Gray
     Remove-ToolchainPaths
+    # Portable MSBuild + vswhere — only active with MSVC toolchain
+    if (Test-Path "D:\Programs\dotnet\MSBuild.exe") {
+        $env:MSBUILD                           = "D:\Programs\dotnet\MSBuild.exe"
+        $env:DOTNET_ROOT                       = "D:\Programs\dotnet"
+        $env:DOTNET_NOLOGO                     = "1"
+        $env:DOTNET_TELEMETRY_OPTOUT           = "1"
+        $env:DOTNET_CLI_TELEMETRY_OPTOUT       = "1"
+        $env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE = "1"
+        $env:PATH = "D:\Programs\dotnet;D:\dev\msvc;" + $env:PATH
+    }
+
+    # node-gyp / MSBuild VS detection override
+    $env:GYP_MSVS_VERSION        = "2022"
+    $env:GYP_MSVS_OVERRIDE_PATH  = "D:\dev\msvc"
+    $env:npm_config_msvs_version = "2022"
+    
     $msvcPaths = @(
         "$cmakeRoot\bin",
         "$msvcBinPath",
@@ -1715,6 +1731,7 @@ function Use-WindowsMSVC {
     $env:VCToolsVersion       = $vcToolsVersion
     $env:WindowsSDKVersion    = "$windowsSDKVersion\"
     $env:VCToolsInstallDir    = "$msvcRoot\VC\Tools\MSVC\$vcToolsVersion\"
+    $env:VCINSTALLDIR         = "$msvcRoot\VC\"
     $env:WindowsSdkBinPath    = "$windowsKitsRoot\bin\"
     $env:WindowsSDKDir        = $windowsKitsRoot
     $env:INCLUDE = @(
@@ -2377,10 +2394,9 @@ function Update-PyPcre {
     }
 
     # ── 5. Push to your fork ──
-    $pushOut = git push origin main --force 2>&1
+    git push origin main --force
     if ($LASTEXITCODE -ne 0) {
-        Write-Warning "git push to your fork failed:"
-        Write-Host ($pushOut | Out-String).Trim() -ForegroundColor Red
+        Write-Warning "git push to your fork failed (exit code $LASTEXITCODE)"
         Set-Location $originalLocation; return
     }
     Write-Host "  ✓ Your fork (jdb130496/PyPcre) synced" -ForegroundColor Green
@@ -2442,7 +2458,17 @@ import os; os.add_dll_directory(r'D:\Programs\pcre2-clang-win\bin')
 function Update-RipgrepWin {
     # All git work BEFORE toolchain switch
     Set-Location D:\dev\ripgrep
+
+    # Discard local patch so git pull doesn't abort
+    # (config.toml is re-patched unconditionally below)
+    git checkout -- .cargo/config.toml 2>$null
+
     git pull
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "✗ git pull failed" -ForegroundColor Red
+        return
+    }
+
     git submodule update --init --recursive
 
     # Dynamically find whichever pcre2-sys version is in the registry
@@ -2596,14 +2622,19 @@ function Update-RgaWin {
 
     try { Set-Location $rgaDir -ErrorAction Stop }
     catch { Write-Host "✗ Could not cd to $rgaDir — aborting" -ForegroundColor Red; return }
-    cargo clean
+
+    # Discard local patches so git pull doesn't abort
+    # (Cargo.toml is re-patched unconditionally below)
+    git checkout -- Cargo.toml 2>$null
+
     git pull
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "✗ git pull failed" -ForegroundColor Red
+        return
+    }
     git submodule update --init --recursive
 
     # ── Patch rusqlite: drop "bundled" so it links D:\Programs\sqlite ─
-    # SQLITE3_LIB_DIR / SQLITE3_LIB_NAME are already set by the profile
-    # (same vars diesel-cli uses). rusqlite's build.rs respects them only
-    # when "bundled" is NOT in the feature list.
     $cargoToml = "$rgaDir\Cargo.toml"
     if (rg -q 'bundled' $cargoToml) {
         Write-Host "  Patching Cargo.toml: removing rusqlite 'bundled' feature..." -ForegroundColor Gray
@@ -2614,13 +2645,13 @@ function Update-RgaWin {
     } else {
         Write-Host "  ✓ rusqlite already unbundled" -ForegroundColor Gray
     }
-    # ── Patch Cargo.toml: remove redundant homepage warning (Native PowerShell) ──
+
+    # ── Patch Cargo.toml: remove redundant homepage warning ──────────
     $cargoToml = "$rgaDir\Cargo.toml"
     if (Test-Path $cargoToml) {
         $content = Get-Content $cargoToml -Raw
         if ($content -match '(?m)^\s*homepage\s*=') {
             Write-Host "  Patching Cargo.toml: removing redundant homepage field..." -ForegroundColor Gray
-            # Strip out the homepage line and its newline cleanly
             $newContent = $content -replace '(?m)^\s*homepage\s*=.*\r?\n?', ''
             Set-Content -Path $cargoToml -Value $newContent -NoNewline
             Write-Host "  ✓ Patched — redundant homepage removed" -ForegroundColor Green
@@ -2628,19 +2659,18 @@ function Update-RgaWin {
             Write-Host "  ✓ No redundant homepage found" -ForegroundColor Gray
         }
     }
+
     # ── Patch Cargo.toml: silence unused_dependencies warnings ───────
     $cargoToml = "$rgaDir\Cargo.toml"
     if (Test-Path $cargoToml) {
         $content = Get-Content $cargoToml -Raw
 
-        # Fix hyphenated version left by a previous run
         if ($content -match 'unused-dependencies') {
             Write-Host "  Patching Cargo.toml: fixing hyphenated lint name..." -ForegroundColor Gray
             $content = $content -replace 'unused-dependencies', 'unused_dependencies'
             Set-Content -Path $cargoToml -Value $content -NoNewline
             Write-Host "  ✓ Fixed — unused_dependencies (underscore)" -ForegroundColor Green
         }
-        # Add the section if it's still missing entirely
         elseif ($content -notmatch '(?m)^\[lints\.cargo\]') {
             Write-Host "  Patching Cargo.toml: suppressing unused_dependencies warnings..." -ForegroundColor Gray
             $content += "`n[lints.cargo]`nunused_dependencies = `"allow`"`n"
@@ -2651,9 +2681,8 @@ function Update-RgaWin {
             Write-Host "  ✓ lint table already correct" -ForegroundColor Gray
         }
     }
+
     # ── Snapshot env (restored in finally) ───────────────────────────
-    # SQLITE3_LIB_DIR / SQLITE3_LIB_NAME are intentionally NOT in this list —
-    # they're set at profile load and must survive into the cargo build.
     $envNames = 'PATH','CC','CXX','INCLUDE','LIB','CMAKE_C_COMPILER','CMAKE_CXX_COMPILER',
                 'CMAKE_GENERATOR','CMAKE_MAKE_PROGRAM','CMAKE_LINKER','WindowsSDKVersion',
                 'WindowsSDKDir','CARGO_HOME','RUSTUP_HOME','DISTUTILS_USE_SDK','MSSdk',
@@ -3789,6 +3818,465 @@ if ($_vsCodeRgDir) {
     }
 }
 
+#======================================================
+# Update-NpmWin: Build npm from git source (latest main)
+# Source: https://github.com/npm/cli
+# Output: D:\dev\npm-src (in-place, no copy needed)
+# Activation: redirector in nodejs\node_modules\npm\bin\npm-cli.js
+#======================================================
+function Update-NpmWin {
+    param([switch]$Update)
+
+    $npmSrc  = "D:\dev\npm-src"
+    $nodeExe = "$nodejsRoot\node.exe"
+    $linkDir = "$nodejsRoot\node_modules\npm\bin"
+
+    function Activate-NpmSrc {
+        # Back up original bundled npm-cli.js if not already done
+        if (-not (Test-Path "$linkDir\npm-cli.js.bundled")) {
+            Copy-Item "$linkDir\npm-cli.js" "$linkDir\npm-cli.js.bundled" -Force
+            Write-Host "  ✓ Bundled npm-cli.js backed up" -ForegroundColor DarkGray
+        }
+
+        # Overwrite npm-cli.js with redirector to git version
+        # Use forward slashes in require() for Node.js compatibility
+        $gitCliJs = ($npmSrc -replace '\\', '/') + '/bin/npm-cli.js'
+        @"
+// Redirector — points to git npm at D:\dev\npm-src
+// Restore-NpmBundled to revert to bundled version
+require('$gitCliJs');
+"@ | Set-Content "$linkDir\npm-cli.js" -Encoding UTF8
+
+        $env:npm_execpath      = "$npmSrc\bin\npm-cli.js"
+        $env:NPM_CONFIG_PREFIX = $nodejsRoot
+
+        # Verify
+        $ver = & $nodeExe "$linkDir\npm-cli.js" --version 2>&1
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "✓ npm (git) $ver active" -ForegroundColor Green
+            Write-Host "  Redirector: $linkDir\npm-cli.js → $npmSrc\bin\npm-cli.js" -ForegroundColor DarkGray
+        } else {
+            Write-Host "✗ npm activation failed: $ver" -ForegroundColor Red
+        }
+    }
+
+    if (-not $Update) {
+        if (Test-Path "$npmSrc\bin\npm-cli.js") {
+            $current = git -C $npmSrc rev-parse --short HEAD 2>$null
+            Write-Host "  Current git commit: $current (use -Update to pull latest)" -ForegroundColor DarkGray
+            Activate-NpmSrc
+            return
+        }
+        Write-Host "npm-src not found — cloning first..." -ForegroundColor Yellow
+    }
+
+    $savedLocation = Get-Location
+    try {
+        # ── 1. Clone or pull ───────────────────────────────────────────
+        if (Test-Path "$npmSrc\.git") {
+            Write-Host "==> Pulling latest npm..." -ForegroundColor Cyan
+            git -C $npmSrc pull
+            if ($LASTEXITCODE -ne 0) {
+                Write-Host "✗ git pull failed" -ForegroundColor Red
+                return
+            }
+        } else {
+            if (Test-Path $npmSrc) { Remove-Item $npmSrc -Recurse -Force }
+            Write-Host "==> Cloning npm..." -ForegroundColor Cyan
+            git clone https://github.com/npm/cli $npmSrc
+            if ($LASTEXITCODE -ne 0) {
+                Write-Host "✗ git clone failed" -ForegroundColor Red
+                return
+            }
+        }
+
+        Set-Location $npmSrc
+
+        # ── 2. Install npm's own internal deps ─────────────────────────
+        # Use bundled npm for bootstrap to avoid chicken-and-egg problem
+        $bootstrapNpm = if (Test-Path "$linkDir\npm-cli.js.bundled") {
+            "$linkDir\npm-cli.js.bundled"
+        } else {
+            "$linkDir\npm-cli.js"
+        }
+        Write-Host "==> Installing deps (npm's own internals)..." -ForegroundColor Cyan
+        & $nodeExe $bootstrapNpm install --ignore-scripts
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "✗ Install failed" -ForegroundColor Red
+            return
+        }
+
+        # ── 3. Verify bin exists ───────────────────────────────────────
+        if (-not (Test-Path "$npmSrc\bin\npm-cli.js")) {
+            Write-Host "✗ bin\npm-cli.js not found after install" -ForegroundColor Red
+            return
+        }
+
+        # ── 4. Activate ────────────────────────────────────────────────
+        Activate-NpmSrc
+
+        $commit = git -C $npmSrc rev-parse --short HEAD 2>$null
+        Write-Host "  git commit: $commit" -ForegroundColor DarkGray
+
+    } finally {
+        Set-Location $savedLocation
+    }
+}
+
+# ── Restore bundled npm ─────────────────────────────────────────────────
+function Restore-NpmBundled {
+    $linkDir = "$nodejsRoot\node_modules\npm\bin"
+    $backup  = "$linkDir\npm-cli.js.bundled"
+    if (Test-Path $backup) {
+        Copy-Item $backup "$linkDir\npm-cli.js" -Force
+        Remove-Item Env:\npm_execpath      -ErrorAction SilentlyContinue
+        Remove-Item Env:\NPM_CONFIG_PREFIX -ErrorAction SilentlyContinue
+        $ver = & "$nodejsRoot\node.exe" "$linkDir\npm-cli.js" --version 2>&1
+        Write-Host "✓ Restored bundled npm $ver" -ForegroundColor Green
+    } else {
+        Write-Host "✗ No backup found at $backup" -ForegroundColor Red
+    }
+}
+
+# ── Auto-activate on profile load if git npm is present ────────────────
+if (Test-Path "D:\dev\npm-src\bin\npm-cli.js") {
+    $env:npm_execpath      = "D:\dev\npm-src\bin\npm-cli.js"
+    $env:NPM_CONFIG_PREFIX = $nodejsRoot
+    # Ensure redirector is in place
+    $_npmLinkDir = "$nodejsRoot\node_modules\npm\bin"
+    if (Test-Path "$_npmLinkDir\npm-cli.js.bundled") {
+        $_gitCliJs = "D:/dev/npm-src/bin/npm-cli.js"
+        @"
+// Redirector — points to git npm at D:\dev\npm-src
+// Restore-NpmBundled to revert to bundled version
+require('$_gitCliJs');
+"@ | Set-Content "$_npmLinkDir\npm-cli.js" -Encoding UTF8
+    }
+}
+
+# ── Helper: Windows balloon/toast notification ────────────────────────
+function Show-VSCodeNotification {
+    param([string]$Title, [string]$Message, [string]$Icon = "Info")
+    Add-Type -AssemblyName System.Windows.Forms
+    $notify = New-Object System.Windows.Forms.NotifyIcon
+    $notify.Icon = [System.Drawing.SystemIcons]::$Icon
+    $notify.BalloonTipTitle = $Title
+    $notify.BalloonTipText  = $Message
+    $notify.Visible = $true
+    $notify.ShowBalloonTip(5000)
+    Start-Sleep -Milliseconds 500
+    $notify.Dispose()
+}
+
+#======================================================
+# Update-VSCodeInsiders: Update VS Code Insiders from
+# official zip (portable) release
+# Source: https://update.code.visualstudio.com
+# Output: D:\Programs\vscode (overwrites in place)
+#======================================================
+
+function Show-VSCodeNotification {
+    param(
+        [Parameter(Mandatory)][string]$Title,
+        [Parameter(Mandatory)][string]$Message,
+        [ValidateSet("Info", "Warning", "Error")][string]$Level = "Info",
+        [int]$HoldSeconds = 7
+    )
+
+    try {
+        [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
+        [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null
+
+        $escapedTitle = [System.Security.SecurityElement]::Escape($Title)
+        $escapedMsg   = [System.Security.SecurityElement]::Escape($Message)
+        $xml = @"
+<toast>
+  <visual>
+    <binding template="ToastGeneric">
+      <text>$escapedTitle</text>
+      <text>$escapedMsg</text>
+    </binding>
+  </visual>
+</toast>
+"@
+        $doc = New-Object Windows.Data.Xml.Dom.XmlDocument
+        $doc.LoadXml($xml)
+        $toast    = [Windows.UI.Notifications.ToastNotification]::new($doc)
+        $notifier = [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier('pwsh.exe')
+        $notifier.Show($toast)
+        Start-Sleep -Seconds 2
+        return
+    }
+    catch {
+        # Fallback to WinForms balloon tip if WinRT toast is unavailable
+    }
+
+    Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+    $iconType = switch ($Level) {
+        "Warning" { [System.Windows.Forms.ToolTipIcon]::Warning }
+        "Error"   { [System.Windows.Forms.ToolTipIcon]::Error }
+        default   { [System.Windows.Forms.ToolTipIcon]::Info }
+    }
+    $sysIcon = switch ($Level) {
+        "Warning" { [System.Drawing.SystemIcons]::Warning }
+        "Error"   { [System.Drawing.SystemIcons]::Error }
+        default   { [System.Drawing.SystemIcons]::Information }
+    }
+
+    $notify = New-Object System.Windows.Forms.NotifyIcon
+    $notify.Icon            = $sysIcon
+    $notify.BalloonTipTitle = $Title
+    $notify.BalloonTipText  = $Message
+    $notify.BalloonTipIcon  = $iconType
+    $notify.Visible         = $true
+    $notify.ShowBalloonTip($HoldSeconds * 1000)
+    Start-Sleep -Seconds $HoldSeconds
+    $notify.Visible = $false
+    $notify.Dispose()
+}
+
+function Update-VSCodeInsiders {
+    [CmdletBinding()]
+    param(
+        [string]$InstallRoot = $(if ($script:vsCodeRoot) { $script:vsCodeRoot } elseif ($env:VSCODE_ROOT) { $env:VSCODE_ROOT } else { "D:\Programs\vscode" }),
+        [string]$CustomRipgrepPath = "D:\Programs\cargo\bin\rg.exe"
+    )
+
+    $zipPath     = Join-Path $env:TEMP "vscode-insiders.zip"
+    $tempExtract = Join-Path $env:TEMP "vscode_extract"
+    $dataDir     = Join-Path $InstallRoot "data"
+    $dataDirTemp = Join-Path $env:TEMP "vscode_data_backup"
+    $scriptPath  = Join-Path $env:TEMP "vscode-install-step.ps1"
+    $logFile     = Join-Path $env:TEMP "vscode-update.log"
+    $codeExe     = Join-Path $InstallRoot "bin\code-insiders.cmd"
+
+    # ── 1. Current version ──────────────────────────────────────────────
+    $currentVer = ""
+    if (Test-Path $codeExe) {
+        $verLines = & $codeExe --version 2>&1
+        if ($verLines.Count -ge 2) {
+            $currentVer = ($verLines | Select-Object -Index 1).ToString().Trim()
+        }
+    }
+    Write-Host "  Current: $(if ($currentVer) { $currentVer } else { 'not installed' })" -ForegroundColor DarkGray
+
+    # ── 2. Resolve latest build via update API ──────────────────────────
+    Write-Host "==> Resolving latest build..." -ForegroundColor Cyan
+    $apiUrl = "https://update.code.visualstudio.com/api/update/win32-x64-archive/insider/latest"
+    try {
+        $buildInfo = Invoke-RestMethod -Uri $apiUrl -Method Get -ErrorAction Stop
+    }
+    catch {
+        Write-Host "✗ Failed to query VS Code update API: $_" -ForegroundColor Red
+        Show-VSCodeNotification -Title "VS Code Update FAILED" -Message "Could not reach update API." -Level "Error"
+        return
+    }
+
+    $zipUrl = $buildInfo.url
+    Write-Host "  Latest: $($buildInfo.name)  ($($buildInfo.version))" -ForegroundColor DarkGray
+
+    if ($currentVer -and ($currentVer -eq $buildInfo.version)) {
+        Write-Host "✓ Already up to date ($currentVer)" -ForegroundColor Green
+        return
+    }
+
+    # ── 3. Download with aria2c ─────────────────────────────────────────
+    Write-Host "==> Downloading VS Code Insiders (zip)..." -ForegroundColor Cyan
+    Remove-Item -Path $zipPath -Force -ErrorAction SilentlyContinue
+
+    & aria2c $zipUrl `
+        --out="vscode-insiders.zip" `
+        --dir="$env:TEMP" `
+        --max-connection-per-server=16 `
+        --split=16 `
+        --min-split-size=5M `
+        --console-log-level=notice
+
+    if ($LASTEXITCODE -ne 0 -or -not (Test-Path $zipPath)) {
+        Write-Host "✗ aria2c failed (exit $LASTEXITCODE)" -ForegroundColor Red
+        Show-VSCodeNotification -Title "VS Code Update FAILED" -Message "aria2c download failed (exit $LASTEXITCODE)." -Level "Error"
+        return
+    }
+
+    $sizeMb = [math]::Round(((Get-Item $zipPath).Length / 1MB), 1)
+    Write-Host "  ✓ Download complete: $sizeMb MB" -ForegroundColor DarkGray
+
+    # ── 4. Verify SHA256 ────────────────────────────────────────────────
+    $actualHash   = (Get-FileHash -Path $zipPath -Algorithm SHA256).Hash.ToLower()
+    $expectedHash = $buildInfo.sha256hash.ToLower()
+    if ($actualHash -ne $expectedHash) {
+        Write-Host "✗ SHA256 mismatch — download corrupted, aborting" -ForegroundColor Red
+        Remove-Item -Path $zipPath -Force -ErrorAction SilentlyContinue
+        Show-VSCodeNotification -Title "VS Code Update FAILED" -Message "SHA256 checksum mismatch." -Level "Error"
+        return
+    }
+    Write-Host "  ✓ SHA256 verified" -ForegroundColor DarkGray
+
+    # ── 5. Extract archive ──────────────────────────────────────────────
+    Write-Host "==> Extracting..." -ForegroundColor Cyan
+    Remove-Item -Path $tempExtract -Recurse -Force -ErrorAction SilentlyContinue
+    Expand-Archive -Path $zipPath -DestinationPath $tempExtract -Force
+    Write-Host "  ✓ Extracted" -ForegroundColor DarkGray
+
+    # ── 6. Backup portable data folder contents ────────────────────────
+    Remove-Item -Path $dataDirTemp -Recurse -Force -ErrorAction SilentlyContinue
+    if (Test-Path $dataDir) {
+        Write-Host "  Preserving portable data folder..." -ForegroundColor DarkGray
+        New-Item -ItemType Directory -Path $dataDirTemp -Force | Out-Null
+        Copy-Item -Path "$dataDir\*" -Destination $dataDirTemp -Recurse -Force
+    }
+# ── 7. Write worker script (direct file logging, no Start-Transcript) ─
+    $cleanInstallRoot = $InstallRoot.TrimEnd('\')
+    $cleanCustomRg    = if ($CustomRipgrepPath) { $CustomRipgrepPath.TrimEnd('\') } else { "" }
+
+    $installScript = @'
+param(
+    [Parameter(Mandatory)][string]$InstallDir,
+    [Parameter(Mandatory)][string]$TempExtract,
+    [Parameter(Mandatory)][string]$ZipPath,
+    [Parameter(Mandatory)][string]$DataDir,
+    [Parameter(Mandatory)][string]$DataDirTemp,
+    [Parameter(Mandatory)][string]$LogFile,
+    [string]$CustomRg = ""
+)
+
+function Write-Log {
+    param([string]$Text)
+    $line = "[{0}] {1}" -f (Get-Date -Format "yyyy-MM-dd HH:mm:ss"), $Text
+    Add-Content -Path $LogFile -Value $line -Encoding UTF8 -ErrorAction SilentlyContinue
+}
+
+function Notify-Done {
+    param(
+        [string]$Title,
+        [string]$Message,
+        [string]$Level = 'Info'
+    )
+    try {
+        [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
+        [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null
+
+        $escTitle = [System.Security.SecurityElement]::Escape($Title)
+        $escMsg   = [System.Security.SecurityElement]::Escape($Message)
+        $xml = @"
+<toast>
+  <visual>
+    <binding template="ToastGeneric">
+      <text>$escTitle</text>
+      <text>$escMsg</text>
+    </binding>
+  </visual>
+</toast>
+"@
+        $doc = New-Object Windows.Data.Xml.Dom.XmlDocument
+        $doc.LoadXml($xml)
+        $toast    = [Windows.UI.Notifications.ToastNotification]::new($doc)
+        $notifier = [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier('Microsoft.WindowsTerminal_8wekyb3d8bbwe!App')
+        $notifier.Show($toast)
+    }
+    catch {}
+
+    Add-Type -AssemblyName System.Windows.Forms
+    $icon = switch ($Level) {
+        'Warning' { [System.Windows.Forms.MessageBoxIcon]::Warning }
+        'Error'   { [System.Windows.Forms.MessageBoxIcon]::Error }
+        default   { [System.Windows.Forms.MessageBoxIcon]::Information }
+    }
+    [void][System.Windows.Forms.MessageBox]::Show($Message, $Title, [System.Windows.Forms.MessageBoxButtons]::OK, $icon)
+}
+
+Write-Log "Worker started. PID=$PID InstallDir='$InstallDir'"
+
+try {
+    $deadline = (Get-Date).AddSeconds(25)
+    $forceAt  = (Get-Date).AddSeconds(3)
+    while ((Get-Date) -lt $deadline) {
+        $procs = Get-Process | Where-Object { $_.Path -and ($_.Path -like "$InstallDir*") }
+        if (-not $procs) { break }
+        Write-Log "Waiting for $($procs.Count) VS Code process(es) under '$InstallDir'..."
+        if ((Get-Date) -ge $forceAt) {
+            Write-Log "Forcing exit of remaining VS Code process(es)..."
+            $procs | Stop-Process -Force -ErrorAction SilentlyContinue
+        }
+        Start-Sleep -Milliseconds 400
+    }
+    Write-Log "All VS Code processes under '$InstallDir' exited."
+
+    $extractedRoot = $TempExtract
+    $subDirs = Get-ChildItem -Path $extractedRoot -Directory
+    if ($subDirs.Count -eq 1 -and -not (Test-Path (Join-Path $extractedRoot 'Code - Insiders.exe'))) {
+        $extractedRoot = $subDirs[0].FullName
+    }
+    Write-Log "Copying from '$extractedRoot' to '$InstallDir'..."
+    Copy-Item -Path "$extractedRoot\*" -Destination $InstallDir -Recurse -Force -ErrorAction Stop
+    Write-Log "Core files copied."
+
+    if (Test-Path "$DataDirTemp\*") {
+        Write-Log "Restoring portable data folder to '$DataDir'..."
+        New-Item -ItemType Directory -Path $DataDir -Force | Out-Null
+        Copy-Item -Path "$DataDirTemp\*" -Destination $DataDir -Recurse -Force -ErrorAction Stop
+        Write-Log "Portable data restored."
+    }
+
+    if ($CustomRg -and (Test-Path $CustomRg)) {
+        $vsRg = Join-Path $InstallDir 'resources\app\node_modules\@vscode\ripgrep\bin\rg.exe'
+        Write-Log "Copying custom rg.exe to '$vsRg'..."
+        New-Item -ItemType Directory -Path (Split-Path $vsRg) -Force | Out-Null
+        Copy-Item -Path $CustomRg -Destination $vsRg -Force -ErrorAction Stop
+        Write-Log "Custom rg.exe copied."
+    }
+
+    Remove-Item -Path $ZipPath     -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item -Path $TempExtract -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item -Path $DataDirTemp -Recurse -Force -ErrorAction SilentlyContinue
+    Write-Log "Cleanup complete. Update succeeded."
+
+    Notify-Done -Title 'VS Code Insiders Updated' -Message "Updated $InstallDir. Safe to open VS Code." -Level 'Info'
+}
+catch {
+    Write-Log "ERROR: $($_.Exception.ToString())"
+    Notify-Done -Title 'VS Code Update FAILED' -Message "Check $LogFile`n$($_.Exception.Message)" -Level 'Error'
+}
+'@
+
+    $installScript | Set-Content -Path $scriptPath -Encoding UTF8
+
+# ── 8. Launch detached via Win32_Process with SW_HIDE (0) ─────────
+    $pwshExe = (Get-Command pwsh.exe -ErrorAction Stop).Source
+    $cmdLine = "`"$pwshExe`" -NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`" " +
+               "-InstallDir `"$cleanInstallRoot`" " +
+               "-TempExtract `"$tempExtract`" " +
+               "-ZipPath `"$zipPath`" " +
+               "-DataDir `"$dataDir`" " +
+               "-DataDirTemp `"$dataDirTemp`" " +
+               "-LogFile `"$logFile`" " +
+               "-CustomRg `"$cleanCustomRg`""
+
+    $startupInfo = New-CimInstance -ClassName Win32_ProcessStartup -ClientOnly -Property @{
+        ShowWindow = [uint16]0
+    }
+
+    $procResult = Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{
+        CommandLine                = $cmdLine
+        CurrentDirectory           = $env:TEMP
+        ProcessStartupInformation  = $startupInfo
+    }
+    
+    Write-Host "  Win32_Process ReturnValue=$($procResult.ReturnValue), PID=$($procResult.ProcessId)" -ForegroundColor DarkGray
+    if ($procResult.ReturnValue -ne 0) {
+        Write-Host "✗ Failed to spawn detached updater (ReturnValue=$($procResult.ReturnValue))" -ForegroundColor Red
+        return
+    }
+
+    Write-Host "✓ Detached updater started — closing VS Code now..." -ForegroundColor Green
+    Start-Sleep -Milliseconds 600
+    Get-Process | Where-Object {
+        $_.Path -and ($_.Path -like "$cleanInstallRoot*")
+    } | Stop-Process -Force -ErrorAction SilentlyContinue
+}
+
+Set-Alias -Name update-vscode -Value Update-VSCodeInsiders
+
 # =====================================================
 # Clean environment snapshot — taken AFTER all profile
 # setup is complete (PATH, env vars, meson, everything)
@@ -3833,16 +4321,27 @@ function Reset-Toolchain {
 
 Set-Alias -Name use-none -Value Reset-Toolchain
 
-# Battery Limiter — run once per VS Code session only
+# Battery Limiter — detached, survives terminal restarts, no duplicates
 if ($env:TERM_PROGRAM -eq 'vscode') {
-    $vscodeProc = Get-Process "Code - Insiders" -ErrorAction SilentlyContinue |
-                  Sort-Object StartTime | Select-Object -First 1
-    $sessionKey = if ($vscodeProc) { $vscodeProc.StartTime.Ticks } else { Get-Date -Format 'yyyyMMdd' }
-    $flagFile   = "$env:TEMP\vscode_battery_$sessionKey.flag"
-    if (-not (Test-Path $flagFile)) {
-        New-Item $flagFile -Force | Out-Null
-        & 'D:\battery-limiter-new.ps1'
+    $alreadyRunning = Get-CimInstance Win32_Process -Filter "Name='pwsh.exe'" |
+                      Where-Object { $_.CommandLine -like '*battery-limiter-new.ps1*' }
+    if (-not $alreadyRunning) {
+        Start-Process -FilePath "D:\Programs\Powershell\pwsh.exe" `
+                      -ArgumentList "-NoProfile", "-WindowStyle", "Hidden", "-File", "D:\battery-limiter-new.ps1" `
+                      -WindowStyle Hidden
     }
+}
+
+# Shell integration — dynamically finds correct script after every VS Code update
+if ($env:TERM_PROGRAM -eq 'vscode') {
+    $si = Get-ChildItem "$vsCodeRoot" -Recurse -Filter "shellIntegration.ps1" `
+          -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
+    if ($si) { . $si }
+}
+
+# Default working directory
+if ($env:TERM_PROGRAM -eq 'vscode') {
+    Set-Location D:\dev
 }
 
 # =====================================================

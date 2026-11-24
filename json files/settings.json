@@ -1,4 +1,3 @@
-// Path: C:\Users\juhi\AppData\Roaming\Code - Insiders\User
 {
     "security.workspace.trust.untrustedFiles": "open",
     "python.defaultInterpreterPath": "d:\\Programs\\Python\\python.exe",
@@ -6,6 +5,7 @@
     "extensions.ignoreRecommendations": true,
     "terminal.integrated.persistentSessionReviveProcess": "never",
     "terminal.integrated.enablePersistentSessions": false,
+    "terminal.integrated.environmentChangesRelaunch": false,
     "terminal.integrated.defaultProfile.windows": "My PowerShell",
     "terminal.integrated.profiles.windows": {
         "PowerShell": {
@@ -27,7 +27,8 @@
         "My PowerShell": {
             "path": "D:\\Programs\\Powershell\\pwsh.exe",
             "args": [],
-            "icon": "terminal-powershell"
+            "icon": "terminal-powershell",
+            "startingDirectory": "D:\\dev"
         }
     },
     "powershell.integratedConsole.showOnStartup": false,
